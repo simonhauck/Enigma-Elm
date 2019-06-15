@@ -44,6 +44,10 @@ getAllRotors =
         ]
 
 
+{-| Substitute a character with a rotor.
+To correct the input character the previous rotor is required as well as the signal direction.
+The signal can go to the reflector or from the reflector.
+-}
 substituteCharacter : Char -> Rotor -> Rotor -> SignalDirection -> Maybe Char
 substituteCharacter inputChar currentRotor previousRotor signalDirection =
     case signalDirection of
@@ -66,6 +70,8 @@ substituteCharacterToReflector inputChar currentRotor previousRotor =
             Nothing
 
 
+{-| Substitute a character in direction from the reflector with the current and previous rotor
+-}
 substituteCharacterFromReflector : Char -> Rotor -> Rotor -> Maybe Char
 substituteCharacterFromReflector inputChar currentRotor previousRotor =
     let
