@@ -31,6 +31,9 @@ debugEnigma =
     { rotors = rotorList, reflector = Enigma.Reflector.reflectorB }
 
 
+{-| Rotate the rotors of the enigma and perform the substitution.
+If the given Character is not in the alphabet, the result will be nothing and the rotors will not be rotated
+-}
 performRotationAndSubstitution : Enigma -> Char -> ( Enigma, Maybe Char )
 performRotationAndSubstitution enigma input =
     if Utils.AlphabetHelper.isLetterInAlphabet input then
@@ -47,6 +50,9 @@ performRotationAndSubstitution enigma input =
         ( enigma, Nothing )
 
 
+{-| Perform the substitution for the given list of Characters.
+For every Character the rotors will be rotated and the substitution performed
+-}
 performRotationsAndSubstitutions : Enigma -> List Char -> ( Enigma, List (Maybe Char) )
 performRotationsAndSubstitutions inputEnigma inputChars =
     let
