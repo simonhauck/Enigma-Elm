@@ -13,7 +13,8 @@ turningPoints - indices where the next rotor must be turned
 characterSequence - the character sequence of the rotor
 -}
 type alias Rotor =
-    { startPosition : Int
+    { name : String
+    , startPosition : Int
     , ringPosition : Int
     , currentPosition : Int
     , turningPoints : List Int
@@ -33,14 +34,14 @@ The value is the rotor with the defined fields
 getAllRotors : Dict String Rotor
 getAllRotors =
     Dict.fromList
-        [ ( "Rotor I", rotor1 )
-        , ( "Rotor II", rotor2 )
-        , ( "Rotor III", rotor3 )
-        , ( "Rotor IV", rotor4 )
-        , ( "Rotor V", rotor5 )
-        , ( "Rotor VI", rotor6 )
-        , ( "Rotor VII", rotor7 )
-        , ( "Rotor VIII", rotor8 )
+        [ ( rotor1.name, rotor1 )
+        , ( rotor2.name, rotor2 )
+        , ( rotor3.name, rotor3 )
+        , ( rotor4.name, rotor4 )
+        , ( rotor5.name, rotor5 )
+        , ( rotor6.name, rotor6 )
+        , ( rotor7.name, rotor7 )
+        , ( rotor8.name, rotor8 )
         ]
 
 
@@ -100,7 +101,8 @@ rotateRotor rotor =
 
 
 staticRotor =
-    { startPosition = 0
+    { name = "staticRotor"
+    , startPosition = 0
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = []
@@ -109,7 +111,8 @@ staticRotor =
 
 
 rotor1 =
-    { startPosition = 0
+    { name = "Rotor I"
+    , startPosition = 0
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 16 ]
@@ -118,7 +121,8 @@ rotor1 =
 
 
 rotor2 =
-    { startPosition = 0
+    { name = "Rotor II"
+    , startPosition = 0
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 4 ]
@@ -127,7 +131,8 @@ rotor2 =
 
 
 rotor3 =
-    { startPosition = 0
+    { name = "Rotor III"
+    , startPosition = 0
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 21 ]
@@ -136,7 +141,8 @@ rotor3 =
 
 
 rotor4 =
-    { startPosition = 0
+    { name = "Rotor IV"
+    , startPosition = 0
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 9 ]
@@ -145,7 +151,8 @@ rotor4 =
 
 
 rotor5 =
-    { startPosition = 0
+    { name = "Rotor V"
+    , startPosition = 0
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 25 ]
@@ -154,7 +161,8 @@ rotor5 =
 
 
 rotor6 =
-    { startPosition = 0
+    { name = "Rotor VI"
+    , startPosition = 0
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 25, 12 ]
@@ -163,7 +171,8 @@ rotor6 =
 
 
 rotor7 =
-    { startPosition = 0
+    { name = "Rotor VII"
+    , startPosition = 0
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 25, 12 ]
@@ -172,7 +181,8 @@ rotor7 =
 
 
 rotor8 =
-    { startPosition = 0
+    { name = "Rotor VIII"
+    , startPosition = 0
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 25, 12 ]

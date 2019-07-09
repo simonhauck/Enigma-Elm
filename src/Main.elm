@@ -1,16 +1,36 @@
 module Main exposing (main)
 
 import Browser
+import Dict
 import Enigma.EnigmaMachine exposing (Enigma)
+import Enigma.Rotor exposing (Rotor)
 import Html exposing (Html)
+import Html.Attributes
+import Html.Events
+import Json.Decode
 
 
 type Msg
     = SubstituteChar Char
+    | SetRotor Int (Maybe Rotor)
+
+
+{-| Hold the string values for the raw and processed input and the out value
+-}
+type alias MessageHolder =
+    { rawInput : String, prcessedInput : String, processedOutput : String }
+
+
+type Mode
+    = Configuration
+    | Encryption
 
 
 type alias Model =
-    { enigma : Enigma, rawInput : String, processedInput : String, processedOutput : String }
+    { enigma : Enigma
+    , messageHolder : MessageHolder
+    , mode : Mode
+    }
 
 
 
@@ -21,7 +41,79 @@ type alias Model =
 
 view : Model -> Html Msg
 view model =
-    Html.div [] [ Html.text model.rawInput ]
+    Html.div
+        []
+        [ Html.table
+            [ Html.Attributes.style "width" "100%" ]
+            [ Html.td
+                [ Html.Attributes.colspan 1 ]
+                [ Html.div [] [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Configuration" ] ]
+                , configurationView model
+                ]
+            , Html.td
+                [ Html.Attributes.colspan 1 ]
+                [ Html.div [] [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Preview" ] ]
+                , enigmaPreview model
+                ]
+            ]
+        ]
+
+
+configurationView : Model -> Html Msg
+configurationView model =
+    Html.div
+        []
+        [ Html.h3 [] [ Html.text "Select rotor type" ]
+        , selectRotorView model
+        ]
+
+
+selectRotorView : Model -> Html Msg
+selectRotorView model =
+    let
+        currentRotors =
+            model.enigma.rotors
+    in
+    Html.table
+        []
+        [ Html.tr [] (List.indexedMap (\index _ -> Html.td [] [ Html.text ("Rotor " ++ String.fromInt (index + 1)) ]) currentRotors)
+        , Html.tr [] (List.indexedMap displayRotorSelectionInTable currentRotors)
+        ]
+
+
+displayRotorSelectionInTable : Int -> Rotor -> Html Msg
+displayRotorSelectionInTable index rotor =
+    Html.td []
+        [ Html.select
+            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotor 0 (Dict.get val Enigma.Rotor.getAllRotors)) Json.Decode.string) ]
+            (List.map
+                (\currentRotor ->
+                    Html.option
+                        [ Html.Attributes.value currentRotor.name
+                        , Html.Attributes.selected (currentRotor.name == rotor.name)
+                        ]
+                        [ Html.text currentRotor.name
+                        ]
+                )
+                (Dict.values Enigma.Rotor.getAllRotors)
+            )
+        ]
+
+
+
+--    Html.select
+--        []
+--        (List.map (\rotor -> Html.option [ Html.Attributes.value rotor.name, Html.Attributes.selected True ] [ Html.text rotor.name ]) (Dict.values Enigma.Rotor.getAllRotors))
+
+
+enigmaPreview : Model -> Html Msg
+enigmaPreview model =
+    case model.mode of
+        Configuration ->
+            Html.text "ConfigurationMode"
+
+        Encryption ->
+            Html.text "Encryption Mode"
 
 
 
@@ -38,16 +130,10 @@ initialModel =
         enigma =
             Enigma.EnigmaMachine.debugEnigma
 
-        rawInput =
-            "Hello world"
-
-        processedINput =
-            ""
-
-        processedOutput =
-            ""
+        messageHolder =
+            { rawInput = "Hello world", prcessedInput = "", processedOutput = "" }
     in
-    { enigma = enigma, rawInput = rawInput, processedInput = processedINput, processedOutput = processedOutput }
+    { enigma = enigma, messageHolder = messageHolder, mode = Configuration }
 
 
 {-| Return the subscriptions for the given model
@@ -61,8 +147,11 @@ subscriptions model =
 -}
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        SubstituteChar inputChar ->
+    case Debug.log "msg" msg of
+        SetRotor index rotor ->
+            ( { model | mode = Encryption }, Cmd.none )
+
+        _ ->
             ( model, Cmd.none )
 
 
