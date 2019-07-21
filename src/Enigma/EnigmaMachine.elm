@@ -1,8 +1,9 @@
-module Enigma.EnigmaMachine exposing (Enigma, debugEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, substituteCharacter)
+module Enigma.EnigmaMachine exposing (Enigma, debugEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, replaceRotor, substituteCharacter)
 
 import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor, rotor1, rotor2, rotor3, staticRotor)
 import List
+import List.Extra
 import Utils.AlphabetHelper
 import Utils.Helper
 
@@ -80,6 +81,32 @@ substituteCharacter inputChar enigma =
         |> Debug.log "Calling substituteCharacterToReflector" (substituteCharacterToReflector enigma)
         |> Debug.log "Calling substituteCharacterWithReflector" (substituteCharacterWithReflector enigma)
         |> Debug.log "Calling substituteCharacterFromReflector" (substituteCharacterFromReflector enigma)
+
+
+{-| Replace the rotor in the enigma at the given index with the given rotor. The position values will be
+copied to new new rotor
+-}
+replaceRotor : Enigma -> Int -> Rotor -> Enigma
+replaceRotor enigma rotorPosition newRotor =
+    let
+        newRotorList =
+            List.Extra.updateAt rotorPosition
+                (\oldRotor ->
+                    { newRotor
+                        | startPosition = oldRotor.startPosition
+                        , ringPosition = oldRotor.ringPosition
+                        , currentPosition = oldRotor.currentPosition
+                    }
+                )
+                enigma.rotors
+    in
+    { enigma | rotors = newRotorList }
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Exposed functions
+-- ---------------------------------------------------------------------------------------------------------------------
 
 
 {-| Replace the character with the rotors of the enigma in the direction to the reflector

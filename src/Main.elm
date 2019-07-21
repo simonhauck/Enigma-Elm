@@ -43,18 +43,15 @@ view : Model -> Html Msg
 view model =
     Html.div
         []
-        [ Html.table
-            [ Html.Attributes.style "width" "100%" ]
-            [ Html.td
-                [ Html.Attributes.colspan 1 ]
-                [ Html.div [] [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Configuration" ] ]
-                , configurationView model
-                ]
-            , Html.td
-                [ Html.Attributes.colspan 1 ]
-                [ Html.div [] [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Preview" ] ]
-                , enigmaPreview model
-                ]
+        [ Html.div
+            []
+            [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Configuration" ]
+            , configurationView model
+            ]
+        , Html.div
+            []
+            [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Preview" ]
+            , enigmaPreview model
             ]
         ]
 
@@ -85,7 +82,7 @@ displayRotorSelectionInTable : Int -> Rotor -> Html Msg
 displayRotorSelectionInTable index rotor =
     Html.td []
         [ Html.select
-            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotor 0 (Dict.get val Enigma.Rotor.getAllRotors)) Json.Decode.string) ]
+            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotor index (Dict.get val Enigma.Rotor.getAllRotors)) Html.Events.targetValue) ]
             (List.map
                 (\currentRotor ->
                     Html.option
@@ -98,12 +95,6 @@ displayRotorSelectionInTable index rotor =
                 (Dict.values Enigma.Rotor.getAllRotors)
             )
         ]
-
-
-
---    Html.select
---        []
---        (List.map (\rotor -> Html.option [ Html.Attributes.value rotor.name, Html.Attributes.selected True ] [ Html.text rotor.name ]) (Dict.values Enigma.Rotor.getAllRotors))
 
 
 enigmaPreview : Model -> Html Msg
@@ -147,9 +138,18 @@ subscriptions model =
 -}
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case Debug.log "msg" msg of
-        SetRotor index rotor ->
-            ( { model | mode = Encryption }, Cmd.none )
+    case msg of
+        SetRotor index maybeRotor ->
+            case maybeRotor of
+                Just rotor ->
+                    let
+                        newEnigma =
+                            Enigma.EnigmaMachine.replaceRotor model.enigma index rotor
+                    in
+                    ( Debug.log "SetRotorResult: " { model | enigma = newEnigma }, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
