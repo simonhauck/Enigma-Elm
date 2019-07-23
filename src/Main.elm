@@ -1,5 +1,6 @@
 module Main exposing (main)
 
+import Array
 import Browser
 import Dict
 import Enigma.EnigmaMachine exposing (Enigma)
@@ -8,11 +9,13 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Json.Decode
+import Utils.AlphabetHelper
 
 
 type Msg
     = SubstituteChar Char
     | SetRotor Int (Maybe Rotor)
+    | SetRotorPosition Int Int
 
 
 {-| Hold the string values for the raw and processed input and the out value
@@ -60,8 +63,16 @@ configurationView : Model -> Html Msg
 configurationView model =
     Html.div
         []
-        [ Html.h3 [] [ Html.text "Select rotor type" ]
-        , selectRotorView model
+        [ Html.div
+            []
+            [ Html.h3 [] [ Html.text "Select rotor type" ]
+            , selectRotorView model
+            ]
+        , Html.div
+            []
+            [ Html.h3 [] [ Html.text "Select rotor position" ]
+            , selectRotorPositionView model
+            ]
         ]
 
 
@@ -93,6 +104,38 @@ displayRotorSelectionInTable index rotor =
                         ]
                 )
                 (Dict.values Enigma.Rotor.getAllRotors)
+            )
+        ]
+
+
+selectRotorPositionView : Model -> Html Msg
+selectRotorPositionView model =
+    let
+        currentRotors =
+            model.enigma.rotors
+    in
+    Html.table
+        []
+        [ Html.tr [] (List.indexedMap (\index _ -> Html.td [] [ Html.text ("Rotor " ++ String.fromInt (index + 1)) ]) currentRotors)
+        , Html.tr [] (List.indexedMap displayRotorPositionSelectionInTable currentRotors)
+        ]
+
+
+displayRotorPositionSelectionInTable : Int -> Rotor -> Html Msg
+displayRotorPositionSelectionInTable index rotor =
+    Html.td []
+        [ Html.select
+            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotorPosition index (Maybe.withDefault 0 (String.toInt val))) Html.Events.targetValue) ]
+            (List.map
+                (\position ->
+                    Html.option
+                        [ Html.Attributes.value (String.fromInt position)
+                        , Html.Attributes.selected (rotor.startPosition == position)
+                        ]
+                        [ Html.text (String.fromChar (Maybe.withDefault '-' (Array.get position Utils.AlphabetHelper.alphabetSequence)))
+                        ]
+                )
+                (List.range 0 25)
             )
         ]
 
@@ -142,14 +185,13 @@ update msg model =
         SetRotor index maybeRotor ->
             case maybeRotor of
                 Just rotor ->
-                    let
-                        newEnigma =
-                            Enigma.EnigmaMachine.replaceRotor model.enigma index rotor
-                    in
-                    ( Debug.log "SetRotorResult: " { model | enigma = newEnigma }, Cmd.none )
+                    ( Debug.log "SetRotorResult: " { model | enigma = Enigma.EnigmaMachine.replaceRotor model.enigma index rotor }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
+
+        SetRotorPosition rotorIndex newStartPosition ->
+            ( { model | enigma = Debug.log "SetRotorPosition" (Enigma.EnigmaMachine.setStartPositionInRotor model.enigma rotorIndex newStartPosition) }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
