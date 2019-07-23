@@ -16,6 +16,7 @@ type Msg
     = SubstituteChar Char
     | SetRotor Int (Maybe Rotor)
     | SetRotorPosition Int Int
+    | ToggleMode
 
 
 {-| Hold the string values for the raw and processed input and the out value
@@ -50,6 +51,7 @@ view model =
             []
             [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Configuration" ]
             , configurationView model
+            , toggleModeButton model
             ]
         , Html.div
             []
@@ -85,15 +87,17 @@ selectRotorView model =
     Html.table
         []
         [ Html.tr [] (List.indexedMap (\index _ -> Html.td [] [ Html.text ("Rotor " ++ String.fromInt (index + 1)) ]) currentRotors)
-        , Html.tr [] (List.indexedMap displayRotorSelectionInTable currentRotors)
+        , Html.tr [] (List.indexedMap (displayRotorSelectionInTable model) currentRotors)
         ]
 
 
-displayRotorSelectionInTable : Int -> Rotor -> Html Msg
-displayRotorSelectionInTable index rotor =
+displayRotorSelectionInTable : Model -> Int -> Rotor -> Html Msg
+displayRotorSelectionInTable model index rotor =
     Html.td []
         [ Html.select
-            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotor index (Dict.get val Enigma.Rotor.getAllRotors)) Html.Events.targetValue) ]
+            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotor index (Dict.get val Enigma.Rotor.getAllRotors)) Html.Events.targetValue)
+            , enableAttributeWhenInConfiguration model
+            ]
             (List.map
                 (\currentRotor ->
                     Html.option
@@ -117,15 +121,17 @@ selectRotorPositionView model =
     Html.table
         []
         [ Html.tr [] (List.indexedMap (\index _ -> Html.td [] [ Html.text ("Rotor " ++ String.fromInt (index + 1)) ]) currentRotors)
-        , Html.tr [] (List.indexedMap displayRotorPositionSelectionInTable currentRotors)
+        , Html.tr [] (List.indexedMap (displayRotorPositionSelectionInTable model) currentRotors)
         ]
 
 
-displayRotorPositionSelectionInTable : Int -> Rotor -> Html Msg
-displayRotorPositionSelectionInTable index rotor =
+displayRotorPositionSelectionInTable : Model -> Int -> Rotor -> Html Msg
+displayRotorPositionSelectionInTable model index rotor =
     Html.td []
         [ Html.select
-            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotorPosition index (Maybe.withDefault 0 (String.toInt val))) Html.Events.targetValue) ]
+            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotorPosition index (Maybe.withDefault 0 (String.toInt val))) Html.Events.targetValue)
+            , enableAttributeWhenInConfiguration model
+            ]
             (List.map
                 (\position ->
                     Html.option
@@ -138,6 +144,31 @@ displayRotorPositionSelectionInTable index rotor =
                 (List.range 0 25)
             )
         ]
+
+
+toggleModeButton : Model -> Html Msg
+toggleModeButton model =
+    Html.div []
+        [ Html.button
+            [ Html.Events.onClick ToggleMode ]
+            [ case model.mode of
+                Encryption ->
+                    Html.text "Switch to Configuration Mode"
+
+                Configuration ->
+                    Html.text "Switch to Encryption Mode"
+            ]
+        ]
+
+
+enableAttributeWhenInConfiguration : Model -> Html.Attribute Msg
+enableAttributeWhenInConfiguration model =
+    case model.mode of
+        Encryption ->
+            Html.Attributes.disabled True
+
+        Configuration ->
+            Html.Attributes.disabled False
 
 
 enigmaPreview : Model -> Html Msg
@@ -192,6 +223,18 @@ update msg model =
 
         SetRotorPosition rotorIndex newStartPosition ->
             ( { model | enigma = Debug.log "SetRotorPosition" (Enigma.EnigmaMachine.setStartPositionInRotor model.enigma rotorIndex newStartPosition) }, Cmd.none )
+
+        ToggleMode ->
+            let
+                newMode =
+                    case model.mode of
+                        Encryption ->
+                            Configuration
+
+                        Configuration ->
+                            Encryption
+            in
+            ( { model | mode = newMode }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
