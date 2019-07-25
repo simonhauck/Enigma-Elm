@@ -32,6 +32,12 @@ debugEnigma =
     { rotors = rotorList, reflector = Enigma.Reflector.reflectorB }
 
 
+
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Exposed functions
+-- ---------------------------------------------------------------------------------------------------------------------
+
+
 {-| Rotate the rotors of the enigma and perform the substitution.
 If the given Character is not in the alphabet, the result will be nothing and the rotors will not be rotated
 -}
@@ -116,7 +122,7 @@ setStartPositionInRotor enigma rotorIndex newStartPosition =
 
 
 -- ---------------------------------------------------------------------------------------------------------------------
--- Exposed functions
+-- Internal functions
 -- ---------------------------------------------------------------------------------------------------------------------
 
 

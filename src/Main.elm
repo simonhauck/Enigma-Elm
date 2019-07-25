@@ -16,6 +16,7 @@ type Msg
     = SubstituteChar Char
     | SetRotor Int (Maybe Rotor)
     | SetRotorPosition Int Int
+    | SetRingPosition Int Int
     | ToggleMode
 
 
@@ -75,25 +76,27 @@ configurationView model =
             [ Html.h3 [] [ Html.text "Select rotor position" ]
             , selectRotorPositionView model
             ]
+        , Html.div
+            []
+            [ Html.h3 [] [ Html.text "Select ring position" ]
+            , selectRingPosition model
+            ]
         ]
 
 
 selectRotorView : Model -> Html Msg
 selectRotorView model =
-    let
-        currentRotors =
-            model.enigma.rotors
-    in
     Html.table
         []
-        [ Html.tr [] (List.indexedMap (\index _ -> Html.td [] [ Html.text ("Rotor " ++ String.fromInt (index + 1)) ]) currentRotors)
-        , Html.tr [] (List.indexedMap (displayRotorSelectionInTable model) currentRotors)
+        [ tableRowWithRotorNumbers model.enigma.rotors
+        , Html.tr [] (List.indexedMap (displayRotorSelectionInTable model) model.enigma.rotors)
         ]
 
 
 displayRotorSelectionInTable : Model -> Int -> Rotor -> Html Msg
 displayRotorSelectionInTable model index rotor =
-    Html.td []
+    Html.td
+        []
         [ Html.select
             [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotor index (Dict.get val Enigma.Rotor.getAllRotors)) Html.Events.targetValue)
             , enableAttributeWhenInConfiguration model
@@ -114,20 +117,17 @@ displayRotorSelectionInTable model index rotor =
 
 selectRotorPositionView : Model -> Html Msg
 selectRotorPositionView model =
-    let
-        currentRotors =
-            model.enigma.rotors
-    in
     Html.table
         []
-        [ Html.tr [] (List.indexedMap (\index _ -> Html.td [] [ Html.text ("Rotor " ++ String.fromInt (index + 1)) ]) currentRotors)
-        , Html.tr [] (List.indexedMap (displayRotorPositionSelectionInTable model) currentRotors)
+        [ tableRowWithRotorNumbers model.enigma.rotors
+        , Html.tr [] (List.indexedMap (displayRotorPositionSelectionInTable model) model.enigma.rotors)
         ]
 
 
 displayRotorPositionSelectionInTable : Model -> Int -> Rotor -> Html Msg
 displayRotorPositionSelectionInTable model index rotor =
-    Html.td []
+    Html.td
+        []
         [ Html.select
             [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotorPosition index (Maybe.withDefault 0 (String.toInt val))) Html.Events.targetValue)
             , enableAttributeWhenInConfiguration model
@@ -140,6 +140,36 @@ displayRotorPositionSelectionInTable model index rotor =
                         ]
                         [ Html.text (String.fromChar (Maybe.withDefault '-' (Array.get position Utils.AlphabetHelper.alphabetSequence)))
                         ]
+                )
+                (List.range 0 25)
+            )
+        ]
+
+
+selectRingPosition : Model -> Html Msg
+selectRingPosition model =
+    Html.table
+        []
+        [ tableRowWithRotorNumbers model.enigma.rotors
+        , Html.tr [] (List.indexedMap (displayRingPositionSelectionInTable model) model.enigma.rotors)
+        ]
+
+
+displayRingPositionSelectionInTable : Model -> Int -> Rotor -> Html Msg
+displayRingPositionSelectionInTable model index rotor =
+    Html.td
+        []
+        [ Html.select
+            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRingPosition index (Maybe.withDefault 0 (String.toInt val))) Html.Events.targetValue)
+            , enableAttributeWhenInConfiguration model
+            ]
+            (List.map
+                (\position ->
+                    Html.option
+                        [ Html.Attributes.selected (rotor.ringPosition == position)
+                        , Html.Attributes.value (String.fromInt position)
+                        ]
+                        [ Html.text (String.fromInt position) ]
                 )
                 (List.range 0 25)
             )
@@ -161,6 +191,15 @@ toggleModeButton model =
         ]
 
 
+{-| get a table row with the rotors
+-}
+tableRowWithRotorNumbers : List Rotor -> Html Msg
+tableRowWithRotorNumbers rotors =
+    Html.tr [] (List.indexedMap (\index _ -> Html.td [] [ Html.text ("Rotor " ++ String.fromInt (index + 1)) ]) rotors)
+
+
+{-| enable the element when the model is in configuration mode and disable the element when the model is in encryption mode
+-}
 enableAttributeWhenInConfiguration : Model -> Html.Attribute Msg
 enableAttributeWhenInConfiguration model =
     case model.mode of
@@ -223,6 +262,13 @@ update msg model =
 
         SetRotorPosition rotorIndex newStartPosition ->
             ( { model | enigma = Debug.log "SetRotorPosition" (Enigma.EnigmaMachine.setStartPositionInRotor model.enigma rotorIndex newStartPosition) }, Cmd.none )
+
+        SetRingPosition rotorIndex newRingPosition ->
+            let
+                test =
+                    Debug.log "SetRingPosition" msg
+            in
+            ( model, Cmd.none )
 
         ToggleMode ->
             let
