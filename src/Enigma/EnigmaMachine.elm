@@ -1,4 +1,4 @@
-module Enigma.EnigmaMachine exposing (Enigma, debugEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, replaceRotor, setStartPositionInRotor, substituteCharacter)
+module Enigma.EnigmaMachine exposing (Enigma, debugEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, replaceRotor, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
 
 import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor, rotor1, rotor2, rotor3, staticRotor)
@@ -18,13 +18,13 @@ debugEnigma : Enigma
 debugEnigma =
     let
         rotor3Test =
-            { rotor3 | currentPosition = 25, startPosition = 2 }
+            { rotor3 | currentPosition = 2, startPosition = 2, ringPosition = 1 }
 
         rotor2Test =
-            { rotor2 | currentPosition = 25, startPosition = 5 }
+            { rotor2 | currentPosition = 5, startPosition = 5, ringPosition = 2 }
 
         rotor1Test =
-            { rotor1 | currentPosition = 25, startPosition = 10 }
+            { rotor1 | currentPosition = 10, startPosition = 10, ringPosition = 0 }
 
         rotorList =
             [ rotor3Test, rotor2Test, rotor1Test ]
@@ -111,11 +111,22 @@ replaceRotor enigma rotorPosition newRotor =
 
 {-| Set the StartPosition of the rotor at the given rotorIndex to the given startPosition
 -}
-setStartPositionInRotor : Enigma -> Int -> Int -> Enigma
-setStartPositionInRotor enigma rotorIndex newStartPosition =
+setStartPositionOfRotor : Enigma -> Int -> Int -> Enigma
+setStartPositionOfRotor enigma rotorIndex newStartPosition =
     let
         newRotors =
             List.Extra.updateAt rotorIndex (\rotor -> { rotor | startPosition = newStartPosition }) enigma.rotors
+    in
+    { enigma | rotors = newRotors }
+
+
+{-| Set the RingPosition of the rotor at the given rotorIndex to the given new ring position
+-}
+setRingPositionOfRotor : Enigma -> Int -> Int -> Enigma
+setRingPositionOfRotor enigma rotorIndex newRingPosition =
+    let
+        newRotors =
+            List.Extra.updateAt rotorIndex (\rotor -> { rotor | ringPosition = newRingPosition }) enigma.rotors
     in
     { enigma | rotors = newRotors }
 

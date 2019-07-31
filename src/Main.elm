@@ -261,14 +261,10 @@ update msg model =
                     ( model, Cmd.none )
 
         SetRotorPosition rotorIndex newStartPosition ->
-            ( { model | enigma = Debug.log "SetRotorPosition" (Enigma.EnigmaMachine.setStartPositionInRotor model.enigma rotorIndex newStartPosition) }, Cmd.none )
+            ( { model | enigma = Debug.log "SetRotorPosition" (Enigma.EnigmaMachine.setStartPositionOfRotor model.enigma rotorIndex newStartPosition) }, Cmd.none )
 
         SetRingPosition rotorIndex newRingPosition ->
-            let
-                test =
-                    Debug.log "SetRingPosition" msg
-            in
-            ( model, Cmd.none )
+            ( { model | enigma = Debug.log "SetRingPosition" (Enigma.EnigmaMachine.setRingPositionOfRotor model.enigma rotorIndex newRingPosition) }, Cmd.none )
 
         ToggleMode ->
             let
