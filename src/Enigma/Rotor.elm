@@ -90,11 +90,14 @@ The second rotor is the previous rotor used to replace a char
 substituteCharacterFromReflector : Int -> Rotor -> Rotor -> Maybe Int
 substituteCharacterFromReflector index currentRotor previousRotor =
     let
-        differenceRotors =
+        rotorDifference =
             currentRotor.currentPosition - previousRotor.currentPosition
 
+        ringDifference =
+            previousRotor.ringPosition - currentRotor.ringPosition
+
         correctedIndex =
-            modBy 26 (index + differenceRotors)
+            modBy 26 (index + rotorDifference + ringDifference)
     in
     List.Extra.elemIndex correctedIndex currentRotor.characterSequence
 

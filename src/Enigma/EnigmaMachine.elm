@@ -18,13 +18,13 @@ debugEnigma : Enigma
 debugEnigma =
     let
         rotor3Test =
-            { rotor3 | currentPosition = 5, startPosition = 5, ringPosition = 1 }
+            { rotor3 | currentPosition = 20, startPosition = 5, ringPosition = 3 }
 
         rotor2Test =
-            { rotor2 | currentPosition = 0, startPosition = 5, ringPosition = 5 }
+            { rotor2 | currentPosition = 14, startPosition = 5, ringPosition = 2 }
 
         rotor1Test =
-            { rotor1 | currentPosition = 0, startPosition = 10, ringPosition = 0 }
+            { rotor1 | currentPosition = 13, startPosition = 10, ringPosition = 25 }
 
         rotorList =
             [ rotor3Test, rotor2Test, rotor1Test ]
