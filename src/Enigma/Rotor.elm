@@ -69,7 +69,17 @@ The second rotor is the previous rotor used to replace a char
 -}
 substituteCharacterToReflector : Int -> Rotor -> Rotor -> Maybe Int
 substituteCharacterToReflector index currentRotor previousRotor =
-    List.Extra.getAt (modBy 26 (index + currentRotor.currentPosition - previousRotor.currentPosition)) currentRotor.characterSequence
+    let
+        rotorDifference =
+            currentRotor.currentPosition - previousRotor.currentPosition
+
+        ringDifference =
+            previousRotor.ringPosition - currentRotor.ringPosition
+
+        calculatedIndex =
+            modBy 26 (index + rotorDifference + ringDifference)
+    in
+    List.Extra.getAt calculatedIndex currentRotor.characterSequence
 
 
 {-| Substitute a character in direction from the reflector with the current and previous rotor

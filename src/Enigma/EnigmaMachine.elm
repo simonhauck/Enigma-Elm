@@ -18,10 +18,10 @@ debugEnigma : Enigma
 debugEnigma =
     let
         rotor3Test =
-            { rotor3 | currentPosition = 0, startPosition = 2, ringPosition = 1 }
+            { rotor3 | currentPosition = 5, startPosition = 5, ringPosition = 1 }
 
         rotor2Test =
-            { rotor2 | currentPosition = 0, startPosition = 5, ringPosition = 2 }
+            { rotor2 | currentPosition = 0, startPosition = 5, ringPosition = 5 }
 
         rotor1Test =
             { rotor1 | currentPosition = 0, startPosition = 10, ringPosition = 0 }
