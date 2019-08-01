@@ -1,7 +1,7 @@
 module Enigma.Rotor exposing (Rotor, SignalDirection(..), getAllRotors, rotateRotor, rotor1, rotor2, rotor3, rotor4, rotor5, rotor6, rotor7, rotor8, staticRotor, substituteCharacter)
 
-import Array exposing (Array)
 import Dict exposing (Dict)
+import List.Extra
 import Utils.AlphabetHelper
 
 
@@ -10,7 +10,8 @@ startPosition - is the initial Position of the rotor
 ringPosition - is the rotation of the ring
 currentPosition - is the current position of the rotor
 turningPoints - indices where the next rotor must be turned
-characterSequence - the character sequence of the rotor
+characterSequence - the character sequence of the rotor. The characters are represented by integers. The value is the position
+of the character in the alphabet
 -}
 type alias Rotor =
     { name : String
@@ -18,7 +19,7 @@ type alias Rotor =
     , ringPosition : Int
     , currentPosition : Int
     , turningPoints : List Int
-    , characterSequence : Array Char
+    , characterSequence : List Int
     }
 
 
@@ -46,58 +47,53 @@ getAllRotors =
 
 
 {-| Substitute a character with a rotor.
-To correct the input character the previous rotor is required as well as the signal direction.
-The signal can go to the reflector or from the reflector.
+The SignalDirection indicates if the signal is in direction to the rotor or from the rotor
+The int value is the position of the character in the alphabet
+The first rotor is the current rotor used to replace the character
+The second rotor is the previous used rotor
 -}
-substituteCharacter : Char -> Rotor -> Rotor -> SignalDirection -> Maybe Char
-substituteCharacter inputChar currentRotor previousRotor signalDirection =
+substituteCharacter : SignalDirection -> Int -> Rotor -> Rotor -> Maybe Int
+substituteCharacter signalDirection =
     case signalDirection of
         ToReflector ->
-            substituteCharacterToReflector inputChar currentRotor previousRotor
+            substituteCharacterToReflector
 
         FromReflector ->
-            substituteCharacterFromReflector inputChar currentRotor previousRotor
+            substituteCharacterFromReflector
 
 
 {-| Substitute a character in direction to the reflector with the current and previous rotor
+The index is the position of the character in the alphabet
+The first rotor is the current rotor, which is used to replace the character
+The second rotor is the previous rotor used to replace a char
 -}
-substituteCharacterToReflector : Char -> Rotor -> Rotor -> Maybe Char
-substituteCharacterToReflector inputChar currentRotor previousRotor =
-    case Utils.AlphabetHelper.indexOfCharacterInSequence inputChar Utils.AlphabetHelper.alphabetSequence of
-        Just index ->
-            Array.get (modBy 26 (index + currentRotor.currentPosition - previousRotor.currentPosition)) currentRotor.characterSequence
-
-        Nothing ->
-            Nothing
+substituteCharacterToReflector : Int -> Rotor -> Rotor -> Maybe Int
+substituteCharacterToReflector index currentRotor previousRotor =
+    List.Extra.getAt (modBy 26 (index + currentRotor.currentPosition - previousRotor.currentPosition)) currentRotor.characterSequence
 
 
 {-| Substitute a character in direction from the reflector with the current and previous rotor
+The index is the position of the character in the alphabet
+The first rotor is the current rotor, which is used to replace the character
+The second rotor is the previous rotor used to replace a char
 -}
-substituteCharacterFromReflector : Char -> Rotor -> Rotor -> Maybe Char
-substituteCharacterFromReflector inputChar currentRotor previousRotor =
+substituteCharacterFromReflector : Int -> Rotor -> Rotor -> Maybe Int
+substituteCharacterFromReflector index currentRotor previousRotor =
     let
         differenceRotors =
             currentRotor.currentPosition - previousRotor.currentPosition
 
-        correctedInputCharResult =
-            Utils.AlphabetHelper.increaseAlphabetCharacter inputChar differenceRotors
+        correctedIndex =
+            modBy 26 (index + differenceRotors)
     in
-    case correctedInputCharResult of
-        Just correctedInput ->
-            case Utils.AlphabetHelper.indexOfCharacterInSequence correctedInput currentRotor.characterSequence of
-                Just index ->
-                    Array.get (modBy 26 index) Utils.AlphabetHelper.alphabetSequence
-
-                Nothing ->
-                    Nothing
-
-        Nothing ->
-            Nothing
+    List.Extra.elemIndex correctedIndex currentRotor.characterSequence
 
 
+{-| Rotate the rotor by one.
+-}
 rotateRotor : Rotor -> Rotor
 rotateRotor rotor =
-    { rotor | currentPosition = modBy (Array.length rotor.characterSequence) (rotor.currentPosition + 1) }
+    { rotor | currentPosition = modBy (List.length rotor.characterSequence) (rotor.currentPosition + 1) }
 
 
 staticRotor =
@@ -106,7 +102,7 @@ staticRotor =
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = []
-    , characterSequence = Utils.AlphabetHelper.alphabetSequence
+    , characterSequence = [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 ]
     }
 
 
@@ -116,7 +112,7 @@ rotor1 =
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 16 ]
-    , characterSequence = Array.fromList (String.toList "EKMFLGDQVZNTOWYHXUSPAIBRCJ")
+    , characterSequence = [ 4, 10, 12, 5, 11, 6, 3, 16, 21, 25, 13, 19, 14, 22, 24, 7, 23, 20, 18, 15, 0, 8, 1, 17, 2, 9 ]
     }
 
 
@@ -126,7 +122,7 @@ rotor2 =
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 4 ]
-    , characterSequence = Array.fromList (String.toList "AJDKSIRUXBLHWTMCQGZNPYFVOE")
+    , characterSequence = [ 0, 9, 3, 10, 18, 8, 17, 20, 23, 1, 11, 7, 22, 19, 12, 2, 16, 6, 25, 13, 15, 24, 5, 21, 14, 4 ]
     }
 
 
@@ -136,7 +132,7 @@ rotor3 =
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 21 ]
-    , characterSequence = Array.fromList (String.toList "BDFHJLCPRTXVZNYEIWGAKMUSQO")
+    , characterSequence = [ 1, 3, 5, 7, 9, 11, 2, 15, 17, 19, 23, 21, 25, 13, 24, 4, 8, 22, 6, 0, 10, 12, 20, 18, 16, 14 ]
     }
 
 
@@ -146,7 +142,7 @@ rotor4 =
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 9 ]
-    , characterSequence = Array.fromList (String.toList "ESOVPZJAYQUIRHXLNFTGKDCMWB")
+    , characterSequence = [ 4, 18, 14, 21, 15, 25, 9, 0, 24, 16, 20, 8, 17, 7, 23, 11, 13, 5, 19, 6, 10, 3, 2, 12, 22, 1 ]
     }
 
 
@@ -156,7 +152,7 @@ rotor5 =
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 25 ]
-    , characterSequence = Array.fromList (String.toList "VZBRGITYUPSDNHLXAWMJQOFECK")
+    , characterSequence = [ 21, 25, 1, 17, 6, 8, 19, 24, 20, 15, 18, 3, 13, 7, 11, 23, 0, 22, 12, 9, 16, 14, 5, 4, 2, 10 ]
     }
 
 
@@ -166,7 +162,7 @@ rotor6 =
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 25, 12 ]
-    , characterSequence = Array.fromList (String.toList "JPGVOUMFYQBENHZRDKASXLICTW")
+    , characterSequence = [ 9, 15, 6, 21, 14, 20, 12, 5, 24, 16, 1, 4, 13, 7, 25, 17, 3, 10, 0, 18, 23, 11, 8, 2, 19, 22 ]
     }
 
 
@@ -176,7 +172,7 @@ rotor7 =
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 25, 12 ]
-    , characterSequence = Array.fromList (String.toList "NZJHGRCXMYSWBOUFAIVLPEKQDT")
+    , characterSequence = [ 13, 25, 9, 7, 6, 17, 2, 23, 12, 24, 18, 22, 1, 14, 20, 5, 0, 8, 21, 11, 15, 4, 10, 16, 3, 19 ]
     }
 
 
@@ -186,5 +182,5 @@ rotor8 =
     , ringPosition = 0
     , currentPosition = 0
     , turningPoints = [ 25, 12 ]
-    , characterSequence = Array.fromList (String.toList "FKQHTLXOCBJSPDZRAMEWNIUYGV")
+    , characterSequence = [ 5, 10, 16, 7, 19, 11, 23, 14, 2, 1, 9, 18, 15, 3, 25, 17, 0, 12, 4, 22, 13, 8, 20, 24, 6, 21 ]
     }

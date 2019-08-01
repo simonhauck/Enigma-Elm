@@ -138,7 +138,7 @@ displayRotorPositionSelectionInTable model index rotor =
                         [ Html.Attributes.value (String.fromInt position)
                         , Html.Attributes.selected (rotor.startPosition == position)
                         ]
-                        [ Html.text (String.fromChar (Maybe.withDefault '-' (Array.get position Utils.AlphabetHelper.alphabetSequence)))
+                        [ Html.text (String.fromChar (Maybe.withDefault '-' (Utils.AlphabetHelper.characterIndexToCharacter (Just position))))
                         ]
                 )
                 (List.range 0 25)

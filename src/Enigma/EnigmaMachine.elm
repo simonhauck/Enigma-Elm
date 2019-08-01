@@ -18,13 +18,13 @@ debugEnigma : Enigma
 debugEnigma =
     let
         rotor3Test =
-            { rotor3 | currentPosition = 2, startPosition = 2, ringPosition = 1 }
+            { rotor3 | currentPosition = 0, startPosition = 2, ringPosition = 1 }
 
         rotor2Test =
-            { rotor2 | currentPosition = 5, startPosition = 5, ringPosition = 2 }
+            { rotor2 | currentPosition = 0, startPosition = 5, ringPosition = 2 }
 
         rotor1Test =
-            { rotor1 | currentPosition = 10, startPosition = 10, ringPosition = 0 }
+            { rotor1 | currentPosition = 0, startPosition = 10, ringPosition = 0 }
 
         rotorList =
             [ rotor3Test, rotor2Test, rotor1Test ]
@@ -83,10 +83,13 @@ The will character be replaced with the rotors to the reflector, then with the r
 -}
 substituteCharacter : Char -> Enigma -> Maybe Char
 substituteCharacter inputChar enigma =
-    Just inputChar
+    --    TODO remove log statements
+    inputChar
+        |> Debug.log "Convert char to index: " Utils.AlphabetHelper.characterToCharacterIndex
         |> Debug.log "Calling substituteCharacterToReflector" (substituteCharacterToReflector enigma)
         |> Debug.log "Calling substituteCharacterWithReflector" (substituteCharacterWithReflector enigma)
         |> Debug.log "Calling substituteCharacterFromReflector" (substituteCharacterFromReflector enigma)
+        |> Debug.log "Result of substitution: " Utils.AlphabetHelper.characterIndexToCharacter
 
 
 {-| Replace the rotor in the enigma at the given index with the given rotor. The position values will be
@@ -139,50 +142,52 @@ setRingPositionOfRotor enigma rotorIndex newRingPosition =
 
 {-| Replace the character with the rotors of the enigma in the direction to the reflector
 -}
-substituteCharacterToReflector : Enigma -> Maybe Char -> Maybe Char
-substituteCharacterToReflector enigma input =
+substituteCharacterToReflector : Enigma -> Maybe Int -> Maybe Int
+substituteCharacterToReflector enigma maybeInputIndex =
     Utils.Helper.foldl2
-        (\input2 currentRotor previousRotor ->
-            case input2 of
+        --    TODO Eta reduction
+        (\input currentRotor previousRotor ->
+            case input of
                 Nothing ->
                     Nothing
 
-                Just inputChar ->
-                    Debug.log "Result of CharSubstitution ToReflector: " (Enigma.Rotor.substituteCharacter (Debug.log "InputChar: " inputChar) currentRotor previousRotor Enigma.Rotor.ToReflector)
+                Just inputIndex ->
+                    Debug.log "Result of CharSubstitution ToReflector: " (Enigma.Rotor.substituteCharacter Enigma.Rotor.ToReflector (Debug.log "InputChar: " inputIndex) currentRotor previousRotor)
         )
-        input
+        maybeInputIndex
         enigma.rotors
         staticRotor
 
 
 {-| Replace the character with the rotors of the enigma in the direction from the reflector
 -}
-substituteCharacterFromReflector : Enigma -> Maybe Char -> Maybe Char
-substituteCharacterFromReflector enigma input =
+substituteCharacterFromReflector : Enigma -> Maybe Int -> Maybe Int
+substituteCharacterFromReflector enigma maybeInputIndex =
     Utils.Helper.foldr2
-        (\inputparam currentRotor previousRotor ->
-            case inputparam of
+        --    TODO Eta reduction
+        (\input currentRotor previousRotor ->
+            case input of
                 Nothing ->
                     Nothing
 
                 Just inputChar ->
-                    Debug.log "Result of CharSubstitution FromReflector" (Enigma.Rotor.substituteCharacter (Debug.log "InputChar" inputChar) currentRotor previousRotor Enigma.Rotor.FromReflector)
+                    Debug.log "Result of CharSubstitution FromReflector" (Enigma.Rotor.substituteCharacter Enigma.Rotor.FromReflector (Debug.log "InputChar" inputChar) currentRotor previousRotor)
         )
-        input
+        maybeInputIndex
         enigma.rotors
         staticRotor
 
 
 {-| Replace the character with the reflector of the enigma
 -}
-substituteCharacterWithReflector : Enigma -> Maybe Char -> Maybe Char
-substituteCharacterWithReflector enigma input =
-    case input of
+substituteCharacterWithReflector : Enigma -> Maybe Int -> Maybe Int
+substituteCharacterWithReflector enigma maybeInput =
+    case maybeInput of
         Nothing ->
             Nothing
 
         Just inputChar ->
-            Debug.log "Result of CharSubstitution Reflector" (Enigma.Reflector.subsituteCharacter (Debug.log "InputChar" inputChar) enigma.reflector)
+            Debug.log "Result of CharSubstitution Reflector" (Enigma.Reflector.substituteCharacter (Debug.log "InputChar" inputChar) enigma.reflector)
 
 
 {-| Rotate the rotors in the enigma.
