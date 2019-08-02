@@ -1,6 +1,5 @@
 module Main exposing (main)
 
-import Array
 import Browser
 import Dict
 import Enigma.EnigmaMachine exposing (Enigma)
@@ -9,21 +8,19 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Json.Decode
+import Regex
+import String
 import Utils.AlphabetHelper
+import Utils.MessageHolder exposing (MessageHolder)
 
 
 type Msg
     = SubstituteChar Char
+    | UpdateRawInput String
     | SetRotor Int (Maybe Rotor)
     | SetRotorPosition Int Int
     | SetRingPosition Int Int
     | ToggleMode
-
-
-{-| Hold the string values for the raw and processed input and the out value
--}
-type alias MessageHolder =
-    { rawInput : String, prcessedInput : String, processedOutput : String }
 
 
 type Mode
@@ -58,8 +55,15 @@ view model =
             []
             [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Preview" ]
             , enigmaPreview model
+            , encryptionView model
             ]
         ]
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Configuration View
+-- ---------------------------------------------------------------------------------------------------------------------
 
 
 configurationView : Model -> Html Msg
@@ -222,6 +226,56 @@ enigmaPreview model =
 
 
 -- ---------------------------------------------------------------------------------------------------------------------
+-- Encryption View
+-- ---------------------------------------------------------------------------------------------------------------------
+
+
+encryptionView : Model -> Html Msg
+encryptionView model =
+    Html.div
+        []
+        [ Html.div
+            []
+            [ Html.h3 [] [ Html.text "Encryption Results" ]
+            , encryptionResultView model
+            ]
+        , Html.div
+            []
+            [ Html.h3 [] [ Html.text "Text Input" ]
+            , textInputView model
+            ]
+        ]
+
+
+encryptionResultView : Model -> Html Msg
+encryptionResultView model =
+    Html.table
+        []
+        [ Html.tr
+            []
+            [ Html.td [] [ Html.text "Processed Input: " ]
+            , Html.td [] [ Html.text (Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") model.messageHolder.prcessedInput) ]
+            ]
+        , Html.tr
+            []
+            [ Html.td [] [ Html.text "Processed Output: " ]
+            , Html.td [] [ Html.text (Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") model.messageHolder.processedOutput) ]
+            ]
+        ]
+
+
+textInputView : Model -> Html Msg
+textInputView model =
+    Html.textarea
+        [ Html.Attributes.placeholder "Copy your text here"
+        , Html.Attributes.value model.messageHolder.rawInput
+        , Html.Events.onInput UpdateRawInput
+        ]
+        []
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------
 -- Browser functions
 -- ---------------------------------------------------------------------------------------------------------------------
 
@@ -235,7 +289,7 @@ initialModel =
             Enigma.EnigmaMachine.debugEnigma
 
         messageHolder =
-            { rawInput = "Hello world", prcessedInput = "", processedOutput = "" }
+            { rawInput = "Hello world", prcessedInput = "IAMGTANOOB", processedOutput = "ASFQWLKJQLKJQRW" }
     in
     { enigma = enigma, messageHolder = messageHolder, mode = Configuration }
 
@@ -277,6 +331,9 @@ update msg model =
                             Encryption
             in
             ( { model | mode = newMode }, Cmd.none )
+
+        UpdateRawInput input ->
+            ( { model | messageHolder = Utils.MessageHolder.updateRawInput model.messageHolder input }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
