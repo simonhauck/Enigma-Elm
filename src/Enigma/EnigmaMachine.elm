@@ -1,4 +1,4 @@
-module Enigma.EnigmaMachine exposing (Enigma, debugEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, replaceRotor, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
+module Enigma.EnigmaMachine exposing (Enigma, debugEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, replaceRotor, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
 
 import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor, rotor1, rotor2, rotor3, staticRotor)
@@ -132,6 +132,17 @@ setRingPositionOfRotor enigma rotorIndex newRingPosition =
             List.Extra.updateAt rotorIndex (\rotor -> { rotor | ringPosition = newRingPosition }) enigma.rotors
     in
     { enigma | rotors = newRotors }
+
+
+{-| Set the currentPosition in each rotor to the selected startPosition
+-}
+setCurrentPositionToStartPosition : Enigma -> Enigma
+setCurrentPositionToStartPosition enigma =
+    let
+        updatedRotors =
+            List.map (\rotor -> { rotor | currentPosition = rotor.startPosition }) enigma.rotors
+    in
+    { enigma | rotors = updatedRotors }
 
 
 

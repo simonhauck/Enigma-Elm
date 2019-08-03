@@ -22,7 +22,9 @@ type Msg
     | SetRotor Int (Maybe Rotor)
     | SetRotorPosition Int Int
     | SetRingPosition Int Int
-    | ToggleMode
+    | ToggleOperationMode
+    | ToggleEncryptionMode
+    | SetEncryptionModeSpeed Int
 
 
 type OperationMode
@@ -32,14 +34,18 @@ type OperationMode
 
 type EncryptionMode
     = Automatic
-    | Manuall
+    | Manual
+
+
+type alias TextInputConfig =
+    { encryptionMode : EncryptionMode, encryptionSpeed : Int }
 
 
 type alias Model =
     { enigma : Enigma
     , messageHolder : MessageHolder
     , operationMode : OperationMode
-    , encryptionMode : EncryptionMode
+    , textInputConfig : TextInputConfig
     }
 
 
@@ -101,7 +107,7 @@ selectRotorView model =
     Html.table
         []
         [ tableRowWithRotorNumbers model.enigma.rotors
-        , Html.tr [] (List.indexedMap (displayRotorSelectionInTable model) model.enigma.rotors)
+        , Html.tr [] (Html.td [] [ Html.text "Rotor:" ] :: List.indexedMap (displayRotorSelectionInTable model) model.enigma.rotors)
         ]
 
 
@@ -132,7 +138,21 @@ selectRotorPositionView model =
     Html.table
         []
         [ tableRowWithRotorNumbers model.enigma.rotors
-        , Html.tr [] (List.indexedMap (displayRotorPositionSelectionInTable model) model.enigma.rotors)
+        , Html.tr [] (Html.td [] [ Html.text "Start Position:" ] :: List.indexedMap (displayRotorPositionSelectionInTable model) model.enigma.rotors)
+        , Html.tr []
+            (Html.td [] [ Html.text "Current Position:" ]
+                :: List.map
+                    (\rotor ->
+                        Html.td []
+                            [ Just rotor.currentPosition
+                                |> Utils.AlphabetHelper.characterIndexToCharacter
+                                |> Maybe.withDefault '-'
+                                |> String.fromChar
+                                |> Html.text
+                            ]
+                    )
+                    model.enigma.rotors
+            )
         ]
 
 
@@ -163,7 +183,7 @@ selectRingPosition model =
     Html.table
         []
         [ tableRowWithRotorNumbers model.enigma.rotors
-        , Html.tr [] (List.indexedMap (displayRingPositionSelectionInTable model) model.enigma.rotors)
+        , Html.tr [] (Html.td [] [ Html.text "Ring Position:" ] :: List.indexedMap (displayRingPositionSelectionInTable model) model.enigma.rotors)
         ]
 
 
@@ -192,7 +212,7 @@ toggleModeButton : Model -> Html Msg
 toggleModeButton model =
     Html.div []
         [ Html.button
-            [ Html.Events.onClick ToggleMode ]
+            [ Html.Events.onClick ToggleOperationMode ]
             [ case model.operationMode of
                 Encryption ->
                     Html.text "Switch to Configuration Mode"
@@ -207,7 +227,7 @@ toggleModeButton model =
 -}
 tableRowWithRotorNumbers : List Rotor -> Html Msg
 tableRowWithRotorNumbers rotors =
-    Html.tr [] (List.indexedMap (\index _ -> Html.td [] [ Html.text ("Rotor " ++ String.fromInt (index + 1)) ]) rotors)
+    Html.tr [] (Html.td [] [] :: List.indexedMap (\index _ -> Html.td [] [ Html.text ("Rotor " ++ String.fromInt (index + 1)) ]) rotors)
 
 
 {-| enable the element when the model is in configuration mode and disable the element when the model is in encryption mode
@@ -247,11 +267,7 @@ encryptionView model =
             [ Html.h3 [] [ Html.text "Encryption Results" ]
             , encryptionResultView model
             ]
-        , Html.div
-            []
-            [ Html.h3 [] [ Html.text "Text Input" ]
-            , textInputView model
-            ]
+        , textInputView model
         ]
 
 
@@ -274,12 +290,45 @@ encryptionResultView model =
 
 textInputView : Model -> Html Msg
 textInputView model =
+    Html.div []
+        [ Html.h3 [] [ Html.text "Text Input" ]
+        , textInputField model
+        , textInputToggleButton model
+        , Html.div []
+            [ Html.input
+                [ Html.Attributes.type_ "range"
+                , Html.Attributes.min "25"
+                , Html.Attributes.max "1000"
+                , Html.Attributes.value (String.fromInt model.textInputConfig.encryptionSpeed)
+                , Html.Attributes.step "25"
+                , Html.Events.onInput (\val -> SetEncryptionModeSpeed (Maybe.withDefault 250 (String.toInt val)))
+                ]
+                []
+            , Html.text ("Time between Ticks: " ++ String.fromInt model.textInputConfig.encryptionSpeed)
+            ]
+        ]
+
+
+textInputField : Model -> Html Msg
+textInputField model =
     Html.textarea
         [ Html.Attributes.placeholder "Copy your text here"
         , Html.Attributes.value model.messageHolder.rawInput
         , Html.Events.onInput UpdateRawInput
         ]
         []
+
+
+textInputToggleButton : Model -> Html Msg
+textInputToggleButton model =
+    Html.button [ Html.Events.onClick ToggleEncryptionMode ]
+        [ case model.textInputConfig.encryptionMode of
+            Automatic ->
+                Html.text "Disable automatic encryption"
+
+            Manual ->
+                Html.text "Enable automatic encryption"
+        ]
 
 
 
@@ -322,21 +371,24 @@ initialModel =
 
         messageHolder =
             { rawInput = "Hello world", processedInput = "", processedOutput = "" }
+
+        textInputConfig =
+            { encryptionMode = Manual, encryptionSpeed = 250 }
     in
-    { enigma = enigma, messageHolder = messageHolder, operationMode = Configuration, encryptionMode = Automatic }
+    { enigma = enigma, messageHolder = messageHolder, operationMode = Configuration, textInputConfig = textInputConfig }
 
 
 {-| Return the subscriptions for the given model
 -}
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case ( model.operationMode, model.encryptionMode ) of
+    case ( model.operationMode, model.textInputConfig.encryptionMode ) of
         ( Encryption, Automatic ) ->
             if String.isEmpty model.messageHolder.rawInput then
                 Sub.none
 
             else
-                Time.every 250 (\_ -> EncryptCharTick)
+                Time.every (toFloat model.textInputConfig.encryptionSpeed) (\_ -> EncryptCharTick)
 
         _ ->
             Sub.none
@@ -361,20 +413,44 @@ update msg model =
         SetRingPosition rotorIndex newRingPosition ->
             ( { model | enigma = Debug.log "SetRingPosition" (Enigma.EnigmaMachine.setRingPositionOfRotor model.enigma rotorIndex newRingPosition) }, Cmd.none )
 
-        ToggleMode ->
+        ToggleOperationMode ->
             let
-                newMode =
+                ( updatedEnigma, newMode ) =
                     case model.operationMode of
-                        Encryption ->
-                            Configuration
-
                         Configuration ->
-                            Encryption
+                            ( Enigma.EnigmaMachine.setCurrentPositionToStartPosition model.enigma
+                            , Encryption
+                            )
+
+                        Encryption ->
+                            ( model.enigma, Configuration )
             in
-            ( { model | operationMode = newMode }, Cmd.none )
+            ( { model | enigma = updatedEnigma, operationMode = newMode }, Cmd.none )
 
         UpdateRawInput input ->
             ( { model | messageHolder = Utils.MessageHolder.updateRawInput model.messageHolder input }, Cmd.none )
+
+        ToggleEncryptionMode ->
+            let
+                textInputConfig =
+                    model.textInputConfig
+
+                newMode =
+                    case textInputConfig.encryptionMode of
+                        Automatic ->
+                            Manual
+
+                        Manual ->
+                            Automatic
+            in
+            ( { model | textInputConfig = { textInputConfig | encryptionMode = newMode } }, Cmd.none )
+
+        SetEncryptionModeSpeed newSpeedVal ->
+            let
+                textInputConfig =
+                    model.textInputConfig
+            in
+            ( { model | textInputConfig = { textInputConfig | encryptionSpeed = newSpeedVal } }, Cmd.none )
 
         EncryptCharTick ->
             let
