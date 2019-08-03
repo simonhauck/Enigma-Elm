@@ -10,12 +10,14 @@ import Html.Events
 import Json.Decode
 import Regex
 import String
+import Time
 import Utils.AlphabetHelper
 import Utils.MessageHolder exposing (MessageHolder)
 
 
 type Msg
     = SubstituteChar Char
+    | EncryptCharTick
     | UpdateRawInput String
     | SetRotor Int (Maybe Rotor)
     | SetRotorPosition Int Int
@@ -23,15 +25,21 @@ type Msg
     | ToggleMode
 
 
-type Mode
+type OperationMode
     = Configuration
     | Encryption
+
+
+type EncryptionMode
+    = Automatic
+    | Manuall
 
 
 type alias Model =
     { enigma : Enigma
     , messageHolder : MessageHolder
-    , mode : Mode
+    , operationMode : OperationMode
+    , encryptionMode : EncryptionMode
     }
 
 
@@ -185,7 +193,7 @@ toggleModeButton model =
     Html.div []
         [ Html.button
             [ Html.Events.onClick ToggleMode ]
-            [ case model.mode of
+            [ case model.operationMode of
                 Encryption ->
                     Html.text "Switch to Configuration Mode"
 
@@ -206,7 +214,7 @@ tableRowWithRotorNumbers rotors =
 -}
 enableAttributeWhenInConfiguration : Model -> Html.Attribute Msg
 enableAttributeWhenInConfiguration model =
-    case model.mode of
+    case model.operationMode of
         Encryption ->
             Html.Attributes.disabled True
 
@@ -216,7 +224,7 @@ enableAttributeWhenInConfiguration model =
 
 enigmaPreview : Model -> Html Msg
 enigmaPreview model =
-    case model.mode of
+    case model.operationMode of
         Configuration ->
             Html.text "ConfigurationMode"
 
@@ -254,7 +262,7 @@ encryptionResultView model =
         [ Html.tr
             []
             [ Html.td [] [ Html.text "Processed Input: " ]
-            , Html.td [] [ Html.text (Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") model.messageHolder.prcessedInput) ]
+            , Html.td [] [ Html.text (Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") model.messageHolder.processedInput) ]
             ]
         , Html.tr
             []
@@ -276,6 +284,30 @@ textInputView model =
 
 
 -- ---------------------------------------------------------------------------------------------------------------------
+-- Util Functions
+-- ---------------------------------------------------------------------------------------------------------------------
+
+
+{-| Substitute a maybeChar with the given model.
+The state of the enigma will be updated and the inputChar/resultChar will be added
+-}
+substituteChar : Model -> Maybe Char -> Model
+substituteChar model maybeInputChar =
+    let
+        inputChar =
+            Maybe.withDefault '-' maybeInputChar
+
+        ( newEnigma, maybeOutputChar ) =
+            Enigma.EnigmaMachine.performRotationAndSubstitution model.enigma inputChar
+
+        updatedMessageHolder =
+            Utils.MessageHolder.addProcessedChar model.messageHolder inputChar maybeOutputChar
+    in
+    { model | enigma = newEnigma, messageHolder = updatedMessageHolder }
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------
 -- Browser functions
 -- ---------------------------------------------------------------------------------------------------------------------
 
@@ -289,16 +321,25 @@ initialModel =
             Enigma.EnigmaMachine.debugEnigma
 
         messageHolder =
-            { rawInput = "Hello world", prcessedInput = "IAMGTANOOB", processedOutput = "ASFQWLKJQLKJQRW" }
+            { rawInput = "Hello world", processedInput = "", processedOutput = "" }
     in
-    { enigma = enigma, messageHolder = messageHolder, mode = Configuration }
+    { enigma = enigma, messageHolder = messageHolder, operationMode = Configuration, encryptionMode = Automatic }
 
 
 {-| Return the subscriptions for the given model
 -}
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    case ( model.operationMode, model.encryptionMode ) of
+        ( Encryption, Automatic ) ->
+            if String.isEmpty model.messageHolder.rawInput then
+                Sub.none
+
+            else
+                Time.every 250 (\_ -> EncryptCharTick)
+
+        _ ->
+            Sub.none
 
 
 {-| Update the given model with the given msg
@@ -323,17 +364,27 @@ update msg model =
         ToggleMode ->
             let
                 newMode =
-                    case model.mode of
+                    case model.operationMode of
                         Encryption ->
                             Configuration
 
                         Configuration ->
                             Encryption
             in
-            ( { model | mode = newMode }, Cmd.none )
+            ( { model | operationMode = newMode }, Cmd.none )
 
         UpdateRawInput input ->
             ( { model | messageHolder = Utils.MessageHolder.updateRawInput model.messageHolder input }, Cmd.none )
+
+        EncryptCharTick ->
+            let
+                ( updatedMessageHolder, maybeInputChar ) =
+                    Utils.MessageHolder.getFirstCharFromRawInput model.messageHolder
+
+                updatedModel =
+                    { model | messageHolder = updatedMessageHolder }
+            in
+            ( substituteChar updatedModel maybeInputChar, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
