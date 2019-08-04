@@ -1,4 +1,4 @@
-module Utils.MessageHolder exposing (ForeignChar(..), MessageHolder, addProcessedChar, getFirstCharFromRawInput, getFormattedProcessedInputOutput, updateRawInput)
+module Utils.MessageHolder exposing (ForeignChar(..), MessageHolder, addProcessedChar, getFirstCharFromRawInput, getFormattedProcessedInputOutput, toggleForeignCharOption, updateRawInput)
 
 import Maybe exposing (Maybe)
 import Regex
@@ -77,3 +77,15 @@ getFormattedProcessedInputOutput messageHolder =
 
         Include ->
             ( messageHolder.processedInput, messageHolder.processedOutput )
+
+
+{-| Toggle the foreignCharOption between Ignore and Include
+-}
+toggleForeignCharOption : MessageHolder -> MessageHolder
+toggleForeignCharOption messageHolder =
+    case messageHolder.foreignCharOption of
+        Include ->
+            { messageHolder | foreignCharOption = Ignore }
+
+        Ignore ->
+            { messageHolder | foreignCharOption = Include }

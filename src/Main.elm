@@ -22,6 +22,7 @@ type Msg
     | SetReflector Reflector
     | SetRotorPosition Int Int
     | SetRingPosition Int Int
+    | ToggleForeignCharOption
     | ToggleOperationMode
     | ToggleEncryptionMode
     | SetEncryptionModeSpeed Int
@@ -103,6 +104,11 @@ configurationView model =
             []
             [ Html.h3 [] [ Html.text "Select reflector" ]
             , selectReflectorView model
+            ]
+        , Html.div
+            []
+            [ Html.h3 [] [ Html.text "Other configuration - Change later :D" ]
+            , otherConfigurationView model
             ]
         ]
 
@@ -221,6 +227,7 @@ selectReflectorView model =
                         [ Html.Attributes.type_ "radio"
                         , Html.Attributes.value rotor.name
                         , Html.Attributes.checked (rotor.name == model.enigma.reflector.name)
+                        , enableAttributeWhenInConfiguration model
                         , Html.Events.onInput
                             (\reflectorName ->
                                 SetReflector
@@ -233,6 +240,23 @@ selectReflectorView model =
             )
             (Dict.values Enigma.Reflector.getAllReflectors)
         )
+
+
+otherConfigurationView : Model -> Html Msg
+otherConfigurationView model =
+    Html.div
+        []
+        [ Html.label []
+            [ Html.input
+                [ Html.Attributes.type_ "checkBox"
+                , enableAttributeWhenInConfiguration model
+                , Html.Attributes.checked (model.messageHolder.foreignCharOption == Utils.MessageHolder.Include)
+                , Html.Events.onClick ToggleForeignCharOption
+                ]
+                []
+            , Html.text "Include foreign chars"
+            ]
+        ]
 
 
 toggleModeButton : Model -> Html Msg
@@ -468,6 +492,9 @@ update msg model =
 
         SetReflector newReflector ->
             ( { model | enigma = Debug.log "SetReflector" (Enigma.EnigmaMachine.replaceReflector model.enigma newReflector) }, Cmd.none )
+
+        ToggleForeignCharOption ->
+            ( { model | messageHolder = Utils.MessageHolder.toggleForeignCharOption model.messageHolder }, Cmd.none )
 
         ToggleOperationMode ->
             let
