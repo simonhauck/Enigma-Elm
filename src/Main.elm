@@ -144,11 +144,7 @@ selectRotorPositionView model =
                 :: List.map
                     (\rotor ->
                         Html.td []
-                            [ Just rotor.currentPosition
-                                |> Utils.AlphabetHelper.characterIndexToCharacter
-                                |> Maybe.withDefault '-'
-                                |> String.fromChar
-                                |> Html.text
+                            [ Html.text (getNumberAndCharText rotor.currentPosition)
                             ]
                     )
                     model.enigma.rotors
@@ -170,7 +166,7 @@ displayRotorPositionSelectionInTable model index rotor =
                         [ Html.Attributes.value (String.fromInt position)
                         , Html.Attributes.selected (rotor.startPosition == position)
                         ]
-                        [ Html.text (String.fromChar (Maybe.withDefault '-' (Utils.AlphabetHelper.characterIndexToCharacter (Just position))))
+                        [ Html.text (getNumberAndCharText position)
                         ]
                 )
                 (List.range 0 25)
@@ -201,7 +197,7 @@ displayRingPositionSelectionInTable model index rotor =
                         [ Html.Attributes.selected (rotor.ringPosition == position)
                         , Html.Attributes.value (String.fromInt position)
                         ]
-                        [ Html.text (String.fromInt position) ]
+                        [ Html.text (getNumberAndCharText position) ]
                 )
                 (List.range 0 25)
             )
@@ -250,6 +246,13 @@ enigmaPreview model =
 
         Encryption ->
             Html.text "Encryption Mode"
+
+
+{-| Return a text
+-}
+getNumberAndCharText : Int -> String
+getNumberAndCharText number =
+    String.fromInt number ++ " - " ++ String.fromChar (Maybe.withDefault '-' (Utils.AlphabetHelper.characterIndexToCharacter (Just number)))
 
 
 
@@ -302,6 +305,7 @@ textInputView model =
                 , Html.Attributes.value (String.fromInt model.textInputConfig.encryptionSpeed)
                 , Html.Attributes.step "25"
                 , Html.Events.onInput (\val -> SetEncryptionModeSpeed (Maybe.withDefault 250 (String.toInt val)))
+                , enableAttributeWhenInEncryption model
                 ]
                 []
             , Html.text ("Time between Ticks: " ++ String.fromInt model.textInputConfig.encryptionSpeed)
@@ -321,7 +325,10 @@ textInputField model =
 
 textInputToggleButton : Model -> Html Msg
 textInputToggleButton model =
-    Html.button [ Html.Events.onClick ToggleEncryptionMode ]
+    Html.button
+        [ Html.Events.onClick ToggleEncryptionMode
+        , enableAttributeWhenInEncryption model
+        ]
         [ case model.textInputConfig.encryptionMode of
             Automatic ->
                 Html.text "Disable automatic encryption"
@@ -329,6 +336,16 @@ textInputToggleButton model =
             Manual ->
                 Html.text "Enable automatic encryption"
         ]
+
+
+enableAttributeWhenInEncryption : Model -> Html.Attribute Msg
+enableAttributeWhenInEncryption model =
+    case model.operationMode of
+        Encryption ->
+            Html.Attributes.disabled False
+
+        Configuration ->
+            Html.Attributes.disabled True
 
 
 
