@@ -3,6 +3,7 @@ module Main exposing (main)
 import Browser
 import Dict
 import Enigma.EnigmaMachine exposing (Enigma)
+import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor)
 import Html exposing (Html)
 import Html.Attributes
@@ -20,6 +21,7 @@ type Msg
     | EncryptCharTick
     | UpdateRawInput String
     | SetRotor Int (Maybe Rotor)
+    | SetReflector Reflector
     | SetRotorPosition Int Int
     | SetRingPosition Int Int
     | ToggleOperationMode
@@ -97,7 +99,12 @@ configurationView model =
         , Html.div
             []
             [ Html.h3 [] [ Html.text "Select ring position" ]
-            , selectRingPosition model
+            , selectRingPositionView model
+            ]
+        , Html.div
+            []
+            [ Html.h3 [] [ Html.text "Select reflector" ]
+            , selectReflectorView model
             ]
         ]
 
@@ -174,8 +181,8 @@ displayRotorPositionSelectionInTable model index rotor =
         ]
 
 
-selectRingPosition : Model -> Html Msg
-selectRingPosition model =
+selectRingPositionView : Model -> Html Msg
+selectRingPositionView model =
     Html.table
         []
         [ tableRowWithRotorNumbers model.enigma.rotors
@@ -202,6 +209,32 @@ displayRingPositionSelectionInTable model index rotor =
                 (List.range 0 25)
             )
         ]
+
+
+selectReflectorView : Model -> Html Msg
+selectReflectorView model =
+    Html.div
+        []
+        (List.map
+            (\rotor ->
+                Html.label
+                    []
+                    [ Html.input
+                        [ Html.Attributes.type_ "radio"
+                        , Html.Attributes.value rotor.name
+                        , Html.Attributes.checked (rotor.name == model.enigma.reflector.name)
+                        , Html.Events.onInput
+                            (\reflectorName ->
+                                SetReflector
+                                    (Maybe.withDefault Enigma.Reflector.reflectorA (Dict.get reflectorName Enigma.Reflector.getAllReflectors))
+                            )
+                        ]
+                        []
+                    , Html.text rotor.name
+                    ]
+            )
+            (Dict.values Enigma.Reflector.getAllReflectors)
+        )
 
 
 toggleModeButton : Model -> Html Msg
@@ -427,8 +460,12 @@ update msg model =
         SetRotorPosition rotorIndex newStartPosition ->
             ( { model | enigma = Debug.log "SetRotorPosition" (Enigma.EnigmaMachine.setStartPositionOfRotor model.enigma rotorIndex newStartPosition) }, Cmd.none )
 
+        --        //TODO Remove Log statements at all
         SetRingPosition rotorIndex newRingPosition ->
             ( { model | enigma = Debug.log "SetRingPosition" (Enigma.EnigmaMachine.setRingPositionOfRotor model.enigma rotorIndex newRingPosition) }, Cmd.none )
+
+        SetReflector newReflector ->
+            ( { model | enigma = Debug.log "SetReflector" (Enigma.EnigmaMachine.replaceReflector model.enigma newReflector) }, Cmd.none )
 
         ToggleOperationMode ->
             let

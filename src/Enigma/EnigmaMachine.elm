@@ -1,4 +1,4 @@
-module Enigma.EnigmaMachine exposing (Enigma, debugEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, replaceRotor, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
+module Enigma.EnigmaMachine exposing (Enigma, debugEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, replaceReflector, replaceRotor, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
 
 import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor, rotor1, rotor2, rotor3, staticRotor)
@@ -18,13 +18,13 @@ debugEnigma : Enigma
 debugEnigma =
     let
         rotor3Test =
-            { rotor3 | currentPosition = 20, startPosition = 5, ringPosition = 3 }
+            { rotor3 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
 
         rotor2Test =
-            { rotor2 | currentPosition = 14, startPosition = 5, ringPosition = 2 }
+            { rotor2 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
 
         rotor1Test =
-            { rotor1 | currentPosition = 13, startPosition = 10, ringPosition = 25 }
+            { rotor1 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
 
         rotorList =
             [ rotor3Test, rotor2Test, rotor1Test ]
@@ -110,6 +110,13 @@ replaceRotor enigma rotorPosition newRotor =
                 enigma.rotors
     in
     { enigma | rotors = newRotorList }
+
+
+{-| Replace the reflector of the enigma
+-}
+replaceReflector : Enigma -> Reflector -> Enigma
+replaceReflector enigma newReflector =
+    { enigma | reflector = newReflector }
 
 
 {-| Set the StartPosition of the rotor at the given rotorIndex to the given startPosition
