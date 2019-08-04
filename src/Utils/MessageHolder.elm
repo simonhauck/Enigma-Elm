@@ -1,6 +1,7 @@
-module Utils.MessageHolder exposing (MessageHolder, addProcessedChar, getFirstCharFromRawInput, updateRawInput)
+module Utils.MessageHolder exposing (ForeignChar(..), MessageHolder, addProcessedChar, getFirstCharFromRawInput, getFormattedProcessedInputOutput, updateRawInput)
 
 import Maybe exposing (Maybe)
+import Regex
 
 
 {-| Hold the string values for the raw and processed input and the out value
@@ -9,7 +10,13 @@ type alias MessageHolder =
     { rawInput : String
     , processedInput : String
     , processedOutput : String
+    , foreignCharOption : ForeignChar
     }
+
+
+type ForeignChar
+    = Include
+    | Ignore
 
 
 {-| Update the raw input value of the messageHolder with the given string
@@ -36,14 +43,37 @@ getFirstCharFromRawInput messageHolder =
             ( { messageHolder | rawInput = remainingString }, Just droppedChar )
 
 
+{-| Add a processed char to the messageHolder.
+If the option ForeignChar is set to Ignore the value will be ignored if the maybeOutputChar is Nothing
+Else it will add the value to the MessageHolder.
+-}
 addProcessedChar : MessageHolder -> Char -> Maybe Char -> MessageHolder
 addProcessedChar messageHolder inputChar maybeOutputChar =
-    case maybeOutputChar of
-        Nothing ->
+    case ( messageHolder.foreignCharOption, maybeOutputChar ) of
+        ( Ignore, Nothing ) ->
             messageHolder
 
-        Just outputChar ->
+        ( _, _ ) ->
             { messageHolder
                 | processedInput = inputChar |> Char.toUpper |> String.fromChar |> String.append messageHolder.processedInput
-                , processedOutput = outputChar |> Char.toUpper |> String.fromChar |> String.append messageHolder.processedOutput
+                , processedOutput =
+                    maybeOutputChar
+                        |> Maybe.withDefault inputChar
+                        |> Char.toUpper
+                        |> String.fromChar
+                        |> String.append messageHolder.processedOutput
             }
+
+
+{-| Return the processed input/output formatted corresponding to the ForeignCharOption
+-}
+getFormattedProcessedInputOutput : MessageHolder -> ( String, String )
+getFormattedProcessedInputOutput messageHolder =
+    case messageHolder.foreignCharOption of
+        Ignore ->
+            ( Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") messageHolder.processedInput
+            , Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") messageHolder.processedOutput
+            )
+
+        Include ->
+            ( messageHolder.processedInput, messageHolder.processedOutput )

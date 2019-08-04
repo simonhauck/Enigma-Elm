@@ -9,16 +9,14 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Json.Decode
-import Regex
 import String
 import Time
 import Utils.AlphabetHelper
-import Utils.MessageHolder exposing (MessageHolder)
+import Utils.MessageHolder exposing (ForeignChar, MessageHolder)
 
 
 type Msg
-    = SubstituteChar Char
-    | EncryptCharTick
+    = EncryptCharTick
     | UpdateRawInput String
     | SetRotor Int (Maybe Rotor)
     | SetReflector Reflector
@@ -309,17 +307,21 @@ encryptionView model =
 
 encryptionResultView : Model -> Html Msg
 encryptionResultView model =
+    let
+        ( formattedInput, formattedOutput ) =
+            Utils.MessageHolder.getFormattedProcessedInputOutput model.messageHolder
+    in
     Html.table
         []
         [ Html.tr
             []
             [ Html.td [] [ Html.text "Processed Input: " ]
-            , Html.td [] [ Html.text (Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") model.messageHolder.processedInput) ]
+            , Html.td [] [ Html.text formattedInput ]
             ]
         , Html.tr
             []
             [ Html.td [] [ Html.text "Processed Output: " ]
-            , Html.td [] [ Html.text (Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") model.messageHolder.processedOutput) ]
+            , Html.td [] [ Html.text formattedOutput ]
             ]
         ]
 
@@ -420,7 +422,7 @@ initialModel =
             Enigma.EnigmaMachine.debugEnigma
 
         messageHolder =
-            { rawInput = "Hello world", processedInput = "", processedOutput = "" }
+            { rawInput = "Hello world", processedInput = "", processedOutput = "", foreignCharOption = Utils.MessageHolder.Include }
 
         textInputConfig =
             { encryptionMode = Manual, encryptionSpeed = 250 }
@@ -515,9 +517,6 @@ update msg model =
                     { model | messageHolder = updatedMessageHolder }
             in
             ( substituteChar updatedModel maybeInputChar, Cmd.none )
-
-        _ ->
-            ( model, Cmd.none )
 
 
 main : Program () Model Msg
