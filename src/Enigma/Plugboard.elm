@@ -1,4 +1,4 @@
-module Enigma.Plugboard exposing (CharPosition(..), Plugboard, defaultPlugboard, pressChar)
+module Enigma.Plugboard exposing (CharPosition(..), Plugboard, defaultPlugboard, pressChar, substituteCharacter)
 
 import List.Extra
 
@@ -25,7 +25,7 @@ type CharPosition
 -}
 defaultPlugboard : Plugboard
 defaultPlugboard =
-    { switchedCharsList = [], selectedInputChar = Nothing, selectedOutputChar = Nothing }
+    { switchedCharsList = [ ( 0, 15 ), ( 2, 13 ) ], selectedInputChar = Nothing, selectedOutputChar = Nothing }
 
 
 {-| Press a char on the plugboard. If the corresponding char is selected, the pair will be added to the switchedCharList.
@@ -40,7 +40,7 @@ pressChar plugboard charPosition selectedCharIndex =
         Input ->
             case plugboard.selectedOutputChar of
                 Nothing ->
-                    removeOldConnection { plugboard | selectedInputChar = Just selectedCharIndex } selectedCharIndex
+                    removeOldConnection selectedCharIndex { plugboard | selectedInputChar = Just selectedCharIndex }
 
                 Just outputChar ->
                     addPair { plugboard | selectedInputChar = Nothing, selectedOutputChar = Nothing } ( selectedCharIndex, outputChar )
@@ -48,7 +48,7 @@ pressChar plugboard charPosition selectedCharIndex =
         Output ->
             case plugboard.selectedInputChar of
                 Nothing ->
-                    removeOldConnection { plugboard | selectedOutputChar = Just selectedCharIndex } selectedCharIndex
+                    removeOldConnection selectedCharIndex { plugboard | selectedOutputChar = Just selectedCharIndex }
 
                 Just inputChar ->
                     addPair { plugboard | selectedInputChar = Nothing, selectedOutputChar = Nothing } ( inputChar, selectedCharIndex )
@@ -56,17 +56,24 @@ pressChar plugboard charPosition selectedCharIndex =
 
 {-| Substitute the given char with the plugboard
 plugboard - that should be used
-maybeCharIndex - the index of the character or Nothing
-result - the substituted char or Nothing
+charIndex - the index of the character
+result - the substituted char
 -}
-substituteCharacter : Plugboard -> Maybe Int -> Maybe Int
-substituteCharacter plugboard maybeCharIndex =
-    case maybeCharIndex of
-        Nothing ->
-            Nothing
+substituteCharacter : Int -> Plugboard -> Int
+substituteCharacter charIndex plugboard =
+    let
+        maybeEntry =
+            List.Extra.find (\( inputParam, outputParam ) -> charIndex == inputParam || charIndex == outputParam) plugboard.switchedCharsList
 
-        Just charIndex ->
-            Just (replaceChar plugboard charIndex)
+        -- Default is same input and output
+        ( input, output ) =
+            Maybe.withDefault ( charIndex, charIndex ) maybeEntry
+    in
+    if charIndex == input then
+        output
+
+    else
+        input
 
 
 
@@ -98,23 +105,3 @@ removeOldConnection charIndex plugboard =
             List.filter (\( input, output ) -> not (input == charIndex || output == charIndex)) plugboard.switchedCharsList
     in
     { plugboard | switchedCharsList = filteredList }
-
-
-{-| Replace a char with the given plugboard.
-When there is no record for the char, the given char(index) will be returned
--}
-replaceChar : Plugboard -> Int -> Int
-replaceChar plugboard charIndex =
-    let
-        maybeEntry =
-            List.Extra.find (\( inputParam, outputParam ) -> charIndex == inputParam || charIndex == outputParam) plugboard.switchedCharsList
-
-        -- Default is same input and output
-        ( input, output ) =
-            Maybe.withDefault ( charIndex, charIndex ) maybeEntry
-    in
-    if charIndex == input then
-        output
-
-    else
-        input

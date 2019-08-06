@@ -107,6 +107,11 @@ configurationView model =
             ]
         , Html.div
             []
+            [ Html.h3 [] [ Html.text "Configure plugboard" ]
+            , configurePlugBoardView model
+            ]
+        , Html.div
+            []
             [ Html.h3 [] [ Html.text "Other configuration - Change later :D" ]
             , otherConfigurationView model
             ]
@@ -240,6 +245,11 @@ selectReflectorView model =
             )
             (Dict.values Enigma.Reflector.getAllReflectors)
         )
+
+
+configurePlugBoardView : Model -> Html Msg
+configurePlugBoardView model =
+    Html.text "I dont know how to dooo this"
 
 
 otherConfigurationView : Model -> Html Msg
@@ -443,7 +453,7 @@ initialModel : Model
 initialModel =
     let
         enigma =
-            Enigma.EnigmaMachine.debugEnigma
+            Enigma.EnigmaMachine.defaultEnigma
 
         messageHolder =
             { rawInput = "Hello world", processedInput = "", processedOutput = "", foreignCharOption = Utils.MessageHolder.Include }

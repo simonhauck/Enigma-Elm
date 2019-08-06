@@ -1,5 +1,6 @@
-module Enigma.EnigmaMachine exposing (Enigma, debugEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, replaceReflector, replaceRotor, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
+module Enigma.EnigmaMachine exposing (Enigma, defaultEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, replaceReflector, replaceRotor, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
 
+import Enigma.Plugboard exposing (Plugboard)
 import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor, rotor1, rotor2, rotor3, staticRotor)
 import List
@@ -11,11 +12,12 @@ import Utils.Helper
 type alias Enigma =
     { rotors : List Rotor
     , reflector : Reflector
+    , plugBoard : Plugboard
     }
 
 
-debugEnigma : Enigma
-debugEnigma =
+defaultEnigma : Enigma
+defaultEnigma =
     let
         rotor3Test =
             { rotor3 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
@@ -29,7 +31,7 @@ debugEnigma =
         rotorList =
             [ rotor3Test, rotor2Test, rotor1Test ]
     in
-    { rotors = rotorList, reflector = Enigma.Reflector.reflectorB }
+    { rotors = rotorList, reflector = Enigma.Reflector.reflectorB, plugBoard = Enigma.Plugboard.defaultPlugboard }
 
 
 
@@ -86,9 +88,11 @@ substituteCharacter inputChar enigma =
     --    TODO remove log statements
     inputChar
         |> Debug.log "Convert char to index: " Utils.AlphabetHelper.characterToCharacterIndex
+        |> Debug.log "SubstituteCharacterWithPlugboard" (substituteCharacterWithPlugboard enigma)
         |> Debug.log "Calling substituteCharacterToReflector" (substituteCharacterToReflector enigma)
         |> Debug.log "Calling substituteCharacterWithReflector" (substituteCharacterWithReflector enigma)
         |> Debug.log "Calling substituteCharacterFromReflector" (substituteCharacterFromReflector enigma)
+        |> Debug.log "SubstituteCharacterWithPlugboard" (substituteCharacterWithPlugboard enigma)
         |> Debug.log "Result of substitution: " Utils.AlphabetHelper.characterIndexToCharacter
 
 
@@ -156,6 +160,16 @@ setCurrentPositionToStartPosition enigma =
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Internal functions
 -- ---------------------------------------------------------------------------------------------------------------------
+
+
+substituteCharacterWithPlugboard : Enigma -> Maybe Int -> Maybe Int
+substituteCharacterWithPlugboard enigma maybeCharIndex =
+    case maybeCharIndex of
+        Nothing ->
+            Nothing
+
+        Just charIndex ->
+            Just (Enigma.Plugboard.substituteCharacter charIndex enigma.plugBoard)
 
 
 {-| Replace the character with the rotors of the enigma in the direction to the reflector
