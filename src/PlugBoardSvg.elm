@@ -7,11 +7,26 @@ import Svg.Attributes
 
 
 plugBoardCanvas : Enigma.Plugboard.Plugboard -> Int -> Html msg
-plugBoardCanvas plugboard sizePerCharacter =
+plugBoardCanvas plugboard widthPerCharacter =
     let
         height =
             200
 
+        heightOffset =
+            20
+    in
+    Svg.svg
+        [ Svg.Attributes.width (String.fromInt (widthPerCharacter * 27))
+        , Svg.Attributes.height (String.fromInt height)
+        ]
+        (drawCircles plugboard height heightOffset widthPerCharacter
+            ++ drawLines plugboard height heightOffset widthPerCharacter
+        )
+
+
+drawCircles : Enigma.Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)
+drawCircles plugboard height heightOffset widthPerCharacter =
+    let
         generateStartListFunction =
             Maybe.map (\selectedInput -> [ selectedInput ]) >> Maybe.withDefault []
 
@@ -23,11 +38,8 @@ plugBoardCanvas plugboard sizePerCharacter =
                 ( generateStartListFunction plugboard.selectedInputChar, generateStartListFunction plugboard.selectedOutputChar )
                 plugboard.switchedCharsList
     in
-    Svg.svg
-        [ Svg.Attributes.width (String.fromInt (sizePerCharacter * 27))
-        , Svg.Attributes.height (String.fromInt height)
-        ]
-        (drawCircleRow 20 30 resultInputList ++ drawCircleRow (height - 20) 30 resultOutputList)
+    drawCircleRow heightOffset widthPerCharacter resultInputList
+        ++ drawCircleRow (height - heightOffset) widthPerCharacter resultOutputList
 
 
 drawCircleRow : Int -> Int -> List Int -> List (Svg.Svg msg)
@@ -54,5 +66,33 @@ circleForCharacter ( x, y ) fillCircle =
             )
         , Svg.Attributes.stroke "black"
         , Svg.Attributes.strokeWidth "2"
+        ]
+        []
+
+
+drawLines : Enigma.Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)
+drawLines plugboard height heightOffset widthPerCharacter =
+    List.map (\characterPair -> drawLineBetweenCharacters characterPair height heightOffset widthPerCharacter) plugboard.switchedCharsList
+
+
+drawLineBetweenCharacters : ( Int, Int ) -> Int -> Int -> Int -> Svg.Svg msg
+drawLineBetweenCharacters ( inputChar, outputChar ) height heightOffset widthPerCharacter =
+    let
+        widthOffset =
+            round (toFloat widthPerCharacter / 2)
+
+        ( startX, startY ) =
+            ( inputChar * widthPerCharacter + widthOffset, heightOffset )
+
+        ( endX, endY ) =
+            ( outputChar * widthPerCharacter + widthOffset, height - heightOffset )
+    in
+    Svg.line
+        [ Svg.Attributes.x1 <| String.fromInt startX
+        , Svg.Attributes.y1 <| String.fromInt startY
+        , Svg.Attributes.x2 <| String.fromInt endX
+        , Svg.Attributes.y2 <| String.fromInt endY
+        , Svg.Attributes.stroke "red"
+        , Svg.Attributes.strokeWidth "3"
         ]
         []
