@@ -275,19 +275,13 @@ configurePlugBoardView model =
 
 plugBoardCharacterButtons : Model -> Enigma.Plugboard.CharPosition -> List (Html Msg)
 plugBoardCharacterButtons model charPosition =
-    let
-        maybePressedCharIndex =
-            case charPosition of
-                Enigma.Plugboard.Input ->
-                    model.enigma.plugBoard.selectedInputChar
-
-                Enigma.Plugboard.Output ->
-                    model.enigma.plugBoard.selectedOutputChar
-    in
     List.map
         (\index ->
             Html.button
-                [ Html.Events.onClick (PressCharOnPlugboard charPosition index)
+                [ enableAttributeWhenInConfiguration model
+                , Html.Events.onClick (PressCharOnPlugboard charPosition index)
+                , Html.Attributes.style "height" "25px"
+                , Html.Attributes.style "width" "30px"
                 ]
                 [ index |> Just |> Utils.AlphabetHelper.characterIndexToCharacter |> Maybe.withDefault '-' |> String.fromChar |> Html.text ]
         )

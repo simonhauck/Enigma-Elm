@@ -27,19 +27,20 @@ plugBoardCanvas plugboard widthPerCharacter =
 drawCircles : Enigma.Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)
 drawCircles plugboard height heightOffset widthPerCharacter =
     let
-        generateStartListFunction =
+        listFromMaybeFunction =
             Maybe.map (\selectedInput -> [ selectedInput ]) >> Maybe.withDefault []
 
-        ( resultInputList, resultOutputList ) =
-            List.foldr
-                (\( input, output ) ( inputListAcc, outputList ) ->
-                    ( input :: inputListAcc, output :: outputList )
-                )
-                ( generateStartListFunction plugboard.selectedInputChar, generateStartListFunction plugboard.selectedOutputChar )
-                plugboard.switchedCharsList
+        ( inputCharList, outputCharList ) =
+            List.unzip plugboard.switchedCharsList
+
+        filledCircleList =
+            inputCharList
+                ++ outputCharList
+                ++ listFromMaybeFunction plugboard.selectedInputChar
+                ++ listFromMaybeFunction plugboard.selectedOutputChar
     in
-    drawCircleRow heightOffset widthPerCharacter resultInputList
-        ++ drawCircleRow (height - heightOffset) widthPerCharacter resultOutputList
+    drawCircleRow heightOffset widthPerCharacter filledCircleList
+        ++ drawCircleRow (height - heightOffset) widthPerCharacter filledCircleList
 
 
 drawCircleRow : Int -> Int -> List Int -> List (Svg.Svg msg)
@@ -72,7 +73,25 @@ circleForCharacter ( x, y ) fillCircle =
 
 drawLines : Enigma.Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)
 drawLines plugboard height heightOffset widthPerCharacter =
-    List.map (\characterPair -> drawLineBetweenCharacters characterPair height heightOffset widthPerCharacter) plugboard.switchedCharsList
+    List.foldl
+        (\linePair resultList ->
+            drawLinePair linePair height heightOffset widthPerCharacter
+                ++ resultList
+        )
+        []
+        plugboard.switchedCharsList
+
+
+drawLinePair : ( Int, Int ) -> Int -> Int -> Int -> List (Svg.Svg msg)
+drawLinePair ( inputChar, outputChar ) height heightOffset widthPerCharacter =
+    let
+        firstLine =
+            drawLineBetweenCharacters ( inputChar, outputChar ) height heightOffset widthPerCharacter
+
+        secondLine =
+            drawLineBetweenCharacters ( outputChar, inputChar ) height heightOffset widthPerCharacter
+    in
+    [ firstLine, secondLine ]
 
 
 drawLineBetweenCharacters : ( Int, Int ) -> Int -> Int -> Int -> Svg.Svg msg
