@@ -12,8 +12,6 @@ import Html.Events
 import Json.Decode
 import PlugBoardSvg
 import String
-import Svg
-import Svg.Attributes
 import Time
 import Utils.AlphabetHelper
 import Utils.MessageHolder exposing (ForeignChar, MessageHolder)
