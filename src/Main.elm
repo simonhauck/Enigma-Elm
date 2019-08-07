@@ -3,13 +3,17 @@ module Main exposing (main)
 import Browser
 import Dict
 import Enigma.EnigmaMachine exposing (Enigma)
+import Enigma.Plugboard
 import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor)
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Json.Decode
+import PlugBoardSvg
 import String
+import Svg
+import Svg.Attributes
 import Time
 import Utils.AlphabetHelper
 import Utils.MessageHolder exposing (ForeignChar, MessageHolder)
@@ -22,6 +26,7 @@ type Msg
     | SetReflector Reflector
     | SetRotorPosition Int Int
     | SetRingPosition Int Int
+    | PressCharOnPlugboard Enigma.Plugboard.CharPosition Int
     | ToggleForeignCharOption
     | ToggleOperationMode
     | ToggleEncryptionMode
@@ -249,7 +254,44 @@ selectReflectorView model =
 
 configurePlugBoardView : Model -> Html Msg
 configurePlugBoardView model =
-    Html.text "I dont know how to dooo this"
+    let
+        sizePerCharacter =
+            30
+    in
+    Html.div
+        [ Html.Attributes.width (sizePerCharacter * 27)
+        ]
+        [ Html.div
+            []
+            (plugBoardCharacterButtons model Enigma.Plugboard.Input)
+        , Html.div
+            []
+            [ PlugBoardSvg.plugBoardCanvas model.enigma.plugBoard sizePerCharacter ]
+        , Html.div
+            []
+            (plugBoardCharacterButtons model Enigma.Plugboard.Output)
+        ]
+
+
+plugBoardCharacterButtons : Model -> Enigma.Plugboard.CharPosition -> List (Html Msg)
+plugBoardCharacterButtons model charPosition =
+    let
+        maybePressedCharIndex =
+            case charPosition of
+                Enigma.Plugboard.Input ->
+                    model.enigma.plugBoard.selectedInputChar
+
+                Enigma.Plugboard.Output ->
+                    model.enigma.plugBoard.selectedOutputChar
+    in
+    List.map
+        (\index ->
+            Html.button
+                [ Html.Events.onClick (PressCharOnPlugboard charPosition index)
+                ]
+                [ index |> Just |> Utils.AlphabetHelper.characterIndexToCharacter |> Maybe.withDefault '-' |> String.fromChar |> Html.text ]
+        )
+        (List.range 0 25)
 
 
 otherConfigurationView : Model -> Html Msg
@@ -502,6 +544,9 @@ update msg model =
 
         SetReflector newReflector ->
             ( { model | enigma = Debug.log "SetReflector" (Enigma.EnigmaMachine.replaceReflector model.enigma newReflector) }, Cmd.none )
+
+        PressCharOnPlugboard charPosition charIndex ->
+            ( { model | enigma = Debug.log "PressCharInPlugboard" (Enigma.EnigmaMachine.pressCharOnPlugBoard model.enigma charPosition charIndex) }, Cmd.none )
 
         ToggleForeignCharOption ->
             ( { model | messageHolder = Utils.MessageHolder.toggleForeignCharOption model.messageHolder }, Cmd.none )

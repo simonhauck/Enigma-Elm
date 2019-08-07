@@ -1,4 +1,4 @@
-module Enigma.EnigmaMachine exposing (Enigma, defaultEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, replaceReflector, replaceRotor, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
+module Enigma.EnigmaMachine exposing (Enigma, defaultEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, pressCharOnPlugBoard, replaceReflector, replaceRotor, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
 
 import Enigma.Plugboard exposing (Plugboard)
 import Enigma.Reflector exposing (Reflector)
@@ -143,6 +143,16 @@ setRingPositionOfRotor enigma rotorIndex newRingPosition =
             List.Extra.updateAt rotorIndex (\rotor -> { rotor | ringPosition = newRingPosition }) enigma.rotors
     in
     { enigma | rotors = newRotors }
+
+
+{-| Press a char on the plugboard.
+enigma - the enigma with the plugboard
+charPosition - is the selected char an input or output value
+charIndex - index of the character in the alphabet
+-}
+pressCharOnPlugBoard : Enigma -> Enigma.Plugboard.CharPosition -> Int -> Enigma
+pressCharOnPlugBoard enigma charPosition charIndex =
+    { enigma | plugBoard = Enigma.Plugboard.pressChar enigma.plugBoard charPosition charIndex }
 
 
 {-| Set the currentPosition in each rotor to the selected startPosition
