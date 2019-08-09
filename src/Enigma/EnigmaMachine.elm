@@ -19,17 +19,17 @@ type alias Enigma =
 defaultEnigma : Enigma
 defaultEnigma =
     let
-        rotor3Test =
-            { rotor3 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
+        rotor1Test =
+            { rotor1 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
 
         rotor2Test =
             { rotor2 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
 
-        rotor1Test =
-            { rotor1 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
+        rotor3Test =
+            { rotor3 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
 
         rotorList =
-            [ rotor3Test, rotor2Test, rotor1Test ]
+            [ rotor1Test, rotor2Test, rotor3Test ]
     in
     { rotors = rotorList, reflector = Enigma.Reflector.reflectorB, plugBoard = Enigma.Plugboard.defaultPlugboard }
 
@@ -186,7 +186,7 @@ substituteCharacterWithPlugboard enigma maybeCharIndex =
 -}
 substituteCharacterToReflector : Enigma -> Maybe Int -> Maybe Int
 substituteCharacterToReflector enigma maybeInputIndex =
-    Utils.Helper.foldl2
+    Utils.Helper.foldr2
         --    TODO Eta reduction
         (\input currentRotor previousRotor ->
             case input of
@@ -205,7 +205,7 @@ substituteCharacterToReflector enigma maybeInputIndex =
 -}
 substituteCharacterFromReflector : Enigma -> Maybe Int -> Maybe Int
 substituteCharacterFromReflector enigma maybeInputIndex =
-    Utils.Helper.foldr2
+    Utils.Helper.foldl2
         --    TODO Eta reduction
         (\input currentRotor previousRotor ->
             case input of
@@ -238,10 +238,19 @@ The result is the enigma with updated rotors
 rotateRotors : Enigma -> Enigma
 rotateRotors enigma =
     let
-        updatedRotors =
-            rotateRotorsHelper enigma.rotors True []
+        ( newRotorList, _ ) =
+            List.foldr
+                (\rotor ( rotorList, shouldRotateRotor ) ->
+                    let
+                        ( updatedRotor, shouldRotateNext ) =
+                            rotateRotor rotor shouldRotateRotor
+                    in
+                    ( updatedRotor :: rotorList, shouldRotateNext )
+                )
+                ( [], True )
+                enigma.rotors
     in
-    { enigma | rotors = updatedRotors }
+    { enigma | rotors = newRotorList }
 
 
 {-| Helper Method for rotateRotors.
@@ -262,6 +271,20 @@ rotateRotorsHelper rotors shouldRotateRotor accumulator =
                     rotor :: accumulator
             in
             rotateRotorsHelper xs shouldRotateNext newAccumulator
+
+
+rotateRotorsHelper2 : List Rotor -> ( List Rotor, Bool )
+rotateRotorsHelper2 rotorList2 =
+    List.foldr
+        (\rotor ( rotorList, shouldRotateRotor ) ->
+            let
+                ( updatedRotor, shouldRotateNext ) =
+                    rotateRotor rotor shouldRotateRotor
+            in
+            ( updatedRotor :: rotorList, shouldRotateNext )
+        )
+        ( [], True )
+        rotorList2
 
 
 {-| Rotate a single rotor.
