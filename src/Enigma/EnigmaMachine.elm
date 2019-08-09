@@ -253,40 +253,6 @@ rotateRotors enigma =
     { enigma | rotors = newRotorList }
 
 
-{-| Helper Method for rotateRotors.
-Rotate the rotors in the given list and return the result
--}
-rotateRotorsHelper : List Rotor -> Bool -> List Rotor -> List Rotor
-rotateRotorsHelper rotors shouldRotateRotor accumulator =
-    case rotors of
-        [] ->
-            List.reverse accumulator
-
-        x :: xs ->
-            let
-                ( rotor, shouldRotateNext ) =
-                    rotateRotor x shouldRotateRotor
-
-                newAccumulator =
-                    rotor :: accumulator
-            in
-            rotateRotorsHelper xs shouldRotateNext newAccumulator
-
-
-rotateRotorsHelper2 : List Rotor -> ( List Rotor, Bool )
-rotateRotorsHelper2 rotorList2 =
-    List.foldr
-        (\rotor ( rotorList, shouldRotateRotor ) ->
-            let
-                ( updatedRotor, shouldRotateNext ) =
-                    rotateRotor rotor shouldRotateRotor
-            in
-            ( updatedRotor :: rotorList, shouldRotateNext )
-        )
-        ( [], True )
-        rotorList2
-
-
 {-| Rotate a single rotor.
 rotor - The rotor that should be rotated
 shouldRotateRotor - The rotor will only be rotated if this value is true.
