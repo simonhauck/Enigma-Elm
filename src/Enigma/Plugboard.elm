@@ -1,4 +1,4 @@
-module Enigma.Plugboard exposing (CharPosition(..), Plugboard, defaultPlugboard, pressChar, substituteCharacter)
+module Enigma.Plugboard exposing (CharPosition(..), Plugboard, defaultPlugboard, pressChar, resetPlugBoard, substituteCharacter)
 
 import List.Extra
 
@@ -25,7 +25,7 @@ type CharPosition
 -}
 defaultPlugboard : Plugboard
 defaultPlugboard =
-    { switchedCharsList = [ ( 0, 15 ), ( 2, 13 ) ], selectedInputChar = Nothing, selectedOutputChar = Nothing }
+    { switchedCharsList = [], selectedInputChar = Nothing, selectedOutputChar = Nothing }
 
 
 {-| Press a char on the plugboard. If the corresponding char is selected, the pair will be added to the switchedCharList.
@@ -74,6 +74,13 @@ substituteCharacter charIndex plugboard =
 
     else
         input
+
+
+{-| reset the plugboard. Remove all connection and set the selected Input/OutputChar to Nothing
+-}
+resetPlugBoard : Plugboard -> Plugboard
+resetPlugBoard plugboard =
+    { plugboard | switchedCharsList = [], selectedInputChar = Nothing, selectedOutputChar = Nothing }
 
 
 

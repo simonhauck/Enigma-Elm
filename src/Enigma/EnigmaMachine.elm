@@ -1,4 +1,4 @@
-module Enigma.EnigmaMachine exposing (Enigma, defaultEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, pressCharOnPlugBoard, replaceReflector, replaceRotor, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
+module Enigma.EnigmaMachine exposing (Enigma, defaultEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, pressCharOnPlugBoard, replaceReflector, replaceRotor, resetPlugBoard, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
 
 import Enigma.Plugboard exposing (Plugboard)
 import Enigma.Reflector exposing (Reflector)
@@ -153,6 +153,13 @@ charIndex - index of the character in the alphabet
 pressCharOnPlugBoard : Enigma -> Enigma.Plugboard.CharPosition -> Int -> Enigma
 pressCharOnPlugBoard enigma charPosition charIndex =
     { enigma | plugBoard = Enigma.Plugboard.pressChar enigma.plugBoard charPosition charIndex }
+
+
+{-| reset the plugboard. Remove all stored connections and set the selected Input/OutputChar to nothing
+-}
+resetPlugBoard : Enigma -> Enigma
+resetPlugBoard enigma =
+    { enigma | plugBoard = Enigma.Plugboard.resetPlugBoard enigma.plugBoard }
 
 
 {-| Set the currentPosition in each rotor to the selected startPosition

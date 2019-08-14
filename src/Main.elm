@@ -25,6 +25,8 @@ type Msg
     | SetRotorPosition Int Int
     | SetRingPosition Int Int
     | PressCharOnPlugboard Enigma.Plugboard.CharPosition Int
+    | ResetPlugBoard
+    | StartRandomKeyGeneration
     | ToggleForeignCharOption
     | ToggleOperationMode
     | ToggleEncryptionMode
@@ -257,29 +259,37 @@ configurePlugBoardView model =
             30
     in
     Html.div
-        [ Html.Attributes.width (sizePerCharacter * 27)
-        ]
+        []
         [ Html.div
-            []
-            (plugBoardCharacterButtons model Enigma.Plugboard.Input)
-        , Html.div
-            []
-            [ PlugBoardSvg.plugBoardCanvas model.enigma.plugBoard sizePerCharacter ]
-        , Html.div
-            []
-            (plugBoardCharacterButtons model Enigma.Plugboard.Output)
+            [ Html.Attributes.width (sizePerCharacter * 27)
+            ]
+            [ Html.div
+                []
+                (plugBoardCharacterButtons model Enigma.Plugboard.Input sizePerCharacter)
+            , Html.div
+                []
+                [ PlugBoardSvg.plugBoardCanvas model.enigma.plugBoard sizePerCharacter ]
+            , Html.div
+                []
+                (plugBoardCharacterButtons model Enigma.Plugboard.Output sizePerCharacter)
+            ]
+        , Html.button
+            [ enableAttributeWhenInConfiguration model
+            , Html.Events.onClick ResetPlugBoard
+            ]
+            [ Html.text "Reset Plugboard" ]
         ]
 
 
-plugBoardCharacterButtons : Model -> Enigma.Plugboard.CharPosition -> List (Html Msg)
-plugBoardCharacterButtons model charPosition =
+plugBoardCharacterButtons : Model -> Enigma.Plugboard.CharPosition -> Int -> List (Html Msg)
+plugBoardCharacterButtons model charPosition sizePerCharacter =
     List.map
         (\index ->
             Html.button
                 [ enableAttributeWhenInConfiguration model
                 , Html.Events.onClick (PressCharOnPlugboard charPosition index)
                 , Html.Attributes.style "height" "25px"
-                , Html.Attributes.style "width" "30px"
+                , Html.Attributes.style "width" (String.fromInt sizePerCharacter ++ "px")
                 ]
                 [ index |> Just |> Utils.AlphabetHelper.characterIndexToCharacter |> Maybe.withDefault '-' |> String.fromChar |> Html.text ]
         )
@@ -300,6 +310,11 @@ otherConfigurationView model =
                 []
             , Html.text "Include foreign chars"
             ]
+        , Html.button
+            [ enableAttributeWhenInConfiguration
+            , Html.Events.onClick StartRandomKeyGeneration
+            ]
+            [ Html.text "Generate random key" ]
         ]
 
 
@@ -475,6 +490,11 @@ substituteChar model maybeInputChar =
     { model | enigma = newEnigma, messageHolder = updatedMessageHolder }
 
 
+generateRandomKeys : Cmd msg
+generateRandomKeys =
+    Cmd.none
+
+
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Browser functions
@@ -539,6 +559,12 @@ update msg model =
 
         PressCharOnPlugboard charPosition charIndex ->
             ( { model | enigma = Debug.log "PressCharInPlugboard" (Enigma.EnigmaMachine.pressCharOnPlugBoard model.enigma charPosition charIndex) }, Cmd.none )
+
+        ResetPlugBoard ->
+            ( { model | enigma = Enigma.EnigmaMachine.resetPlugBoard model.enigma }, Cmd.none )
+
+        StartRandomKeyGeneration ->
+            ( model, Cmd.none )
 
         ToggleForeignCharOption ->
             ( { model | messageHolder = Utils.MessageHolder.toggleForeignCharOption model.messageHolder }, Cmd.none )
