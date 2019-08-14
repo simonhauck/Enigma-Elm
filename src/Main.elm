@@ -311,7 +311,7 @@ otherConfigurationView model =
             , Html.text "Include foreign chars"
             ]
         , Html.button
-            [ enableAttributeWhenInConfiguration
+            [ enableAttributeWhenInConfiguration model
             , Html.Events.onClick StartRandomKeyGeneration
             ]
             [ Html.text "Generate random key" ]

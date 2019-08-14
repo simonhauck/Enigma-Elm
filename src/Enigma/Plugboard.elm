@@ -1,6 +1,8 @@
 module Enigma.Plugboard exposing (CharPosition(..), Plugboard, defaultPlugboard, pressChar, resetPlugBoard, substituteCharacter)
 
 import List.Extra
+import Random
+import Random.List
 
 
 type alias Plugboard =
@@ -83,6 +85,22 @@ resetPlugBoard plugboard =
     { plugboard | switchedCharsList = [], selectedInputChar = Nothing, selectedOutputChar = Nothing }
 
 
+{-| get the Command for a random plugboard
+-}
+randomPlugboardCmd : (List Int -> msg) -> Cmd msg
+randomPlugboardCmd function =
+    List.range 0 25 |> Random.List.shuffle |> Random.generate function
+
+
+handleRandomPlugboardCmd : Plugboard -> List Int -> Plugboard
+handleRandomPlugboardCmd plugboard newConnectionList =
+    let
+        resettedPlugboard =
+            resetPlugBoard plugboard
+    in
+    List.foldl (\charIndex plugboardParam -> plugboardParam) resettedPlugboard newConnectionList
+
+
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Internal functions
@@ -112,3 +130,25 @@ removeOldConnection charIndex plugboard =
             List.filter (\( input, output ) -> not (input == charIndex || output == charIndex)) plugboard.switchedCharsList
     in
     { plugboard | switchedCharsList = filteredList }
+    
+
+handlePlugboardCmdHelper : Plugboard -> List Int -> (Plugboard, List Int)
+handlePlugboardCmdHelper plugboard selectedInidices =
+    let
+        twoElementsList = List.take 2 selectedInidices
+
+        resultSelectedIndices = List.drop 2 selectedInidices
+
+            
+    in
+        if(List.length twoElementsList == 2) then
+        let
+            inputIndex = List.Extra.getAt 0 twoElementsList |> Maybe.withDefault -1
+
+            outputIndex = List.Extra.getAt 1 twoElementsList |> Maybe.withDefault -1
+
+
+
+        in
+            ()
+
