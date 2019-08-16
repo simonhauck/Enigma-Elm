@@ -17,6 +17,10 @@ import Utils.AlphabetHelper
 import Utils.MessageHolder exposing (ForeignChar, MessageHolder)
 
 
+
+-- TODO Rename HandleRandomCmd
+
+
 type Msg
     = EncryptCharTick
     | UpdateRawInput String
@@ -27,6 +31,7 @@ type Msg
     | PressCharOnPlugboard Enigma.Plugboard.CharPosition Int
     | ResetPlugBoard
     | StartRandomKeyGeneration
+    | HandleRandomCmd Enigma.EnigmaMachine.RandomizationType
     | ToggleForeignCharOption
     | ToggleOperationMode
     | ToggleEncryptionMode
@@ -490,9 +495,13 @@ substituteChar model maybeInputChar =
     { model | enigma = newEnigma, messageHolder = updatedMessageHolder }
 
 
-generateRandomKeys : Cmd msg
-generateRandomKeys =
-    Cmd.none
+{-| generate a command to completely randomize the enigma
+-}
+randomizeEnigma : Cmd Msg
+randomizeEnigma =
+    Cmd.batch
+        [ Enigma.Plugboard.randomPlugboardCmd (\shuffledList -> HandleRandomCmd (Enigma.EnigmaMachine.RandomizePlugboard shuffledList))
+        ]
 
 
 
@@ -564,7 +573,10 @@ update msg model =
             ( { model | enigma = Enigma.EnigmaMachine.resetPlugBoard model.enigma }, Cmd.none )
 
         StartRandomKeyGeneration ->
-            ( model, Cmd.none )
+            ( model, randomizeEnigma )
+
+        HandleRandomCmd randomizationType ->
+            ( { model | enigma = Enigma.EnigmaMachine.handleCmdResult model.enigma randomizationType }, Cmd.none )
 
         ToggleForeignCharOption ->
             ( { model | messageHolder = Utils.MessageHolder.toggleForeignCharOption model.messageHolder }, Cmd.none )

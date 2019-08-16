@@ -1,4 +1,4 @@
-module Enigma.EnigmaMachine exposing (Enigma, defaultEnigma, performRotationAndSubstitution, performRotationsAndSubstitutions, pressCharOnPlugBoard, replaceReflector, replaceRotor, resetPlugBoard, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
+module Enigma.EnigmaMachine exposing (Enigma, RandomizationType(..), defaultEnigma, handleCmdResult, performRotationAndSubstitution, performRotationsAndSubstitutions, pressCharOnPlugBoard, replaceReflector, replaceRotor, resetPlugBoard, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
 
 import Enigma.Plugboard exposing (Plugboard)
 import Enigma.Reflector exposing (Reflector)
@@ -32,6 +32,10 @@ defaultEnigma =
             [ rotor1Test, rotor2Test, rotor3Test ]
     in
     { rotors = rotorList, reflector = Enigma.Reflector.reflectorB, plugBoard = Enigma.Plugboard.defaultPlugboard }
+
+
+type RandomizationType
+    = RandomizePlugboard (List Int)
 
 
 
@@ -171,6 +175,17 @@ setCurrentPositionToStartPosition enigma =
             List.map (\rotor -> { rotor | currentPosition = rotor.startPosition }) enigma.rotors
     in
     { enigma | rotors = updatedRotors }
+
+
+{-| Handle the result of randomizing a component of the enigma.
+enigma - the enigma that will be modified
+randomizationType - the part of the enigma that will be randomized
+-}
+handleCmdResult : Enigma -> RandomizationType -> Enigma
+handleCmdResult enigma randomizationType =
+    case randomizationType of
+        RandomizePlugboard newPlugboardList ->
+            { enigma | plugBoard = Enigma.Plugboard.handleRandomPlugboardCmd enigma.plugBoard newPlugboardList }
 
 
 

@@ -1,4 +1,4 @@
-module Enigma.Plugboard exposing (CharPosition(..), Plugboard, defaultPlugboard, pressChar, resetPlugBoard, substituteCharacter)
+module Enigma.Plugboard exposing (CharPosition(..), Plugboard, defaultPlugboard, handleRandomPlugboardCmd, pressChar, randomPlugboardCmd, resetPlugBoard, substituteCharacter)
 
 import List.Extra
 import Random
@@ -92,13 +92,20 @@ randomPlugboardCmd function =
     List.range 0 25 |> Random.List.shuffle |> Random.generate function
 
 
+{-| handle the result of the randomPlugboardCommand.
+plugboard - where the new connections will be set
+newConnectionList - the list with shuffled indices
+-}
 handleRandomPlugboardCmd : Plugboard -> List Int -> Plugboard
 handleRandomPlugboardCmd plugboard newConnectionList =
     let
-        resettedPlugboard =
+        clearedPlugboard =
             resetPlugBoard plugboard
+
+        ( plugboardWithConnections, _ ) =
+            handleRandomPlugboardCmdHelper ( clearedPlugboard, newConnectionList )
     in
-    List.foldl (\charIndex plugboardParam -> plugboardParam) resettedPlugboard newConnectionList
+    plugboardWithConnections
 
 
 
@@ -130,25 +137,32 @@ removeOldConnection charIndex plugboard =
             List.filter (\( input, output ) -> not (input == charIndex || output == charIndex)) plugboard.switchedCharsList
     in
     { plugboard | switchedCharsList = filteredList }
-    
 
-handlePlugboardCmdHelper : Plugboard -> List Int -> (Plugboard, List Int)
-handlePlugboardCmdHelper plugboard selectedInidices =
+
+{-| reduce the list from left to right. Take and remove two indices of the list and add the values
+as input and output chars to the given plugboard.
+-}
+handleRandomPlugboardCmdHelper : ( Plugboard, List Int ) -> ( Plugboard, List Int )
+handleRandomPlugboardCmdHelper ( plugboard, selectedIndices ) =
     let
-        twoElementsList = List.take 2 selectedInidices
+        twoElementsList =
+            List.take 2 selectedIndices
 
-        resultSelectedIndices = List.drop 2 selectedInidices
-
-            
+        remainingIndices =
+            List.drop 2 selectedIndices
     in
-        if(List.length twoElementsList == 2) then
+    if List.length twoElementsList == 2 then
         let
-            inputIndex = List.Extra.getAt 0 twoElementsList |> Maybe.withDefault -1
+            inputIndex =
+                List.Extra.getAt 0 twoElementsList |> Maybe.withDefault -1
 
-            outputIndex = List.Extra.getAt 1 twoElementsList |> Maybe.withDefault -1
+            outputIndex =
+                List.Extra.getAt 1 twoElementsList |> Maybe.withDefault -1
 
-
-
+            updatedPlugboard =
+                addPair plugboard ( inputIndex, outputIndex )
         in
-            ()
+        handleRandomPlugboardCmdHelper ( updatedPlugboard, remainingIndices )
 
+    else
+        ( plugboard, [] )
