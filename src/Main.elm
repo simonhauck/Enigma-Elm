@@ -497,10 +497,28 @@ substituteChar model maybeInputChar =
 
 {-| generate a command to completely randomize the enigma
 -}
-randomizeEnigma : Cmd Msg
-randomizeEnigma =
+randomizeEnigma : Model -> Cmd Msg
+randomizeEnigma model =
     Cmd.batch
-        [ Enigma.Plugboard.randomPlugboardCmd (\shuffledList -> HandleRandomCmd (Enigma.EnigmaMachine.RandomizePlugboard shuffledList))
+        [ Enigma.Plugboard.randomPlugboardCmd
+            (\shuffledList ->
+                HandleRandomCmd (Enigma.EnigmaMachine.RandomizePlugboard shuffledList)
+            )
+        , Enigma.EnigmaMachine.randomizeRotorsCmd
+            (\randomRotorPair ->
+                HandleRandomCmd (Enigma.EnigmaMachine.RandomizeRotor randomRotorPair)
+            )
+            model.enigma
+        , Enigma.EnigmaMachine.randomizeReflectorCmd
+            (\randomReflector ->
+                HandleRandomCmd (Enigma.EnigmaMachine.RandomizeReflector randomReflector)
+            )
+        , Enigma.EnigmaMachine.getRandomCharPositionsCmd
+            (\randomCharPositionPair -> HandleRandomCmd (Enigma.EnigmaMachine.RandomizeRotorStartPosition randomCharPositionPair))
+            model.enigma
+        , Enigma.EnigmaMachine.getRandomCharPositionsCmd
+            (\randomCharPositionPair -> HandleRandomCmd (Enigma.EnigmaMachine.RandomizeRotorRingPosition randomCharPositionPair))
+            model.enigma
         ]
 
 
@@ -573,7 +591,7 @@ update msg model =
             ( { model | enigma = Enigma.EnigmaMachine.resetPlugBoard model.enigma }, Cmd.none )
 
         StartRandomKeyGeneration ->
-            ( model, randomizeEnigma )
+            ( model, randomizeEnigma model )
 
         HandleRandomCmd randomizationType ->
             ( { model | enigma = Enigma.EnigmaMachine.handleCmdResult model.enigma randomizationType }, Cmd.none )

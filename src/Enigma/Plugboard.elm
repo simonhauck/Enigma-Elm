@@ -1,4 +1,13 @@
-module Enigma.Plugboard exposing (CharPosition(..), Plugboard, defaultPlugboard, handleRandomPlugboardCmd, pressChar, randomPlugboardCmd, resetPlugBoard, substituteCharacter)
+module Enigma.Plugboard exposing
+    ( CharPosition(..)
+    , Plugboard
+    , defaultPlugboard
+    , handleRandomPlugboardCmd
+    , pressChar
+    , randomPlugboardCmd
+    , resetPlugBoard
+    , substituteCharacter
+    )
 
 import List.Extra
 import Random

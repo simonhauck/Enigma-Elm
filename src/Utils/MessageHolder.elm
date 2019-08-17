@@ -1,4 +1,12 @@
-module Utils.MessageHolder exposing (ForeignChar(..), MessageHolder, addProcessedChar, getFirstCharFromRawInput, getFormattedProcessedInputOutput, toggleForeignCharOption, updateRawInput)
+module Utils.MessageHolder exposing
+    ( ForeignChar(..)
+    , MessageHolder
+    , addProcessedChar
+    , getFirstCharFromRawInput
+    , getFormattedProcessedInputOutput
+    , toggleForeignCharOption
+    , updateRawInput
+    )
 
 import Maybe exposing (Maybe)
 import Regex

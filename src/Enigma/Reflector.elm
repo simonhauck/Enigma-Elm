@@ -1,4 +1,11 @@
-module Enigma.Reflector exposing (Reflector, getAllReflectors, reflectorA, reflectorB, reflectorC, substituteCharacter)
+module Enigma.Reflector exposing
+    ( Reflector
+    , getAllReflectors
+    , reflectorA
+    , reflectorB
+    , reflectorC
+    , substituteCharacter
+    )
 
 import Dict exposing (Dict)
 import List.Extra

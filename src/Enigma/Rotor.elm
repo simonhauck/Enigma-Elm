@@ -1,4 +1,19 @@
-module Enigma.Rotor exposing (Rotor, SignalDirection(..), getAllRotors, rotateRotor, rotor1, rotor2, rotor3, rotor4, rotor5, rotor6, rotor7, rotor8, staticRotor, substituteCharacter)
+module Enigma.Rotor exposing
+    ( Rotor
+    , SignalDirection(..)
+    , getAllRotors
+    , rotateRotor
+    , rotor1
+    , rotor2
+    , rotor3
+    , rotor4
+    , rotor5
+    , rotor6
+    , rotor7
+    , rotor8
+    , staticRotor
+    , substituteCharacter
+    )
 
 import Dict exposing (Dict)
 import List.Extra

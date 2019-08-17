@@ -1,10 +1,31 @@
-module Enigma.EnigmaMachine exposing (Enigma, RandomizationType(..), defaultEnigma, handleCmdResult, performRotationAndSubstitution, performRotationsAndSubstitutions, pressCharOnPlugBoard, replaceReflector, replaceRotor, resetPlugBoard, setCurrentPositionToStartPosition, setRingPositionOfRotor, setStartPositionOfRotor, substituteCharacter)
+module Enigma.EnigmaMachine exposing
+    ( Enigma
+    , RandomizationType(..)
+    , defaultEnigma
+    , getRandomCharPositionsCmd
+    , handleCmdResult
+    , performRotationAndSubstitution
+    , performRotationsAndSubstitutions
+    , pressCharOnPlugBoard
+    , randomizeReflectorCmd
+    , randomizeRotorsCmd
+    , replaceReflector
+    , replaceRotor
+    , resetPlugBoard
+    , setCurrentPositionToStartPosition
+    , setRingPositionOfRotor
+    , setStartPositionOfRotor
+    , substituteCharacter
+    )
 
+import Dict
 import Enigma.Plugboard exposing (Plugboard)
 import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor, rotor1, rotor2, rotor3, staticRotor)
 import List
 import List.Extra
+import Random
+import Random.List
 import Utils.AlphabetHelper
 import Utils.Helper
 
@@ -36,6 +57,10 @@ defaultEnigma =
 
 type RandomizationType
     = RandomizePlugboard (List Int)
+    | RandomizeRotor ( Int, Rotor )
+    | RandomizeReflector Reflector
+    | RandomizeRotorStartPosition ( Int, Int )
+    | RandomizeRotorRingPosition ( Int, Int )
 
 
 
@@ -177,6 +202,30 @@ setCurrentPositionToStartPosition enigma =
     { enigma | rotors = updatedRotors }
 
 
+{-| Create a Cmd to randomize all rotors in the given enigma
+-}
+randomizeRotorsCmd : (( Int, Rotor ) -> msg) -> Enigma -> Cmd msg
+randomizeRotorsCmd function enigma =
+    Cmd.batch (List.indexedMap (\index _ -> randomizeRotor function index) enigma.rotors)
+
+
+{-| Create a command to select a random reflector
+-}
+randomizeReflectorCmd : (Reflector -> msg) -> Cmd msg
+randomizeReflectorCmd function =
+    Dict.values Enigma.Reflector.getAllReflectors
+        |> Random.List.choose
+        |> Random.map (Maybe.withDefault Enigma.Reflector.reflectorB << Tuple.first)
+        |> Random.generate function
+
+
+{-| Create a command to select a random character for each rotor in the given enigma
+-}
+getRandomCharPositionsCmd : (( Int, Int ) -> msg) -> Enigma -> Cmd msg
+getRandomCharPositionsCmd function enigma =
+    Cmd.batch (List.indexedMap (\index _ -> randomCharPosition function index) enigma.rotors)
+
+
 {-| Handle the result of randomizing a component of the enigma.
 enigma - the enigma that will be modified
 randomizationType - the part of the enigma that will be randomized
@@ -186,6 +235,18 @@ handleCmdResult enigma randomizationType =
     case randomizationType of
         RandomizePlugboard newPlugboardList ->
             { enigma | plugBoard = Enigma.Plugboard.handleRandomPlugboardCmd enigma.plugBoard newPlugboardList }
+
+        RandomizeRotor ( rotorPosition, newRotor ) ->
+            replaceRotor enigma rotorPosition newRotor
+
+        RandomizeReflector newReflector ->
+            replaceReflector enigma newReflector
+
+        RandomizeRotorStartPosition ( rotorPosition, newStartPosition ) ->
+            setStartPositionOfRotor enigma rotorPosition newStartPosition
+
+        RandomizeRotorRingPosition ( rotorPosition, newRingPosition ) ->
+            setRingPositionOfRotor enigma rotorPosition newRingPosition
 
 
 
@@ -294,3 +355,28 @@ rotateRotor rotor shouldRotateRotor =
 
     else
         ( rotor, False )
+
+
+{-| Randomize the rotor for the given index
+function - parse the index and the rotor to a msg
+rotorIndex - the index of the selected rotor
+-}
+randomizeRotor : (( Int, Rotor ) -> msg) -> Int -> Cmd msg
+randomizeRotor function rotorIndex =
+    Random.List.choose (Dict.values Enigma.Rotor.getAllRotors)
+        |> Random.map
+            (\( maybeRandomRotor, _ ) ->
+                ( rotorIndex, Maybe.withDefault rotor1 maybeRandomRotor )
+            )
+        |> Random.generate function
+
+
+{-| Get a command to receive a random character for the given index
+function - to convert the pair of position and random character in a message
+charIndex - position of the character
+-}
+randomCharPosition : (( Int, Int ) -> msg) -> Int -> Cmd msg
+randomCharPosition function position =
+    Random.int 0 25
+        |> Random.map (\randomChar -> ( position, randomChar ))
+        |> Random.generate function
