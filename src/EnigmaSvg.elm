@@ -3,6 +3,7 @@ module EnigmaSvg exposing (enigmaSvg)
 import Enigma.EnigmaMachine
 import Enigma.Plugboard
 import Enigma.Reflector
+import Enigma.Rotor
 import Html exposing (Html)
 import List.Extra
 import Svg exposing (Svg)
@@ -24,16 +25,36 @@ type CharacterOrientation
 enigmaSvg : Enigma.EnigmaMachine.Enigma -> Html msg
 enigmaSvg enigma =
     Svg.svg
-        [ Svg.Attributes.width "1000"
+        [ Svg.Attributes.width "10000"
         , Svg.Attributes.height "1000"
         ]
-        (drawReflector enigma.reflector 250 20)
+        (drawReflector enigma.reflector 175 20
+            ++ drawRotors enigma.rotors 300 20
+        )
 
 
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Internal functions
 -- ---------------------------------------------------------------------------------------------------------------------
+
+
+{-| space between the components in a row
+-}
+rowYSpace =
+    25
+
+
+{-| space between two rotors
+-}
+spaceBetweenRotors =
+    125
+
+
+{-| width of a rotor
+-}
+rotorWidth =
+    200
 
 
 {-| Get a list with Svg elements that display the given reflector
@@ -48,7 +69,7 @@ drawReflector reflector x y =
             40
 
         connectionLineLengthPerStep =
-            5
+            3
 
         connectionLines =
             List.Extra.indexedFoldl
@@ -70,10 +91,44 @@ drawReflector reflector x y =
     connectionLines ++ drawAlphabetColumn Left x y
 
 
-{-| space between the components in a row
+{-| Draw all rotors in the given list
+rotors - the rotors of the enigma
+x - the xCoordinate in the top left corner where the rotors will be drawn
+y - the yCoordinate in the top left corner where the rotors will be drawn
 -}
-rowYSpace =
-    25
+drawRotors : List Enigma.Rotor.Rotor -> Int -> Int -> List (Svg msg)
+drawRotors rotors x y =
+    List.Extra.indexedFoldl
+        (\index rotor listAcc ->
+            let
+                xCoordinateRotor =
+                    x + (index * (spaceBetweenRotors + rotorWidth))
+            in
+            drawRotor rotor xCoordinateRotor y ++ listAcc
+        )
+        []
+        rotors
+
+
+{-| Draw the given rotor
+rotor - that will be drawn
+x - the xCoordinate of the canvas where the rotor will be drawn
+y - the yCoordinate of the canvas where the rotor will be drawn
+-}
+drawRotor : Enigma.Rotor.Rotor -> Int -> Int -> List (Svg msg)
+drawRotor rotor x y =
+    let
+        connectionLines =
+            List.Extra.indexedFoldl
+                (\inputIndex outputIndex listAcc ->
+                    drawRotorConnection inputIndex outputIndex x y :: listAcc
+                )
+                []
+                rotor.characterSequence
+    in
+    drawAlphabetColumn Left x y
+        ++ drawAlphabetColumn Right (x + rotorWidth) y
+        ++ connectionLines
 
 
 {-| draw a column with points and the alphabet letters
@@ -199,3 +254,21 @@ drawReflectorConnection inputCharIndex outputCharIndex x startY horizontalLength
     , drawLine topLeftCorner bottomLeftCorner
     , drawLine bottomLeftCorner bottomRightCorner
     ]
+
+
+{-| draw a connection in a rotor
+inputCharIndex - index of the inputChar
+outputCharIndex - index of the outputChar
+x - xCoordinate of the top left corner where the rotor is drawn
+startY - yCoordinate of the top left corner where the rotor is drawn
+-}
+drawRotorConnection : Int -> Int -> Int -> Int -> Svg msg
+drawRotorConnection inputCharIndex outputCharIndex x startY =
+    let
+        topRightPoint =
+            ( x + rotorWidth, startY + inputCharIndex * rowYSpace )
+
+        bottomLeftPoint =
+            ( x, startY + outputCharIndex * rowYSpace )
+    in
+    drawLine topRightPoint bottomLeftPoint
