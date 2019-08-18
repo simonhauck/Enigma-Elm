@@ -6,6 +6,12 @@ import Svg
 import Svg.Attributes
 
 
+
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Exposed functions
+-- ---------------------------------------------------------------------------------------------------------------------
+
+
 plugBoardCanvas : Enigma.Plugboard.Plugboard -> Int -> Html msg
 plugBoardCanvas plugboard widthPerCharacter =
     let
@@ -22,6 +28,12 @@ plugBoardCanvas plugboard widthPerCharacter =
         (drawCircles plugboard height heightOffset widthPerCharacter
             ++ drawLines plugboard height heightOffset widthPerCharacter
         )
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Internal functions
+-- ---------------------------------------------------------------------------------------------------------------------
 
 
 drawCircles : Enigma.Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)

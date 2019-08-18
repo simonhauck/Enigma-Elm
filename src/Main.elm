@@ -6,6 +6,7 @@ import Enigma.EnigmaMachine exposing (Enigma)
 import Enigma.Plugboard
 import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor)
+import EnigmaSvg
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
@@ -390,6 +391,11 @@ encryptionView model =
             , encryptionResultView model
             ]
         , textInputView model
+        , Html.div
+            []
+            [ Html.h3 [] [ Html.text "Enigma View" ]
+            , enigmaSvg model
+            ]
         ]
 
 
@@ -434,6 +440,11 @@ textInputView model =
             , Html.text ("Time between Ticks: " ++ String.fromInt model.textInputConfig.encryptionSpeed)
             ]
         ]
+
+
+enigmaSvg : Model -> Html Msg
+enigmaSvg model =
+    EnigmaSvg.enigmaSvg model.enigma
 
 
 textInputField : Model -> Html Msg
