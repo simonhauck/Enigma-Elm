@@ -30,6 +30,7 @@ enigmaSvg enigma =
         ]
         (drawReflector enigma.reflector 175 20
             ++ drawRotors enigma.rotors 300 20
+            ++ drawPlugBoard enigma.plugBoard (300 + (List.length enigma.rotors * (spaceBetweenRotors + rotorWidth))) 20
         )
 
 
@@ -55,6 +56,12 @@ spaceBetweenRotors =
 -}
 rotorWidth =
     200
+
+
+{-| space between the plugboard rows
+-}
+spaceBetweenPlugboard =
+    100
 
 
 {-| Get a list with Svg elements that display the given reflector
@@ -88,7 +95,7 @@ drawReflector reflector x y =
                 []
                 reflector.characterSequence
     in
-    connectionLines ++ drawAlphabetColumn Left x y
+    connectionLines ++ drawAlphabetColumn Left 0 x y
 
 
 {-| Draw all rotors in the given list
@@ -110,6 +117,11 @@ drawRotors rotors x y =
         rotors
 
 
+drawPlugBoard : Enigma.Plugboard.Plugboard -> Int -> Int -> List (Svg msg)
+drawPlugBoard plugboard x y =
+    drawAlphabetColumn Left 0 x y ++ drawAlphabetColumn Right 0 (x + spaceBetweenPlugboard) y
+
+
 {-| Draw the given rotor
 rotor - that will be drawn
 x - the xCoordinate of the canvas where the rotor will be drawn
@@ -121,23 +133,31 @@ drawRotor rotor x y =
         connectionLines =
             List.Extra.indexedFoldl
                 (\inputIndex outputIndex listAcc ->
-                    drawRotorConnection inputIndex outputIndex x y :: listAcc
+                    let
+                        rotatedInputIndex =
+                            inputIndex - rotor.currentPosition + rotor.ringPosition |> modBy 26
+
+                        rotatedOutputIndex =
+                            outputIndex - rotor.currentPosition + rotor.ringPosition |> modBy 26
+                    in
+                    drawRotorConnection rotatedInputIndex rotatedOutputIndex x y :: listAcc
                 )
                 []
                 rotor.characterSequence
     in
-    drawAlphabetColumn Left x y
-        ++ drawAlphabetColumn Right (x + rotorWidth) y
+    drawAlphabetColumn Left (rotor.currentPosition - rotor.ringPosition) x y
+        ++ drawAlphabetColumn Right (rotor.currentPosition - rotor.ringPosition) (x + rotorWidth) y
         ++ connectionLines
 
 
 {-| draw a column with points and the alphabet letters
+shiftLetters - the letters will be shifted with the given number
 characterOrientation - display the character on the right or left
 x - the xCoordinate of the row
 startY - the yCoordinate for the first row
 -}
-drawAlphabetColumn : CharacterOrientation -> Int -> Int -> List (Svg msg)
-drawAlphabetColumn characterOrientation x startY =
+drawAlphabetColumn : CharacterOrientation -> Int -> Int -> Int -> List (Svg msg)
+drawAlphabetColumn characterOrientation shiftLetters x startY =
     let
         list =
             List.range 0 25
@@ -149,7 +169,7 @@ drawAlphabetColumn characterOrientation x startY =
                     startY + characterIndex * rowYSpace
 
                 char =
-                    Just characterIndex |> Utils.AlphabetHelper.characterIndexToCharacter |> Maybe.withDefault '-'
+                    characterIndex + shiftLetters |> modBy 26 |> Just |> Utils.AlphabetHelper.characterIndexToCharacter |> Maybe.withDefault '-'
             in
             drawCircleCharacterRow characterOrientation x y char ++ listAcc
         )

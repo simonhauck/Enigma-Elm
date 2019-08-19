@@ -158,7 +158,8 @@ setStartPositionOfRotor : Enigma -> Int -> Int -> Enigma
 setStartPositionOfRotor enigma rotorIndex newStartPosition =
     let
         newRotors =
-            List.Extra.updateAt rotorIndex (\rotor -> { rotor | startPosition = newStartPosition }) enigma.rotors
+            --            TODO Remove currentPosition
+            List.Extra.updateAt rotorIndex (\rotor -> { rotor | startPosition = newStartPosition, currentPosition = newStartPosition }) enigma.rotors
     in
     { enigma | rotors = newRotors }
 
