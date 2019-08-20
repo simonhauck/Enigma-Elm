@@ -24,13 +24,26 @@ type CharacterOrientation
 
 enigmaSvg : Enigma.EnigmaMachine.Enigma -> Html msg
 enigmaSvg enigma =
+    let
+        yCoordinate =
+            20
+
+        reflectorXCoordinate =
+            175
+
+        rotorXCoordinate =
+            reflectorXCoordinate + spaceBetweenReflectorAndRotor
+
+        plugBoardXCoordinate =
+            (spaceBetweenRotors + rotorWidth) * List.length enigma.rotors + rotorXCoordinate
+    in
     Svg.svg
         [ Svg.Attributes.width "10000"
         , Svg.Attributes.height "1000"
         ]
-        (drawReflector enigma.reflector 175 20
-            ++ drawRotors enigma.rotors 300 20
-            ++ drawPlugBoard enigma.plugBoard (300 + (List.length enigma.rotors * (spaceBetweenRotors + rotorWidth))) 20
+        (drawReflector enigma.reflector reflectorXCoordinate yCoordinate
+            ++ drawRotors enigma.rotors rotorXCoordinate yCoordinate
+            ++ drawPlugBoard enigma.plugBoard plugBoardXCoordinate yCoordinate
         )
 
 
@@ -44,6 +57,10 @@ enigmaSvg enigma =
 -}
 rowYSpace =
     25
+
+
+spaceBetweenReflectorAndRotor =
+    125
 
 
 {-| space between two rotors
@@ -60,7 +77,7 @@ rotorWidth =
 
 {-| space between the plugboard rows
 -}
-spaceBetweenPlugboard =
+plugboardWidth =
     100
 
 
@@ -117,9 +134,23 @@ drawRotors rotors x y =
         rotors
 
 
+{-| Draw the plugboard and all of its connections
+-}
 drawPlugBoard : Enigma.Plugboard.Plugboard -> Int -> Int -> List (Svg msg)
 drawPlugBoard plugboard x y =
-    drawAlphabetColumn Left 0 x y ++ drawAlphabetColumn Right 0 (x + spaceBetweenPlugboard) y
+    let
+        connectionLines =
+            List.map
+                (\inputCharIndex ->
+                    let
+                        outputCharIndex =
+                            Enigma.Plugboard.substituteCharacter inputCharIndex plugboard
+                    in
+                    drawPlugboardConnection inputCharIndex outputCharIndex x y
+                )
+                (List.range 0 25)
+    in
+    drawAlphabetColumn Left 0 x y ++ drawAlphabetColumn Right 0 (x + plugboardWidth) y ++ connectionLines
 
 
 {-| Draw the given rotor
@@ -285,10 +316,24 @@ startY - yCoordinate of the top left corner where the rotor is drawn
 drawRotorConnection : Int -> Int -> Int -> Int -> Svg msg
 drawRotorConnection inputCharIndex outputCharIndex x startY =
     let
-        topRightPoint =
+        rightPoint =
             ( x + rotorWidth, startY + inputCharIndex * rowYSpace )
 
-        bottomLeftPoint =
+        leftPoint =
             ( x, startY + outputCharIndex * rowYSpace )
     in
-    drawLine topRightPoint bottomLeftPoint
+    drawLine rightPoint leftPoint
+
+
+{-| draw a connection in the plugboard
+-}
+drawPlugboardConnection : Int -> Int -> Int -> Int -> Svg msg
+drawPlugboardConnection inputCharIndex outputCharIndex x startY =
+    let
+        rightPoint =
+            ( x + plugboardWidth, startY + inputCharIndex * rowYSpace )
+
+        leftPoint =
+            ( x, startY + outputCharIndex * rowYSpace )
+    in
+    drawLine rightPoint leftPoint
