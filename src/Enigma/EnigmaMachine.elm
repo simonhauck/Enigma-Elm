@@ -1,6 +1,7 @@
 module Enigma.EnigmaMachine exposing
     ( Enigma
     , RandomizationType(..)
+    , SubstitutionLog
     , defaultEnigma
     , getRandomCharPositionsCmd
     , handleCmdResult
@@ -37,6 +38,23 @@ type alias Enigma =
     }
 
 
+type alias SubstitutionLog =
+    { plugboardInputSubstitution : ( Int, Int )
+    , plugboardOutputSubstitution : ( Int, Int )
+    , reflectorSubstitution : ( Int, Int )
+    , rotorToReflectorSubstitution : List ( Int, Int )
+    , rotorFromReflectorSubstitution : List ( Int, Int )
+    }
+
+
+type RandomizationType
+    = RandomizePlugboard (List Int)
+    | RandomizeRotor ( Int, Rotor )
+    | RandomizeReflector Reflector
+    | RandomizeRotorStartPosition ( Int, Int )
+    | RandomizeRotorRingPosition ( Int, Int )
+
+
 defaultEnigma : Enigma
 defaultEnigma =
     let
@@ -53,14 +71,6 @@ defaultEnigma =
             [ rotor1Test, rotor2Test, rotor3Test ]
     in
     { rotors = rotorList, reflector = Enigma.Reflector.reflectorB, plugBoard = Enigma.Plugboard.defaultPlugboard }
-
-
-type RandomizationType
-    = RandomizePlugboard (List Int)
-    | RandomizeRotor ( Int, Rotor )
-    | RandomizeReflector Reflector
-    | RandomizeRotorStartPosition ( Int, Int )
-    | RandomizeRotorRingPosition ( Int, Int )
 
 
 
