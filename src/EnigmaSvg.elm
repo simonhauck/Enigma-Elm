@@ -61,7 +61,7 @@ enigmaSvg enigma =
         (drawReflector enigma.reflector reflectorXCoordinate yCoordinate
             ++ drawRotors enigma.rotors rotorXCoordinate yCoordinate
             ++ drawPlugBoard enigma.plugBoard plugBoardXCoordinate yCoordinate
-            ++ drawSubstitutionLog debugLog yCoordinate reflectorXCoordinate rotorXCoordinate plugBoardXCoordinate
+            ++ drawSubstitutionLog enigma debugLog yCoordinate reflectorXCoordinate rotorXCoordinate plugBoardXCoordinate
         )
 
 
@@ -75,6 +75,18 @@ enigmaSvg enigma =
 -}
 rowYSpace =
     25
+
+
+{-| min length of a line in the reflector
+-}
+reflectorConnectionLineMinLength =
+    40
+
+
+{-| increase the length of a line with each step
+-}
+reflectorConnectionLineLengthPerStep =
+    9
 
 
 {-| space between the left rotor and and the reflector
@@ -139,28 +151,27 @@ y - yPosition of the reflector
 drawReflector : Enigma.Reflector.Reflector -> Int -> Int -> List (Svg msg)
 drawReflector reflector x y =
     let
-        connectionLineMinLength =
-            40
-
-        connectionLineLengthPerStep =
-            3
-
         connectionLines =
             List.Extra.indexedFoldl
-                (\inputIndex outputIndex listAcc ->
+                (\inputIndex outputIndex ( listAcc, i ) ->
                     if inputIndex <= outputIndex then
-                        drawReflectorConnection inputIndex
+                        ( drawReflectorConnection inputIndex
                             outputIndex
                             x
                             y
-                            (List.length listAcc * connectionLineLengthPerStep + connectionLineMinLength)
+                            (i * reflectorConnectionLineLengthPerStep + reflectorConnectionLineMinLength)
+                            defaultColor
+                            defaultLineStrokeWidth
                             ++ listAcc
+                        , i + 1
+                        )
 
                     else
-                        listAcc
+                        ( listAcc, i )
                 )
-                []
+                ( [], 0 )
                 reflector.characterSequence
+                |> Tuple.first
     in
     connectionLines ++ drawAlphabetColumn Left 0 x y
 
@@ -231,8 +242,16 @@ drawRotor rotor x y =
         ++ connectionLines
 
 
-drawSubstitutionLog : Enigma.EnigmaMachine.SubstitutionLog -> Int -> Int -> Int -> Int -> List (Svg msg)
-drawSubstitutionLog substitutionLog yCoordinate reflectorXCoordinate rotorXCoordinate plugboardXCoordinate =
+{-| draw all active connections of the enigma
+enigma - the enigma used for the encryption
+substitutionLog - the log that contains all active connections
+yCoordinate - the yCoordinate for all components
+reflectorXCoordinate - the xCoordinate of the reflector
+rotorXCoordinate - the xCoordinate of the rotor
+plugboardXCoordinate - the xCoordinate of the plugboard
+-}
+drawSubstitutionLog : Enigma.EnigmaMachine.Enigma -> Enigma.EnigmaMachine.SubstitutionLog -> Int -> Int -> Int -> Int -> List (Svg msg)
+drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate rotorXCoordinate plugboardXCoordinate =
     let
         plugboardToReflectorArrow =
             drawArrow (plugboardXCoordinate + plugboardWidth)
@@ -310,6 +329,48 @@ drawSubstitutionLog substitutionLog yCoordinate reflectorXCoordinate rotorXCoord
                 )
                 []
                 substitutionLog.rotorFromReflectorSubstitution
+
+        reflectorLineLength =
+            List.Extra.indexedFoldl
+                (\inputCharIndex outputCharIndex length ->
+                    if
+                        inputCharIndex
+                            < (substitutionLog.reflectorSubstitution |> Tuple.first)
+                            && inputCharIndex
+                            < outputCharIndex
+                    then
+                        length + reflectorConnectionLineLengthPerStep
+
+                    else
+                        length
+                )
+                reflectorConnectionLineMinLength
+                enigma.reflector.characterSequence
+
+        reflectorLine =
+            drawReflectorConnection
+                (substitutionLog.reflectorSubstitution |> Tuple.first)
+                (substitutionLog.reflectorSubstitution |> Tuple.second)
+                reflectorXCoordinate
+                yCoordinate
+                reflectorLineLength
+                colorToReflector
+                connectionLineStrokeWidth
+
+        reflectorToRotorLines =
+            [ drawConnectionBetweenReflectorAndRotor
+                (substitutionLog.reflectorSubstitution |> Tuple.first)
+                reflectorXCoordinate
+                yCoordinate
+                colorToReflector
+                connectionLineStrokeWidth
+            , drawConnectionBetweenReflectorAndRotor
+                (substitutionLog.reflectorSubstitution |> Tuple.second)
+                reflectorXCoordinate
+                yCoordinate
+                colorFromReflector
+                connectionLineStrokeWidth
+            ]
     in
     plugboardFromReflectorConnection
         :: plugboardToReflectorConnection
@@ -317,6 +378,8 @@ drawSubstitutionLog substitutionLog yCoordinate reflectorXCoordinate rotorXCoord
         ++ plugboardFromReflectorArrow
         ++ rotorConnectionsToReflector
         ++ rotorConnectionsFromReflector
+        ++ reflectorLine
+        ++ reflectorToRotorLines
 
 
 {-| draw a column with points and the alphabet letters
@@ -400,19 +463,10 @@ drawSmallCircles x y =
         []
 
 
-{-| draw a line between the given two points
-(x1, y1) - the x and y coordinate of the first point
-(x2, y2) - the x and y coordinate of the second point
--}
-drawDefaultLine : ( Int, Int ) -> ( Int, Int ) -> Svg msg
-drawDefaultLine startPoint endpoint =
-    drawLineWithColor startPoint endpoint defaultColor defaultLineStrokeWidth
-
-
 {-| draw a line between the given coordinates with the given color and strokeWidth
 -}
-drawLineWithColor : ( Int, Int ) -> ( Int, Int ) -> Color -> LineStrokeWidth -> Svg msg
-drawLineWithColor ( x1, y1 ) ( x2, y2 ) color strokeWidth =
+drawLine : ( Int, Int ) -> ( Int, Int ) -> Color -> LineStrokeWidth -> Svg msg
+drawLine ( x1, y1 ) ( x2, y2 ) color strokeWidth =
     Svg.line
         [ Svg.Attributes.x1 <| String.fromInt x1
         , Svg.Attributes.y1 <| String.fromInt y1
@@ -431,8 +485,8 @@ x - the xCoordinate of the reflector
 startY - the yCoordinate of the first reflector row
 horizontalLength - the horizontal length of the connection
 -}
-drawReflectorConnection : Int -> Int -> Int -> Int -> Int -> List (Svg msg)
-drawReflectorConnection inputCharIndex outputCharIndex x startY horizontalLength =
+drawReflectorConnection : Int -> Int -> Int -> Int -> Int -> Color -> LineStrokeWidth -> List (Svg msg)
+drawReflectorConnection inputCharIndex outputCharIndex x startY horizontalLength color strokeWidth =
     let
         topRightCorner =
             ( x, startY + inputCharIndex * rowYSpace )
@@ -446,10 +500,29 @@ drawReflectorConnection inputCharIndex outputCharIndex x startY horizontalLength
         bottomRightCorner =
             ( x, startY + outputCharIndex * rowYSpace )
     in
-    [ drawDefaultLine topRightCorner topLeftCorner
-    , drawDefaultLine topLeftCorner bottomLeftCorner
-    , drawDefaultLine bottomLeftCorner bottomRightCorner
+    [ drawLine topRightCorner topLeftCorner color strokeWidth
+    , drawLine topLeftCorner bottomLeftCorner color strokeWidth
+    , drawLine bottomLeftCorner bottomRightCorner color strokeWidth
     ]
+
+
+{-| draw a connection line between the reflector and the left rotor
+charIndex - the index of the char that is connected
+x - the xCoordinate of the reflector
+y - the yCoordinate of the reflector
+color - the color of the line
+lineStrokeWidth - the strokeWidth of the line
+-}
+drawConnectionBetweenReflectorAndRotor : Int -> Int -> Int -> Color -> LineStrokeWidth -> Svg msg
+drawConnectionBetweenReflectorAndRotor charIndex x y =
+    let
+        startPoint =
+            ( x, charIndex * rowYSpace + y )
+
+        endPoint =
+            ( x + spaceBetweenReflectorAndRotor, charIndex * rowYSpace + y )
+    in
+    drawLine startPoint endPoint
 
 
 {-| draw a connection in a rotor
@@ -467,7 +540,7 @@ drawRotorConnection inputCharIndex outputCharIndex x startY =
         leftPoint =
             ( x, startY + outputCharIndex * rowYSpace )
     in
-    drawLineWithColor rightPoint leftPoint
+    drawLine rightPoint leftPoint
 
 
 {-| draw a connection between rotors
@@ -485,7 +558,7 @@ drawConnectionBetweenRotors charIndex rotorIndex rotorX rotorY =
         endPoint =
             ( rotorX + (rotorIndex + 1) * (rotorWidth + spaceBetweenRotors), rotorY + rowYSpace * charIndex )
     in
-    drawLineWithColor startPoint endPoint
+    drawLine startPoint endPoint
 
 
 {-| draw a connection in the plugboard
@@ -499,7 +572,7 @@ drawPlugboardConnection inputCharIndex outputCharIndex x startY =
         leftPoint =
             ( x, startY + outputCharIndex * rowYSpace )
     in
-    drawLineWithColor rightPoint leftPoint
+    drawLine rightPoint leftPoint
 
 
 {-| Draw an arrow at the given coordinate.
@@ -551,7 +624,7 @@ drawArrow x y arrowLeft color =
             else
                 ( x + arrowOffset + arrowLength - tipXCoordinate, y - tipYCoordinate )
     in
-    [ drawLineWithColor startPoint endPoint color defaultLineStrokeWidth
-    , drawLineWithColor startPoint topPoint color defaultLineStrokeWidth
-    , drawLineWithColor startPoint bottomPoint color defaultLineStrokeWidth
+    [ drawLine startPoint endPoint color defaultLineStrokeWidth
+    , drawLine startPoint topPoint color defaultLineStrokeWidth
+    , drawLine startPoint bottomPoint color defaultLineStrokeWidth
     ]
