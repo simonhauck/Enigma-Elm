@@ -6,6 +6,7 @@ import Enigma.EnigmaMachine exposing (Enigma)
 import Enigma.Plugboard
 import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor)
+import Enigma.SubstitutionLog
 import EnigmaSvg
 import Html exposing (Html)
 import Html.Attributes
@@ -55,6 +56,7 @@ type alias TextInputConfig =
 
 type alias Model =
     { enigma : Enigma
+    , substitionLog : Maybe Enigma.SubstitutionLog.SubstitutionLog
     , messageHolder : MessageHolder
     , operationMode : OperationMode
     , textInputConfig : TextInputConfig
@@ -444,7 +446,7 @@ textInputView model =
 
 enigmaSvg : Model -> Html Msg
 enigmaSvg model =
-    EnigmaSvg.enigmaSvg model.enigma
+    EnigmaSvg.enigmaSvg model.enigma model.substitionLog
 
 
 textInputField : Model -> Html Msg
@@ -497,13 +499,13 @@ substituteChar model maybeInputChar =
         inputChar =
             Maybe.withDefault '-' maybeInputChar
 
-        ( newEnigma, maybeOutputChar ) =
+        ( newEnigma, maybeSubstitutionLog, maybeOutputChar ) =
             Enigma.EnigmaMachine.performRotationAndSubstitution model.enigma inputChar
 
         updatedMessageHolder =
             Utils.MessageHolder.addProcessedChar model.messageHolder inputChar maybeOutputChar
     in
-    { model | enigma = newEnigma, messageHolder = updatedMessageHolder }
+    { model | enigma = newEnigma, messageHolder = updatedMessageHolder, substitionLog = maybeSubstitutionLog }
 
 
 {-| generate a command to completely randomize the enigma
@@ -553,7 +555,12 @@ initialModel =
         textInputConfig =
             { encryptionMode = Manual, encryptionSpeed = 250 }
     in
-    { enigma = enigma, messageHolder = messageHolder, operationMode = Configuration, textInputConfig = textInputConfig }
+    { enigma = enigma
+    , substitionLog = Nothing
+    , messageHolder = messageHolder
+    , operationMode = Configuration
+    , textInputConfig = textInputConfig
+    }
 
 
 {-| Return the subscriptions for the given model

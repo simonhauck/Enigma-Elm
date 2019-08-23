@@ -4,6 +4,7 @@ import Enigma.EnigmaMachine
 import Enigma.Plugboard
 import Enigma.Reflector
 import Enigma.Rotor
+import Enigma.SubstitutionLog exposing (SubstitutionLog)
 import Html exposing (Html)
 import List.Extra
 import Svg exposing (Svg)
@@ -24,23 +25,14 @@ type alias LineStrokeWidth =
     String
 
 
-debugLog =
-    { plugboardInputSubstitution = ( 0, 0 )
-    , plugboardOutputSubstitution = ( 1, 1 )
-    , reflectorSubstitution = ( 5, 18 )
-    , rotorToReflectorSubstitution = [ ( 0, 2 ), ( 2, 3 ), ( 3, 5 ) ]
-    , rotorFromReflectorSubstitution = [ ( 18, 18 ), ( 18, 4 ), ( 4, 1 ) ]
-    }
-
-
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Exposed functions
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
-enigmaSvg : Enigma.EnigmaMachine.Enigma -> Html msg
-enigmaSvg enigma =
+enigmaSvg : Enigma.EnigmaMachine.Enigma -> Maybe SubstitutionLog -> Html msg
+enigmaSvg enigma substitutionLog =
     let
         yCoordinate =
             20
@@ -53,6 +45,23 @@ enigmaSvg enigma =
 
         plugBoardXCoordinate =
             (spaceBetweenRotors + rotorWidth) * List.length enigma.rotors + rotorXCoordinate
+
+        unwrapSubstitutionLogFunction =
+            Maybe.map
+                (\log ->
+                    case log.postProcessing of
+                        Enigma.SubstitutionLog.InProgress ->
+                            []
+
+                        Enigma.SubstitutionLog.Finished ->
+                            drawSubstitutionLog enigma
+                                log
+                                yCoordinate
+                                reflectorXCoordinate
+                                rotorXCoordinate
+                                plugBoardXCoordinate
+                )
+                >> Maybe.withDefault []
     in
     Svg.svg
         [ Svg.Attributes.width "10000"
@@ -61,7 +70,7 @@ enigmaSvg enigma =
         (drawReflector enigma.reflector reflectorXCoordinate yCoordinate
             ++ drawRotors enigma.rotors rotorXCoordinate yCoordinate
             ++ drawPlugBoard enigma.plugBoard plugBoardXCoordinate yCoordinate
-            ++ drawSubstitutionLog enigma debugLog yCoordinate reflectorXCoordinate rotorXCoordinate plugBoardXCoordinate
+            ++ unwrapSubstitutionLogFunction substitutionLog
         )
 
 
@@ -250,7 +259,7 @@ reflectorXCoordinate - the xCoordinate of the reflector
 rotorXCoordinate - the xCoordinate of the rotor
 plugboardXCoordinate - the xCoordinate of the plugboard
 -}
-drawSubstitutionLog : Enigma.EnigmaMachine.Enigma -> Enigma.EnigmaMachine.SubstitutionLog -> Int -> Int -> Int -> Int -> List (Svg msg)
+drawSubstitutionLog : Enigma.EnigmaMachine.Enigma -> SubstitutionLog -> Int -> Int -> Int -> Int -> List (Svg msg)
 drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate rotorXCoordinate plugboardXCoordinate =
     let
         plugboardToReflectorArrow =
@@ -305,7 +314,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                         ++ listAcc
                 )
                 []
-                (List.reverse substitutionLog.rotorToReflectorSubstitution)
+                substitutionLog.rotorToReflectorSubstitution
 
         rotorConnectionsFromReflector =
             List.Extra.indexedFoldl
@@ -336,6 +345,8 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                     if
                         inputCharIndex
                             < (substitutionLog.reflectorSubstitution |> Tuple.first)
+                            && inputCharIndex
+                            < (substitutionLog.reflectorSubstitution |> Tuple.second)
                             && inputCharIndex
                             < outputCharIndex
                     then
