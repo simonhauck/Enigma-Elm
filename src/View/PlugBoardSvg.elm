@@ -1,4 +1,4 @@
-module PlugBoardSvg exposing (plugBoardCanvas)
+module View.PlugBoardSvg exposing (plugBoardCanvas)
 
 import Enigma.Plugboard
 import Html exposing (Html)

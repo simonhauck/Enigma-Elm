@@ -1,4 +1,4 @@
-module EnigmaSvg exposing (enigmaSvg)
+module View.EnigmaSvg exposing (enigmaSvg)
 
 import Enigma.EnigmaMachine
 import Enigma.Plugboard
@@ -64,8 +64,8 @@ enigmaSvg enigma substitutionLog =
                 >> Maybe.withDefault []
     in
     Svg.svg
-        [ Svg.Attributes.width "10000"
-        , Svg.Attributes.height "1000"
+        [ Svg.Attributes.width "1500"
+        , Svg.Attributes.height "700"
         ]
         (drawReflector enigma.reflector reflectorXCoordinate yCoordinate
             ++ drawRotors enigma.rotors rotorXCoordinate yCoordinate

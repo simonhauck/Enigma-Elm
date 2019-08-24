@@ -2,6 +2,7 @@ module Utils.MessageHolder exposing
     ( ForeignChar(..)
     , MessageHolder
     , addProcessedChar
+    , defaultMessageHolder
     , getFirstCharFromRawInput
     , getFormattedProcessedInputOutput
     , toggleForeignCharOption
@@ -15,7 +16,8 @@ import Regex
 {-| Hold the string values for the raw and processed input and the out value
 -}
 type alias MessageHolder =
-    { rawInput : String
+    { description : String
+    , rawInput : String
     , processedInput : String
     , processedOutput : String
     , foreignCharOption : ForeignChar
@@ -25,6 +27,20 @@ type alias MessageHolder =
 type ForeignChar
     = Include
     | Ignore
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Exposed functions
+-- ---------------------------------------------------------------------------------------------------------------------
+--TODO Remove Hello world
+
+
+{-| Get a default message holder
+-}
+defaultMessageHolder : MessageHolder
+defaultMessageHolder =
+    { description = "", rawInput = "Hello world", processedInput = "", processedOutput = "", foreignCharOption = Include }
 
 
 {-| Update the raw input value of the messageHolder with the given string
@@ -97,3 +113,9 @@ toggleForeignCharOption messageHolder =
 
         Ignore ->
             { messageHolder | foreignCharOption = Include }
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Internal functions
+-- ---------------------------------------------------------------------------------------------------------------------

@@ -7,16 +7,18 @@ import Enigma.Plugboard
 import Enigma.Reflector exposing (Reflector)
 import Enigma.Rotor exposing (Rotor)
 import Enigma.SubstitutionLog
-import EnigmaSvg
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Json.Decode
-import PlugBoardSvg
 import String
 import Time
 import Utils.AlphabetHelper
 import Utils.MessageHolder exposing (ForeignChar, MessageHolder)
+import Utils.ServerMessageHolder
+import View.EnigmaSvg
+import View.PlugBoardSvg
+import View.ServerMessageView
 
 
 
@@ -38,6 +40,7 @@ type Msg
     | ToggleOperationMode
     | ToggleEncryptionMode
     | SetEncryptionModeSpeed Int
+    | SelectServerMessage MessageHolder
 
 
 type OperationMode
@@ -56,10 +59,11 @@ type alias TextInputConfig =
 
 type alias Model =
     { enigma : Enigma
-    , substitionLog : Maybe Enigma.SubstitutionLog.SubstitutionLog
+    , substitutionLog : Maybe Enigma.SubstitutionLog.SubstitutionLog
     , messageHolder : MessageHolder
     , operationMode : OperationMode
     , textInputConfig : TextInputConfig
+    , serverMessageHolder : Utils.ServerMessageHolder.ServerMessageHolder
     }
 
 
@@ -84,6 +88,11 @@ view model =
             [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Preview" ]
             , enigmaPreview model
             , encryptionView model
+            ]
+        , Html.div
+            []
+            [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Server Messages" ]
+            , View.ServerMessageView.displayServerMessages SelectServerMessage model.serverMessageHolder
             ]
         ]
 
@@ -276,7 +285,7 @@ configurePlugBoardView model =
                 (plugBoardCharacterButtons model Enigma.Plugboard.Input sizePerCharacter)
             , Html.div
                 []
-                [ PlugBoardSvg.plugBoardCanvas model.enigma.plugBoard sizePerCharacter ]
+                [ View.PlugBoardSvg.plugBoardCanvas model.enigma.plugBoard sizePerCharacter ]
             , Html.div
                 []
                 (plugBoardCharacterButtons model Enigma.Plugboard.Output sizePerCharacter)
@@ -446,7 +455,7 @@ textInputView model =
 
 enigmaSvg : Model -> Html Msg
 enigmaSvg model =
-    EnigmaSvg.enigmaSvg model.enigma model.substitionLog
+    View.EnigmaSvg.enigmaSvg model.enigma model.substitutionLog
 
 
 textInputField : Model -> Html Msg
@@ -505,7 +514,7 @@ substituteChar model maybeInputChar =
         updatedMessageHolder =
             Utils.MessageHolder.addProcessedChar model.messageHolder inputChar maybeOutputChar
     in
-    { model | enigma = newEnigma, messageHolder = updatedMessageHolder, substitionLog = maybeSubstitutionLog }
+    { model | enigma = newEnigma, messageHolder = updatedMessageHolder, substitutionLog = maybeSubstitutionLog }
 
 
 {-| generate a command to completely randomize the enigma
@@ -549,17 +558,15 @@ initialModel =
         enigma =
             Enigma.EnigmaMachine.defaultEnigma
 
-        messageHolder =
-            { rawInput = "Hello world", processedInput = "", processedOutput = "", foreignCharOption = Utils.MessageHolder.Include }
-
         textInputConfig =
             { encryptionMode = Manual, encryptionSpeed = 250 }
     in
     { enigma = enigma
-    , substitionLog = Nothing
-    , messageHolder = messageHolder
+    , substitutionLog = Nothing
+    , messageHolder = Utils.MessageHolder.defaultMessageHolder
     , operationMode = Configuration
     , textInputConfig = textInputConfig
+    , serverMessageHolder = Utils.ServerMessageHolder.defaultServerMessageHolder
     }
 
 
@@ -665,6 +672,9 @@ update msg model =
                     { model | messageHolder = updatedMessageHolder }
             in
             ( substituteChar updatedModel maybeInputChar, Cmd.none )
+
+        SelectServerMessage messageHolder ->
+            ( { model | messageHolder = messageHolder }, Cmd.none )
 
 
 main : Program () Model Msg
