@@ -6,6 +6,7 @@ module Utils.MessageHolder exposing
     , getFirstCharFromRawInput
     , getFormattedProcessedInputOutput
     , toggleForeignCharOption
+    , updateDesscription
     , updateRawInput
     )
 
@@ -48,6 +49,13 @@ defaultMessageHolder =
 updateRawInput : MessageHolder -> String -> MessageHolder
 updateRawInput messageHolder newRawInput =
     { messageHolder | rawInput = newRawInput }
+
+
+{-| Set the value for the description
+-}
+updateDesscription : MessageHolder -> String -> MessageHolder
+updateDesscription messageHolder newInput =
+    { messageHolder | description = newInput }
 
 
 {-| Get the first char of the rawInput of the messageHolder. The char will be removed from the rawInput.

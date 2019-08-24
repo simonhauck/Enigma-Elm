@@ -10,6 +10,7 @@ import Enigma.SubstitutionLog
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Http
 import Json.Decode
 import String
 import Time
@@ -28,6 +29,7 @@ import View.ServerMessageView
 type Msg
     = EncryptCharTick
     | UpdateRawInput String
+    | UpdateDescription String
     | SetRotor Int (Maybe Rotor)
     | SetReflector Reflector
     | SetRotorPosition Int Int
@@ -41,6 +43,8 @@ type Msg
     | ToggleEncryptionMode
     | SetEncryptionModeSpeed Int
     | SelectServerMessage MessageHolder
+    | SendMessageToServer
+    | ReceiveServerMessageHolder (Result Http.Error (List MessageHolder))
 
 
 type OperationMode
@@ -416,18 +420,31 @@ encryptionResultView model =
         ( formattedInput, formattedOutput ) =
             Utils.MessageHolder.getFormattedProcessedInputOutput model.messageHolder
     in
-    Html.table
+    Html.div
         []
-        [ Html.tr
+        [ Html.table
             []
-            [ Html.td [] [ Html.text "Processed Input: " ]
-            , Html.td [] [ Html.text formattedInput ]
+            [ Html.tr
+                []
+                [ Html.td [] [ Html.text "Processed Input: " ]
+                , Html.td [] [ Html.text formattedInput ]
+                ]
+            , Html.tr
+                []
+                [ Html.td [] [ Html.text "Processed Output: " ]
+                , Html.td [] [ Html.text formattedOutput ]
+                ]
             ]
-        , Html.tr
+        , Html.input
+            [ Html.Attributes.type_ "text"
+            , Html.Attributes.placeholder "Add a description"
+            , Html.Attributes.value model.messageHolder.description
+            , Html.Events.onInput UpdateDescription
+            ]
             []
-            [ Html.td [] [ Html.text "Processed Output: " ]
-            , Html.td [] [ Html.text formattedOutput ]
-            ]
+        , Html.button
+            [ Html.Events.onClick SendMessageToServer ]
+            [ Html.text "Send message to server" ]
         ]
 
 
@@ -552,7 +569,7 @@ randomizeEnigma model =
 
 {-| Return the initial model of the mainView
 -}
-initialModel : Model
+initialModel : ( Model, Cmd Msg )
 initialModel =
     let
         enigma =
@@ -561,13 +578,15 @@ initialModel =
         textInputConfig =
             { encryptionMode = Manual, encryptionSpeed = 250 }
     in
-    { enigma = enigma
-    , substitutionLog = Nothing
-    , messageHolder = Utils.MessageHolder.defaultMessageHolder
-    , operationMode = Configuration
-    , textInputConfig = textInputConfig
-    , serverMessageHolder = Utils.ServerMessageHolder.defaultServerMessageHolder
-    }
+    ( { enigma = enigma
+      , substitutionLog = Nothing
+      , messageHolder = Utils.MessageHolder.defaultMessageHolder
+      , operationMode = Configuration
+      , textInputConfig = textInputConfig
+      , serverMessageHolder = Utils.ServerMessageHolder.defaultServerMessageHolder
+      }
+    , Utils.ServerMessageHolder.requestServerMessages ReceiveServerMessageHolder
+    )
 
 
 {-| Return the subscriptions for the given model
@@ -641,6 +660,9 @@ update msg model =
         UpdateRawInput input ->
             ( { model | messageHolder = Utils.MessageHolder.updateRawInput model.messageHolder input }, Cmd.none )
 
+        UpdateDescription input ->
+            ( { model | messageHolder = Utils.MessageHolder.updateDesscription model.messageHolder input }, Cmd.none )
+
         ToggleEncryptionMode ->
             let
                 textInputConfig =
@@ -676,11 +698,29 @@ update msg model =
         SelectServerMessage messageHolder ->
             ( { model | messageHolder = messageHolder }, Cmd.none )
 
+        SendMessageToServer ->
+            ( { model | messageHolder = Utils.MessageHolder.defaultMessageHolder }
+            , Utils.ServerMessageHolder.sendMessageToServer model.messageHolder ReceiveServerMessageHolder
+            )
+
+        --TODO Handle error correctly
+        ReceiveServerMessageHolder result ->
+            case result of
+                Ok val ->
+                    ( { model | serverMessageHolder = val }, Cmd.none )
+
+                Err e ->
+                    let
+                        es =
+                            Debug.log "Error: " e
+                    in
+                    ( model, Cmd.none )
+
 
 main : Program () Model Msg
 main =
     Browser.element
-        { init = \_ -> ( initialModel, Cmd.none )
+        { init = \_ -> initialModel
         , view = view
         , update = update
         , subscriptions = subscriptions
