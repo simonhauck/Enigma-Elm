@@ -1,4 +1,10 @@
-module Utils.ServerMessageHolder exposing (ServerMessageHolder, defaultServerMessageHolder, requestServerMessages, sendMessageToServer)
+module Utils.ServerMessageHolder exposing
+    ( ServerMessageHolder(..)
+    , defaultServerMessageHolder
+    , handleServerResponse
+    , requestServerMessages
+    , sendMessageToServer
+    )
 
 import Http
 import Json.Decode
@@ -6,8 +12,10 @@ import Json.Encode
 import Utils.MessageHolder
 
 
-type alias ServerMessageHolder =
-    List Utils.MessageHolder.MessageHolder
+type ServerMessageHolder
+    = Loading
+    | MessageHolderList (List Utils.MessageHolder.MessageHolder)
+    | Error
 
 
 
@@ -18,13 +26,13 @@ type alias ServerMessageHolder =
 
 defaultServerMessageHolder : ServerMessageHolder
 defaultServerMessageHolder =
-    []
+    Loading
 
 
 sendMessageToServer : Utils.MessageHolder.MessageHolder -> (Result Http.Error (List Utils.MessageHolder.MessageHolder) -> msg) -> Cmd msg
 sendMessageToServer messageHolder resultFunction =
     Http.post
-        { url = "http://shauck.ddns.net:8080/ss19_enigma_server/api/messages"
+        { url = serverUrl
         , body = encodeMessageHolder messageHolder |> Http.jsonBody
         , expect = Http.expectJson resultFunction decodeMessageHolderList
         }
@@ -33,9 +41,19 @@ sendMessageToServer messageHolder resultFunction =
 requestServerMessages : (Result Http.Error (List Utils.MessageHolder.MessageHolder) -> msg) -> Cmd msg
 requestServerMessages resultFunction =
     Http.get
-        { url = "http://shauck.ddns.net:8080/ss19_enigma_server/api/messages"
+        { url = serverUrl
         , expect = Http.expectJson resultFunction decodeMessageHolderList
         }
+
+
+handleServerResponse : Result err (List Utils.MessageHolder.MessageHolder) -> ServerMessageHolder
+handleServerResponse result =
+    case result of
+        Ok val ->
+            MessageHolderList val
+
+        Err _ ->
+            Error
 
 
 
@@ -43,6 +61,11 @@ requestServerMessages resultFunction =
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Internal functions
 -- ---------------------------------------------------------------------------------------------------------------------
+
+
+serverUrl : String
+serverUrl =
+    "http://shauck.ddns.net:8080/ss19_enigma_server/api/messages"
 
 
 decodeMessageHolderList : Json.Decode.Decoder (List Utils.MessageHolder.MessageHolder)

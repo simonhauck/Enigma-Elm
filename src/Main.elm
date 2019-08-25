@@ -42,6 +42,7 @@ type Msg
     | ToggleOperationMode
     | ToggleEncryptionMode
     | SetEncryptionModeSpeed Int
+    | LoadServerMessages
     | SelectServerMessage MessageHolder
     | SendMessageToServer
     | ReceiveServerMessageHolder (Result Http.Error (List MessageHolder))
@@ -90,13 +91,12 @@ view model =
         , Html.div
             []
             [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Preview" ]
-            , enigmaPreview model
             , encryptionView model
             ]
         , Html.div
             []
             [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Server Messages" ]
-            , View.ServerMessageView.displayServerMessages SelectServerMessage model.serverMessageHolder
+            , View.ServerMessageView.displayServerMessages SelectServerMessage LoadServerMessages model.serverMessageHolder
             ]
         ]
 
@@ -371,16 +371,6 @@ enableAttributeWhenInConfiguration model =
 
         Configuration ->
             Html.Attributes.disabled False
-
-
-enigmaPreview : Model -> Html Msg
-enigmaPreview model =
-    case model.operationMode of
-        Configuration ->
-            Html.text "ConfigurationMode"
-
-        Encryption ->
-            Html.text "Encryption Mode"
 
 
 {-| Return a text
@@ -694,6 +684,11 @@ update msg model =
             in
             ( substituteChar updatedModel maybeInputChar, Cmd.none )
 
+        LoadServerMessages ->
+            ( { model | serverMessageHolder = Utils.ServerMessageHolder.Loading }
+            , Utils.ServerMessageHolder.requestServerMessages ReceiveServerMessageHolder
+            )
+
         SelectServerMessage messageHolder ->
             ( { model | messageHolder = messageHolder }, Cmd.none )
 
@@ -704,16 +699,7 @@ update msg model =
 
         --TODO Handle error correctly
         ReceiveServerMessageHolder result ->
-            case result of
-                Ok val ->
-                    ( { model | serverMessageHolder = val }, Cmd.none )
-
-                Err e ->
-                    let
-                        es =
-                            Debug.log "Error: " e
-                    in
-                    ( model, Cmd.none )
+            ( { model | serverMessageHolder = Utils.ServerMessageHolder.handleServerResponse result }, Cmd.none )
 
 
 main : Program () Model Msg

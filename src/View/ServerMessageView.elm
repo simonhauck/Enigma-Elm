@@ -1,7 +1,9 @@
 module View.ServerMessageView exposing (displayServerMessages)
 
 import Html exposing (Html)
+import Html.Attributes
 import Html.Events
+import Loading exposing (defaultConfig)
 import Utils.MessageHolder as MessageHolder
 import Utils.ServerMessageHolder
 
@@ -13,9 +15,9 @@ import Utils.ServerMessageHolder
 --TODO ETA Reduction
 
 
-displayServerMessages : (MessageHolder.MessageHolder -> msg) -> Utils.ServerMessageHolder.ServerMessageHolder -> Html msg
-displayServerMessages onClickFunction serverMessageHolder =
-    displayServerMessageHolderTable onClickFunction serverMessageHolder
+displayServerMessages : (MessageHolder.MessageHolder -> msg) -> msg -> Utils.ServerMessageHolder.ServerMessageHolder -> Html msg
+displayServerMessages useFunction reloadFunction serverMessageHolder =
+    displayServerMessageHolderTable useFunction reloadFunction serverMessageHolder
 
 
 
@@ -24,14 +26,39 @@ displayServerMessages onClickFunction serverMessageHolder =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
-displayServerMessageHolderTable : (MessageHolder.MessageHolder -> msg) -> Utils.ServerMessageHolder.ServerMessageHolder -> Html msg
-displayServerMessageHolderTable onClickFunction serverMessageHolder =
+displayServerMessageHolderTable : (MessageHolder.MessageHolder -> msg) -> msg -> Utils.ServerMessageHolder.ServerMessageHolder -> Html msg
+displayServerMessageHolderTable useFunction reloadFunction serverMessageHolder =
+    let
+        displayedItemList =
+            case serverMessageHolder of
+                Utils.ServerMessageHolder.Loading ->
+                    [ Html.tr
+                        []
+                        [ Html.td
+                            [ Html.Attributes.colspan 4 ]
+                            [ Loading.render Loading.Bars
+                                { defaultConfig | color = "#333" }
+                                Loading.On
+                            ]
+                        ]
+                    ]
+
+                Utils.ServerMessageHolder.Error ->
+                    [ Html.tr [] [ Html.td [ Html.Attributes.colspan 4 ] [ Html.text "An error occurred while connecting to the server" ] ] ]
+
+                Utils.ServerMessageHolder.MessageHolderList list ->
+                    List.indexedMap (displayServerMessageRow useFunction) list
+    in
     Html.table
         []
         (Html.tr
             []
-            [ Html.td [] [ Html.text "Index" ], Html.td [] [ Html.text "Description" ], Html.td [] [ Html.text "RawInput" ] ]
-            :: List.indexedMap (displayServerMessageRow onClickFunction) serverMessageHolder
+            [ Html.td [] [ Html.text "Index" ]
+            , Html.td [] [ Html.text "Description" ]
+            , Html.td [] [ Html.text "RawInput" ]
+            , Html.td [] [ Html.button [ Html.Events.onClick reloadFunction ] [ Html.text "Reload" ] ]
+            ]
+            :: displayedItemList
         )
 
 
