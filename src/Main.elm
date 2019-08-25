@@ -621,9 +621,8 @@ update msg model =
         SetRotorPosition rotorIndex newStartPosition ->
             ( { model | enigma = Debug.log "SetRotorPosition" (Enigma.EnigmaMachine.setStartPositionOfRotor model.enigma rotorIndex newStartPosition) }, Cmd.none )
 
-        --        //TODO Remove Log statements at all
         SetRingPosition rotorIndex newRingPosition ->
-            ( { model | enigma = Debug.log "SetRingPosition" (Enigma.EnigmaMachine.setRingPositionOfRotor model.enigma rotorIndex newRingPosition) }, Cmd.none )
+            ( { model | enigma = Enigma.EnigmaMachine.setRingPositionOfRotor model.enigma rotorIndex newRingPosition }, Cmd.none )
 
         SetReflector newReflector ->
             ( { model | enigma = Debug.log "SetReflector" (Enigma.EnigmaMachine.replaceReflector model.enigma newReflector) }, Cmd.none )

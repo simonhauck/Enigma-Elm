@@ -25,6 +25,10 @@ type alias LineStrokeWidth =
     String
 
 
+type alias Opacity =
+    String
+
+
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Exposed functions
@@ -76,80 +80,108 @@ enigmaSvg enigma substitutionLog =
 
 
 -- ---------------------------------------------------------------------------------------------------------------------
--- Internal functions
+-- Params functions
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
 {-| space between the components in a row
 -}
+rowYSpace : Int
 rowYSpace =
-    25
+    20
 
 
 {-| min length of a line in the reflector
 -}
+reflectorConnectionLineMinLength : Int
 reflectorConnectionLineMinLength =
-    40
+    35
 
 
 {-| increase the length of a line with each step
 -}
+reflectorConnectionLineLengthPerStep : Int
 reflectorConnectionLineLengthPerStep =
-    9
+    7
 
 
 {-| space between the left rotor and and the reflector
 -}
+spaceBetweenReflectorAndRotor : Int
 spaceBetweenReflectorAndRotor =
-    125
+    100
 
 
 {-| space between two rotors
 -}
+spaceBetweenRotors : Int
 spaceBetweenRotors =
-    125
+    100
 
 
 {-| width of a rotor
 -}
+rotorWidth : Int
 rotorWidth =
-    200
+    175
 
 
 {-| space between the plugboard rows
 -}
+plugboardWidth : Int
 plugboardWidth =
-    100
+    75
 
 
 {-| default color for connection lines
 -}
+defaultColor : Color
 defaultColor =
     "red"
 
 
 {-| color for active connections to the reflector
 -}
+colorToReflector : Color
 colorToReflector =
     "blue"
 
 
 {-| color for active connections from the reflector
 -}
+colorFromReflector : Color
 colorFromReflector =
     "green"
 
 
 {-| default stroke width for connection lines
 -}
+defaultLineStrokeWidth : LineStrokeWidth
 defaultLineStrokeWidth =
     "2"
 
 
 {-| stroke width for active connections
 -}
+connectionLineStrokeWidth : LineStrokeWidth
 connectionLineStrokeWidth =
-    "4"
+    "3"
+
+
+fullOpacity : Opacity
+fullOpacity =
+    "1.0"
+
+
+semiTransparendOpacity : Opacity
+semiTransparendOpacity =
+    "0.4"
+
+
+
+-- ---------------------------------------------------------------------------------------------------------------------
+-- Internal functions
+-- ---------------------------------------------------------------------------------------------------------------------
 
 
 {-| Get a list with Svg elements that display the given reflector
@@ -171,6 +203,7 @@ drawReflector reflector x y =
                             (i * reflectorConnectionLineLengthPerStep + reflectorConnectionLineMinLength)
                             defaultColor
                             defaultLineStrokeWidth
+                            semiTransparendOpacity
                             ++ listAcc
                         , i + 1
                         )
@@ -216,7 +249,7 @@ drawPlugBoard plugboard x y =
                         outputCharIndex =
                             Enigma.Plugboard.substituteCharacter inputCharIndex plugboard
                     in
-                    drawPlugboardConnection inputCharIndex outputCharIndex x y defaultColor defaultLineStrokeWidth
+                    drawPlugboardConnection inputCharIndex outputCharIndex x y defaultColor defaultLineStrokeWidth semiTransparendOpacity
                 )
                 (List.range 0 25)
     in
@@ -241,7 +274,7 @@ drawRotor rotor x y =
                         rotatedOutputIndex =
                             outputIndex - rotor.currentPosition + rotor.ringPosition |> modBy 26
                     in
-                    drawRotorConnection rotatedInputIndex rotatedOutputIndex x y defaultColor defaultLineStrokeWidth :: listAcc
+                    drawRotorConnection rotatedInputIndex rotatedOutputIndex x y defaultColor defaultLineStrokeWidth semiTransparendOpacity :: listAcc
                 )
                 []
                 rotor.characterSequence
@@ -283,6 +316,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                 yCoordinate
                 colorToReflector
                 connectionLineStrokeWidth
+                fullOpacity
 
         plugboardFromReflectorConnection =
             drawPlugboardConnection
@@ -292,6 +326,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                 yCoordinate
                 colorFromReflector
                 connectionLineStrokeWidth
+                fullOpacity
 
         rotorConnectionsToReflector =
             List.Extra.indexedFoldl
@@ -303,6 +338,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                         yCoordinate
                         colorToReflector
                         connectionLineStrokeWidth
+                        fullOpacity
                     , drawConnectionBetweenRotors
                         inputCharIndex
                         index
@@ -310,6 +346,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                         yCoordinate
                         colorToReflector
                         connectionLineStrokeWidth
+                        fullOpacity
                     ]
                         ++ listAcc
                 )
@@ -326,6 +363,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                         yCoordinate
                         colorFromReflector
                         connectionLineStrokeWidth
+                        fullOpacity
                     , drawConnectionBetweenRotors
                         outputCharIndex
                         index
@@ -333,6 +371,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                         yCoordinate
                         colorFromReflector
                         connectionLineStrokeWidth
+                        fullOpacity
                     ]
                         ++ listAcc
                 )
@@ -367,6 +406,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                 reflectorLineLength
                 colorToReflector
                 connectionLineStrokeWidth
+                fullOpacity
 
         reflectorToRotorLines =
             [ drawConnectionBetweenReflectorAndRotor
@@ -375,12 +415,14 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                 yCoordinate
                 colorToReflector
                 connectionLineStrokeWidth
+                fullOpacity
             , drawConnectionBetweenReflectorAndRotor
                 (substitutionLog.reflectorSubstitution |> Tuple.second)
                 reflectorXCoordinate
                 yCoordinate
                 colorFromReflector
                 connectionLineStrokeWidth
+                fullOpacity
             ]
     in
     plugboardFromReflectorConnection
@@ -476,8 +518,8 @@ drawSmallCircles x y =
 
 {-| draw a line between the given coordinates with the given color and strokeWidth
 -}
-drawLine : ( Int, Int ) -> ( Int, Int ) -> Color -> LineStrokeWidth -> Svg msg
-drawLine ( x1, y1 ) ( x2, y2 ) color strokeWidth =
+drawLine : ( Int, Int ) -> ( Int, Int ) -> Color -> LineStrokeWidth -> Opacity -> Svg msg
+drawLine ( x1, y1 ) ( x2, y2 ) color strokeWidth opacity =
     Svg.line
         [ Svg.Attributes.x1 <| String.fromInt x1
         , Svg.Attributes.y1 <| String.fromInt y1
@@ -485,6 +527,7 @@ drawLine ( x1, y1 ) ( x2, y2 ) color strokeWidth =
         , Svg.Attributes.y2 <| String.fromInt y2
         , Svg.Attributes.stroke color
         , Svg.Attributes.strokeWidth strokeWidth
+        , Svg.Attributes.opacity opacity
         ]
         []
 
@@ -496,8 +539,8 @@ x - the xCoordinate of the reflector
 startY - the yCoordinate of the first reflector row
 horizontalLength - the horizontal length of the connection
 -}
-drawReflectorConnection : Int -> Int -> Int -> Int -> Int -> Color -> LineStrokeWidth -> List (Svg msg)
-drawReflectorConnection inputCharIndex outputCharIndex x startY horizontalLength color strokeWidth =
+drawReflectorConnection : Int -> Int -> Int -> Int -> Int -> Color -> LineStrokeWidth -> Opacity -> List (Svg msg)
+drawReflectorConnection inputCharIndex outputCharIndex x startY horizontalLength color strokeWidth opacity =
     let
         topRightCorner =
             ( x, startY + inputCharIndex * rowYSpace )
@@ -511,9 +554,9 @@ drawReflectorConnection inputCharIndex outputCharIndex x startY horizontalLength
         bottomRightCorner =
             ( x, startY + outputCharIndex * rowYSpace )
     in
-    [ drawLine topRightCorner topLeftCorner color strokeWidth
-    , drawLine topLeftCorner bottomLeftCorner color strokeWidth
-    , drawLine bottomLeftCorner bottomRightCorner color strokeWidth
+    [ drawLine topRightCorner topLeftCorner color strokeWidth opacity
+    , drawLine topLeftCorner bottomLeftCorner color strokeWidth opacity
+    , drawLine bottomLeftCorner bottomRightCorner color strokeWidth opacity
     ]
 
 
@@ -524,7 +567,7 @@ y - the yCoordinate of the reflector
 color - the color of the line
 lineStrokeWidth - the strokeWidth of the line
 -}
-drawConnectionBetweenReflectorAndRotor : Int -> Int -> Int -> Color -> LineStrokeWidth -> Svg msg
+drawConnectionBetweenReflectorAndRotor : Int -> Int -> Int -> Color -> LineStrokeWidth -> Opacity -> Svg msg
 drawConnectionBetweenReflectorAndRotor charIndex x y =
     let
         startPoint =
@@ -542,7 +585,7 @@ outputCharIndex - index of the outputChar
 x - xCoordinate of the top left corner where the rotor is drawn
 startY - yCoordinate of the top left corner where the rotor is drawn
 -}
-drawRotorConnection : Int -> Int -> Int -> Int -> Color -> LineStrokeWidth -> Svg msg
+drawRotorConnection : Int -> Int -> Int -> Int -> Color -> LineStrokeWidth -> Opacity -> Svg msg
 drawRotorConnection inputCharIndex outputCharIndex x startY =
     let
         rightPoint =
@@ -560,7 +603,7 @@ rotorIndex - the index of the rotor
 rotorX - the xCoordinate of the rotor elements
 rotorY - the yCoordinate of the rotor elements
 -}
-drawConnectionBetweenRotors : Int -> Int -> Int -> Int -> Color -> LineStrokeWidth -> Svg msg
+drawConnectionBetweenRotors : Int -> Int -> Int -> Int -> Color -> LineStrokeWidth -> Opacity -> Svg msg
 drawConnectionBetweenRotors charIndex rotorIndex rotorX rotorY =
     let
         startPoint =
@@ -574,7 +617,7 @@ drawConnectionBetweenRotors charIndex rotorIndex rotorX rotorY =
 
 {-| draw a connection in the plugboard
 -}
-drawPlugboardConnection : Int -> Int -> Int -> Int -> Color -> LineStrokeWidth -> Svg msg
+drawPlugboardConnection : Int -> Int -> Int -> Int -> Color -> LineStrokeWidth -> Opacity -> Svg msg
 drawPlugboardConnection inputCharIndex outputCharIndex x startY =
     let
         rightPoint =
@@ -635,7 +678,7 @@ drawArrow x y arrowLeft color =
             else
                 ( x + arrowOffset + arrowLength - tipXCoordinate, y - tipYCoordinate )
     in
-    [ drawLine startPoint endPoint color defaultLineStrokeWidth
-    , drawLine startPoint topPoint color defaultLineStrokeWidth
-    , drawLine startPoint bottomPoint color defaultLineStrokeWidth
+    [ drawLine startPoint endPoint color defaultLineStrokeWidth fullOpacity
+    , drawLine startPoint topPoint color defaultLineStrokeWidth fullOpacity
+    , drawLine startPoint bottomPoint color defaultLineStrokeWidth fullOpacity
     ]

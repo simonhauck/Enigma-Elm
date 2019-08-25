@@ -97,16 +97,15 @@ substituteCharacter inputChar enigma =
         buildPairFunction =
             \a b -> ( a, b )
     in
-    --    TODO remove log statements
     inputChar
-        |> Debug.log "Convert char to index: " Utils.AlphabetHelper.characterToCharacterIndex
+        |> Utils.AlphabetHelper.characterToCharacterIndex
         |> buildPairFunction (Just Log.emptySubstitutionLog)
-        |> Debug.log "SubstituteCharacterWithPlugboard" (substituteCharacterWithPlugboard enigma Log.addPlugboardInputSubstitution)
-        |> Debug.log "Calling substituteCharacterToReflector" (substituteCharacterToReflector enigma Log.addRotorToReflectorSubstitution)
-        |> Debug.log "Calling substituteCharacterWithReflector" (substituteCharacterWithReflector enigma Log.addReflectorSubstitution)
-        |> Debug.log "Calling substituteCharacterFromReflector" (substituteCharacterFromReflector enigma Log.addRotorFromReflectorSubstitution)
-        |> Debug.log "SubstituteCharacterWithPlugboard" (substituteCharacterWithPlugboard enigma Log.addPlugboardOutputSubstitution)
-        |> Debug.log "Result of substitution: " Tuple.mapSecond Utils.AlphabetHelper.characterIndexToCharacter
+        |> substituteCharacterWithPlugboard enigma Log.addPlugboardInputSubstitution
+        |> substituteCharacterToReflector enigma Log.addRotorToReflectorSubstitution
+        |> substituteCharacterWithReflector enigma Log.addReflectorSubstitution
+        |> substituteCharacterFromReflector enigma Log.addRotorFromReflectorSubstitution
+        |> substituteCharacterWithPlugboard enigma Log.addPlugboardOutputSubstitution
+        |> Tuple.mapSecond Utils.AlphabetHelper.characterIndexToCharacter
 
 
 {-| Replace the rotor in the enigma at the given index with the given rotor. The position values will be

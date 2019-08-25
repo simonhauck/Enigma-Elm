@@ -34,14 +34,13 @@ type ForeignChar
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Exposed functions
 -- ---------------------------------------------------------------------------------------------------------------------
---TODO Remove Hello world
 
 
 {-| Get a default message holder
 -}
 defaultMessageHolder : MessageHolder
 defaultMessageHolder =
-    { description = "", rawInput = "Hello world", processedInput = "", processedOutput = "", foreignCharOption = Include }
+    { description = "", rawInput = "", processedInput = "", processedOutput = "", foreignCharOption = Include }
 
 
 {-| Update the raw input value of the messageHolder with the given string
