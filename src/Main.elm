@@ -20,6 +20,7 @@ import Utils.ServerMessageHolder
 import View.EnigmaSvg
 import View.PlugBoardSvg
 import View.ServerMessageView
+import View.StyleElements
 
 
 
@@ -81,7 +82,7 @@ type alias Model =
 view : Model -> Html Msg
 view model =
     Html.div
-        []
+        [ View.StyleElements.backgroundImage ]
         [ Html.div
             []
             [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Configuration" ]
@@ -156,11 +157,12 @@ selectRotorView model =
 displayRotorSelectionInTable : Model -> Int -> Rotor -> Html Msg
 displayRotorSelectionInTable model index rotor =
     Html.td
-        []
+        View.StyleElements.selectWrapperStyleElements
         [ Html.select
-            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotor index (Dict.get val Enigma.Rotor.getAllRotors)) Html.Events.targetValue)
-            , enableAttributeWhenInConfiguration model
-            ]
+            (Html.Events.on "change" (Json.Decode.map (\val -> SetRotor index (Dict.get val Enigma.Rotor.getAllRotors)) Html.Events.targetValue)
+                :: enableAttributeWhenInConfiguration model
+                :: View.StyleElements.selectStyleElements
+            )
             (List.map
                 (\currentRotor ->
                     Html.option
@@ -433,7 +435,9 @@ encryptionResultView model =
             ]
             []
         , Html.button
-            [ Html.Events.onClick SendMessageToServer ]
+            [ Html.Events.onClick SendMessageToServer
+            , Html.Attributes.disabled (String.isEmpty model.messageHolder.description || String.isEmpty model.messageHolder.processedOutput)
+            ]
             [ Html.text "Send message to server" ]
         ]
 
@@ -468,7 +472,7 @@ enigmaSvg model =
 textInputField : Model -> Html Msg
 textInputField model =
     Html.textarea
-        [ Html.Attributes.placeholder "Copy your text here"
+        [ Html.Attributes.placeholder "Enter your text here"
         , Html.Attributes.value model.messageHolder.rawInput
         , Html.Events.onInput UpdateRawInput
         ]
@@ -551,6 +555,11 @@ randomizeEnigma model =
         ]
 
 
+disableAutomaticTextInput : TextInputConfig -> TextInputConfig
+disableAutomaticTextInput textInputConfig =
+    { textInputConfig | encryptionMode = Manual }
+
+
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Browser functions
@@ -603,22 +612,22 @@ update msg model =
         SetRotor index maybeRotor ->
             case maybeRotor of
                 Just rotor ->
-                    ( Debug.log "SetRotorResult: " { model | enigma = Enigma.EnigmaMachine.replaceRotor model.enigma index rotor }, Cmd.none )
+                    ( { model | enigma = Enigma.EnigmaMachine.replaceRotor model.enigma index rotor }, Cmd.none )
 
                 Nothing ->
                     ( model, Cmd.none )
 
         SetRotorPosition rotorIndex newStartPosition ->
-            ( { model | enigma = Debug.log "SetRotorPosition" (Enigma.EnigmaMachine.setStartPositionOfRotor model.enigma rotorIndex newStartPosition) }, Cmd.none )
+            ( { model | enigma = Enigma.EnigmaMachine.setStartPositionOfRotor model.enigma rotorIndex newStartPosition }, Cmd.none )
 
         SetRingPosition rotorIndex newRingPosition ->
             ( { model | enigma = Enigma.EnigmaMachine.setRingPositionOfRotor model.enigma rotorIndex newRingPosition }, Cmd.none )
 
         SetReflector newReflector ->
-            ( { model | enigma = Debug.log "SetReflector" (Enigma.EnigmaMachine.replaceReflector model.enigma newReflector) }, Cmd.none )
+            ( { model | enigma = Enigma.EnigmaMachine.replaceReflector model.enigma newReflector }, Cmd.none )
 
         PressCharOnPlugboard charPosition charIndex ->
-            ( { model | enigma = Debug.log "PressCharInPlugboard" (Enigma.EnigmaMachine.pressCharOnPlugBoard model.enigma charPosition charIndex) }, Cmd.none )
+            ( { model | enigma = Enigma.EnigmaMachine.pressCharOnPlugBoard model.enigma charPosition charIndex }, Cmd.none )
 
         ResetPlugBoard ->
             ( { model | enigma = Enigma.EnigmaMachine.resetPlugBoard model.enigma }, Cmd.none )
@@ -690,14 +699,13 @@ update msg model =
             )
 
         SelectServerMessage messageHolder ->
-            ( { model | messageHolder = messageHolder }, Cmd.none )
+            ( { model | messageHolder = messageHolder, textInputConfig = disableAutomaticTextInput model.textInputConfig }, Cmd.none )
 
         SendMessageToServer ->
             ( { model | messageHolder = Utils.MessageHolder.defaultMessageHolder }
             , Utils.ServerMessageHolder.sendMessageToServer model.messageHolder ReceiveServerMessageHolder
             )
 
-        --TODO Handle error correctly
         ReceiveServerMessageHolder result ->
             ( { model | serverMessageHolder = Utils.ServerMessageHolder.handleServerResponse result }, Cmd.none )
 
