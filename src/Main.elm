@@ -656,10 +656,10 @@ update msg model =
             ( { model | enigma = updatedEnigma, operationMode = newMode }, Cmd.none )
 
         UpdateRawInput input ->
-            ( { model | messageHolder = Utils.MessageHolder.updateRawInput model.messageHolder input }, Cmd.none )
+            ( { model | messageHolder = Utils.MessageHolder.setRawInput model.messageHolder input }, Cmd.none )
 
         UpdateDescription input ->
-            ( { model | messageHolder = Utils.MessageHolder.updateDesscription model.messageHolder input }, Cmd.none )
+            ( { model | messageHolder = Utils.MessageHolder.setDescription model.messageHolder input }, Cmd.none )
 
         ToggleEncryptionMode ->
             let

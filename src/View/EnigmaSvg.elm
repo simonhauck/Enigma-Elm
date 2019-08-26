@@ -168,13 +168,17 @@ connectionLineStrokeWidth =
     "3"
 
 
+{-| Full opacity for the given element
+-}
 fullOpacity : Opacity
 fullOpacity =
     "1.0"
 
 
-semiTransparendOpacity : Opacity
-semiTransparendOpacity =
+{-| Semi transparent opacity
+-}
+semiTransparent : Opacity
+semiTransparent =
     "0.4"
 
 
@@ -203,7 +207,7 @@ drawReflector reflector x y =
                             (i * reflectorConnectionLineLengthPerStep + reflectorConnectionLineMinLength)
                             defaultColor
                             defaultLineStrokeWidth
-                            semiTransparendOpacity
+                            semiTransparent
                             ++ listAcc
                         , i + 1
                         )
@@ -249,7 +253,7 @@ drawPlugBoard plugboard x y =
                         outputCharIndex =
                             Enigma.Plugboard.substituteCharacter inputCharIndex plugboard
                     in
-                    drawPlugboardConnection inputCharIndex outputCharIndex x y defaultColor defaultLineStrokeWidth semiTransparendOpacity
+                    drawPlugboardConnection inputCharIndex outputCharIndex x y defaultColor defaultLineStrokeWidth semiTransparent
                 )
                 (List.range 0 25)
     in
@@ -274,7 +278,7 @@ drawRotor rotor x y =
                         rotatedOutputIndex =
                             outputIndex - rotor.currentPosition + rotor.ringPosition |> modBy 26
                     in
-                    drawRotorConnection rotatedInputIndex rotatedOutputIndex x y defaultColor defaultLineStrokeWidth semiTransparendOpacity :: listAcc
+                    drawRotorConnection rotatedInputIndex rotatedOutputIndex x y defaultColor defaultLineStrokeWidth semiTransparent :: listAcc
                 )
                 []
                 rotor.characterSequence

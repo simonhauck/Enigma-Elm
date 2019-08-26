@@ -5,9 +5,9 @@ module Utils.MessageHolder exposing
     , defaultMessageHolder
     , getFirstCharFromRawInput
     , getFormattedProcessedInputOutput
+    , setDescription
+    , setRawInput
     , toggleForeignCharOption
-    , updateDesscription
-    , updateRawInput
     )
 
 import Maybe exposing (Maybe)
@@ -43,17 +43,17 @@ defaultMessageHolder =
     { description = "", rawInput = "", processedInput = "", processedOutput = "", foreignCharOption = Include }
 
 
-{-| Update the raw input value of the messageHolder with the given string
+{-| Set the raw input value of the messageHolder with the given string
 -}
-updateRawInput : MessageHolder -> String -> MessageHolder
-updateRawInput messageHolder newRawInput =
+setRawInput : MessageHolder -> String -> MessageHolder
+setRawInput messageHolder newRawInput =
     { messageHolder | rawInput = newRawInput }
 
 
 {-| Set the value for the description
 -}
-updateDesscription : MessageHolder -> String -> MessageHolder
-updateDesscription messageHolder newInput =
+setDescription : MessageHolder -> String -> MessageHolder
+setDescription messageHolder newInput =
     { messageHolder | description = newInput }
 
 

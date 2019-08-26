@@ -17,7 +17,6 @@ module Enigma.Rotor exposing
 
 import Dict exposing (Dict)
 import List.Extra
-import Utils.AlphabetHelper
 
 
 {-| Definition of a rotor in the enigma.
@@ -124,6 +123,7 @@ rotateRotor rotor =
     { rotor | currentPosition = modBy (List.length rotor.characterSequence) (rotor.currentPosition + 1) }
 
 
+staticRotor : Rotor
 staticRotor =
     { name = "staticRotor"
     , startPosition = 0
@@ -134,6 +134,7 @@ staticRotor =
     }
 
 
+rotor1 : Rotor
 rotor1 =
     { name = "Rotor I"
     , startPosition = 0
@@ -144,6 +145,7 @@ rotor1 =
     }
 
 
+rotor2 : Rotor
 rotor2 =
     { name = "Rotor II"
     , startPosition = 0
@@ -154,6 +156,7 @@ rotor2 =
     }
 
 
+rotor3 : Rotor
 rotor3 =
     { name = "Rotor III"
     , startPosition = 0
@@ -164,6 +167,7 @@ rotor3 =
     }
 
 
+rotor4 : Rotor
 rotor4 =
     { name = "Rotor IV"
     , startPosition = 0
@@ -174,6 +178,7 @@ rotor4 =
     }
 
 
+rotor5 : Rotor
 rotor5 =
     { name = "Rotor V"
     , startPosition = 0
@@ -184,6 +189,7 @@ rotor5 =
     }
 
 
+rotor6 : Rotor
 rotor6 =
     { name = "Rotor VI"
     , startPosition = 0
@@ -194,6 +200,7 @@ rotor6 =
     }
 
 
+rotor7 : Rotor
 rotor7 =
     { name = "Rotor VII"
     , startPosition = 0
@@ -204,6 +211,7 @@ rotor7 =
     }
 
 
+rotor8 : Rotor
 rotor8 =
     { name = "Rotor VIII"
     , startPosition = 0

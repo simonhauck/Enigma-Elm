@@ -24,11 +24,15 @@ type ServerMessageHolder
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Get the default ServerMessageHolder. Default is Loading
+-}
 defaultServerMessageHolder : ServerMessageHolder
 defaultServerMessageHolder =
     Loading
 
 
+{-| Create a command to send the given messageHolder to the server.
+-}
 sendMessageToServer : Utils.MessageHolder.MessageHolder -> (Result Http.Error (List Utils.MessageHolder.MessageHolder) -> msg) -> Cmd msg
 sendMessageToServer messageHolder resultFunction =
     Http.post
@@ -38,6 +42,8 @@ sendMessageToServer messageHolder resultFunction =
         }
 
 
+{-| Create a command to request all serverMessages
+-}
 requestServerMessages : (Result Http.Error (List Utils.MessageHolder.MessageHolder) -> msg) -> Cmd msg
 requestServerMessages resultFunction =
     Http.get
@@ -46,6 +52,8 @@ requestServerMessages resultFunction =
         }
 
 
+{-| Function that handles the result of the server requests and return the parsed ServerMessageHolder
+-}
 handleServerResponse : Result err (List Utils.MessageHolder.MessageHolder) -> ServerMessageHolder
 handleServerResponse result =
     case result of
@@ -68,6 +76,8 @@ serverUrl =
     "http://shauck.ddns.net:8080/ss19_enigma_server/api/messages"
 
 
+{-| Decoder for a list of MessageHolder objects
+-}
 decodeMessageHolderList : Json.Decode.Decoder (List Utils.MessageHolder.MessageHolder)
 decodeMessageHolderList =
     Json.Decode.map5
@@ -89,6 +99,8 @@ decodeMessageHolderList =
         |> Json.Decode.list
 
 
+{-| Encode a MessageHolder as a json message
+-}
 encodeMessageHolder : Utils.MessageHolder.MessageHolder -> Json.Encode.Value
 encodeMessageHolder messageHolder =
     let
