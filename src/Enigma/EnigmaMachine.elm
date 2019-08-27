@@ -351,7 +351,7 @@ rotateRotor rotor shouldRotateRotor =
     if shouldRotateRotor then
         let
             shouldRotateNextRotor =
-                List.member rotor.currentPosition rotor.turningPoints
+                List.member rotor.currentPosition rotor.notches
 
             rotatedRotor =
                 Enigma.Rotor.rotateRotor rotor

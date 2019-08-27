@@ -283,8 +283,9 @@ drawRotor rotor x y =
                 []
                 rotor.characterSequence
     in
-    drawAlphabetColumn Left (rotor.currentPosition - rotor.ringPosition) x y
-        ++ drawAlphabetColumn Right (rotor.currentPosition - rotor.ringPosition) (x + rotorWidth) y
+    drawRotorNotch rotor x y
+        ++ drawAlphabetColumn Left rotor.currentPosition x y
+        ++ drawAlphabetColumn Right rotor.currentPosition (x + rotorWidth) y
         ++ connectionLines
 
 
@@ -617,6 +618,29 @@ drawConnectionBetweenRotors charIndex rotorIndex rotorX rotorY =
             ( rotorX + (rotorIndex + 1) * (rotorWidth + spaceBetweenRotors), rotorY + rowYSpace * charIndex )
     in
     drawLine startPoint endPoint
+
+
+{-| Draw a circle to represent the notches in the given rotor
+-}
+drawRotorNotch : Enigma.Rotor.Rotor -> Int -> Int -> List (Svg msg)
+drawRotorNotch rotor rotorX rotorY =
+    let
+        rightRotorColumnX =
+            rotorX + rotorWidth
+    in
+    List.map
+        (\notch ->
+            Svg.circle
+                [ Svg.Attributes.cx <| String.fromInt rightRotorColumnX
+                , Svg.Attributes.cy <| String.fromInt <| rotorY + modBy 26 (notch - rotor.currentPosition) * rowYSpace
+                , Svg.Attributes.r "10"
+                , Svg.Attributes.fill "none"
+                , Svg.Attributes.stroke "black"
+                , Svg.Attributes.strokeWidth "2"
+                ]
+                []
+        )
+        rotor.notches
 
 
 {-| draw a connection in the plugboard
