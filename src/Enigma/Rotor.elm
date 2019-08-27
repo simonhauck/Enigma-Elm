@@ -90,10 +90,10 @@ substituteCharacterToReflector index currentRotor previousRotor =
         ringDifference =
             previousRotor.ringPosition - currentRotor.ringPosition
 
-        calculatedIndex =
+        correctedIndex =
             modBy 26 (index + rotorDifference + ringDifference)
     in
-    List.Extra.getAt calculatedIndex currentRotor.characterSequence
+    List.Extra.getAt correctedIndex currentRotor.characterSequence
 
 
 {-| Substitute a character in direction from the reflector with the current and previous rotor

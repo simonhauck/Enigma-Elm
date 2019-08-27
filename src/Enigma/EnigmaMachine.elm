@@ -1,18 +1,19 @@
 module Enigma.EnigmaMachine exposing
     ( Enigma
+    , OperationMode(..)
     , RandomizationType(..)
     , defaultEnigma
     , getRandomCharPositionsCmd
-    , handleCmdResult
+    , handleRandomizeResult
     , performRotationAndSubstitution
     , pressCharOnPlugBoard
     , randomizeReflectorCmd
     , randomizeRotorsCmd
-    , replaceReflector
-    , replaceRotor
     , resetPlugBoard
     , setCurrentPositionToStartPosition
+    , setReflector
     , setRingPositionOfRotor
+    , setRotor
     , setStartPositionOfRotor
     , substituteCharacter
     )
@@ -34,7 +35,13 @@ type alias Enigma =
     { rotors : List Rotor
     , reflector : Reflector
     , plugBoard : Plugboard
+    , operationMode : OperationMode
     }
+
+
+type OperationMode
+    = Configuration
+    | Encryption
 
 
 type RandomizationType
@@ -47,20 +54,11 @@ type RandomizationType
 
 defaultEnigma : Enigma
 defaultEnigma =
-    let
-        rotor1Test =
-            { rotor1 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
-
-        rotor2Test =
-            { rotor2 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
-
-        rotor3Test =
-            { rotor3 | currentPosition = 0, startPosition = 0, ringPosition = 0 }
-
-        rotorList =
-            [ rotor1Test, rotor2Test, rotor3Test ]
-    in
-    { rotors = rotorList, reflector = Enigma.Reflector.reflectorB, plugBoard = Enigma.Plugboard.defaultPlugboard }
+    { rotors = [ rotor1, rotor2, rotor3 ]
+    , reflector = Enigma.Reflector.reflectorB
+    , plugBoard = Enigma.Plugboard.defaultPlugboard
+    , operationMode = Configuration
+    }
 
 
 
@@ -108,11 +106,11 @@ substituteCharacter inputChar enigma =
         |> Tuple.mapSecond Utils.AlphabetHelper.characterIndexToCharacter
 
 
-{-| Replace the rotor in the enigma at the given index with the given rotor. The position values will be
+{-| Set the rotor in the enigma at the given index with the given rotor. The position values will be
 copied to new new rotor
 -}
-replaceRotor : Enigma -> Int -> Rotor -> Enigma
-replaceRotor enigma rotorPosition newRotor =
+setRotor : Enigma -> Int -> Rotor -> Enigma
+setRotor enigma rotorPosition newRotor =
     let
         newRotorList =
             List.Extra.updateAt rotorPosition
@@ -128,10 +126,10 @@ replaceRotor enigma rotorPosition newRotor =
     { enigma | rotors = newRotorList }
 
 
-{-| Replace the reflector of the enigma
+{-| Set the reflector of the enigma
 -}
-replaceReflector : Enigma -> Reflector -> Enigma
-replaceReflector enigma newReflector =
+setReflector : Enigma -> Reflector -> Enigma
+setReflector enigma newReflector =
     { enigma | reflector = newReflector }
 
 
@@ -214,17 +212,17 @@ getRandomCharPositionsCmd function enigma =
 enigma - the enigma that will be modified
 randomizationType - the part of the enigma that will be randomized
 -}
-handleCmdResult : Enigma -> RandomizationType -> Enigma
-handleCmdResult enigma randomizationType =
+handleRandomizeResult : Enigma -> RandomizationType -> Enigma
+handleRandomizeResult enigma randomizationType =
     case randomizationType of
         RandomizePlugboard newPlugboardList ->
             { enigma | plugBoard = Enigma.Plugboard.handleRandomPlugboardCmd enigma.plugBoard newPlugboardList }
 
         RandomizeRotor ( rotorPosition, newRotor ) ->
-            replaceRotor enigma rotorPosition newRotor
+            setRotor enigma rotorPosition newRotor
 
         RandomizeReflector newReflector ->
-            replaceReflector enigma newReflector
+            setReflector enigma newReflector
 
         RandomizeRotorStartPosition ( rotorPosition, newStartPosition ) ->
             setStartPositionOfRotor enigma rotorPosition newStartPosition
