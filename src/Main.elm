@@ -3,15 +3,12 @@ module Main exposing (main)
 import Browser
 import Html exposing (Html)
 import Html.Attributes
-import Html.Events
 import Models.Enigma.EnigmaMachine as EnigmaMachine
-import Models.Enigma.OperationMode
 import Models.Enigma.SubstitutionLog as Log
 import Models.MessageHolder as MessageHolder
 import Models.ServerMessageHolder as ServerMessageHolder
-import String
-import Time
 import View.ConfigurationView
+import View.EncryptionView
 import View.EnigmaSvg
 import View.MessageHolderView
 import View.StyleElements
@@ -24,8 +21,7 @@ import View.StyleElements
 type Msg
     = ConfigurationMsg View.ConfigurationView.ConfigurationMsg
     | MessageHolderMsg View.MessageHolderView.ServerMessageHolderMsg
-    | EncryptCharTick
-    | UpdateDescription String
+    | EncryptionMsg View.EncryptionView.EncryptionMsg
 
 
 type alias Model =
@@ -53,7 +49,9 @@ view model =
         , Html.div
             []
             [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Preview" ]
-            , encryptionView model
+            , View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg
+            , View.MessageHolderView.displayEncryptionResult model.messageHolder MessageHolderMsg
+            , View.EncryptionView.enigmaPreview model.enigma model.substitutionLog
             ]
         , Html.div
             []
@@ -67,105 +65,6 @@ view model =
 
 
 -- ---------------------------------------------------------------------------------------------------------------------
--- Encryption View
--- ---------------------------------------------------------------------------------------------------------------------
-
-
-encryptionView : Model -> Html Msg
-encryptionView model =
-    Html.div
-        []
-        [ Html.div
-            []
-            [ Html.h3 [] [ Html.text "Encryption Results" ]
-            , encryptionResultView model
-            ]
-        , View.MessageHolderView.textInputBoxView model.messageHolder model.enigma.operationMode MessageHolderMsg
-        , Html.div
-            []
-            [ Html.h3 [] [ Html.text "Enigma View" ]
-            , enigmaSvg model
-            ]
-        ]
-
-
-encryptionResultView : Model -> Html Msg
-encryptionResultView model =
-    let
-        ( formattedInput, formattedOutput ) =
-            MessageHolder.getFormattedProcessedInputOutput model.messageHolder
-    in
-    Html.div
-        []
-        [ Html.table
-            []
-            [ Html.tr
-                []
-                [ Html.td [] [ Html.text "Processed Input: " ]
-                , Html.td [] [ Html.text formattedInput ]
-                ]
-            , Html.tr
-                []
-                [ Html.td [] [ Html.text "Processed Output: " ]
-                , Html.td [] [ Html.text formattedOutput ]
-                ]
-            ]
-        , Html.input
-            [ Html.Attributes.type_ "text"
-            , Html.Attributes.placeholder "Add a description"
-            , Html.Attributes.value model.messageHolder.description
-            , Html.Events.onInput UpdateDescription
-            ]
-            []
-        , Html.button
-            [ Html.Events.onClick (MessageHolderMsg View.MessageHolderView.SendMessageToServer)
-            , Html.Attributes.disabled (String.isEmpty model.messageHolder.description || String.isEmpty model.messageHolder.processedOutput)
-            ]
-            [ Html.text "Send message to server" ]
-        ]
-
-
-enigmaSvg : Model -> Html Msg
-enigmaSvg model =
-    View.EnigmaSvg.enigmaSvg model.enigma model.substitutionLog
-
-
-enableAttributeWhenInEncryption : Model -> Html.Attribute Msg
-enableAttributeWhenInEncryption model =
-    case model.enigma.operationMode of
-        Models.Enigma.OperationMode.Encryption ->
-            Html.Attributes.disabled False
-
-        Models.Enigma.OperationMode.Configuration ->
-            Html.Attributes.disabled True
-
-
-
--- ---------------------------------------------------------------------------------------------------------------------
--- Util Functions
--- ---------------------------------------------------------------------------------------------------------------------
-
-
-{-| Substitute a maybeChar with the given model.
-The state of the enigma will be updated and the inputChar/resultChar will be added
--}
-substituteChar : Model -> Maybe Char -> Model
-substituteChar model maybeInputChar =
-    let
-        inputChar =
-            Maybe.withDefault '-' maybeInputChar
-
-        ( newEnigma, maybeSubstitutionLog, maybeOutputChar ) =
-            EnigmaMachine.performRotationAndSubstitution model.enigma inputChar
-
-        updatedMessageHolder =
-            MessageHolder.addProcessedChar model.messageHolder inputChar maybeOutputChar
-    in
-    { model | enigma = newEnigma, messageHolder = updatedMessageHolder, substitutionLog = maybeSubstitutionLog }
-
-
-
--- ---------------------------------------------------------------------------------------------------------------------
 -- Browser functions
 -- ---------------------------------------------------------------------------------------------------------------------
 
@@ -174,11 +73,7 @@ substituteChar model maybeInputChar =
 -}
 initialModel : ( Model, Cmd Msg )
 initialModel =
-    let
-        enigma =
-            EnigmaMachine.defaultEnigma
-    in
-    ( { enigma = enigma
+    ( { enigma = EnigmaMachine.defaultEnigma
       , substitutionLog = Nothing
       , messageHolder = MessageHolder.defaultMessageHolder
       , serverMessageHolder = ServerMessageHolder.defaultServerMessageHolder
@@ -192,16 +87,7 @@ initialModel =
 -}
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case ( model.enigma.operationMode, model.messageHolder.config.encryptionMode ) of
-        ( Models.Enigma.OperationMode.Encryption, MessageHolder.Automatic ) ->
-            if String.isEmpty model.messageHolder.rawInput then
-                Sub.none
-
-            else
-                Time.every (toFloat model.messageHolder.config.encryptionSpeed) (\_ -> EncryptCharTick)
-
-        _ ->
-            Sub.none
+    View.EncryptionView.subscription model.messageHolder model.enigma EncryptionMsg
 
 
 {-| Update the given model with the given msg
@@ -223,18 +109,12 @@ update msg model =
             in
             ( { model | serverMessageHolder = newServerMessageHolder, messageHolder = newMessageHolder }, newCmd )
 
-        UpdateDescription input ->
-            ( { model | messageHolder = MessageHolder.setDescription model.messageHolder input }, Cmd.none )
-
-        EncryptCharTick ->
+        EncryptionMsg encryptionMsg ->
             let
-                ( updatedMessageHolder, maybeInputChar ) =
-                    MessageHolder.getFirstCharFromRawInput model.messageHolder
-
-                updatedModel =
-                    { model | messageHolder = updatedMessageHolder }
+                ( newEnigma, newMessageHolder, maybeLog ) =
+                    View.EncryptionView.update encryptionMsg model.enigma model.messageHolder model.substitutionLog
             in
-            ( substituteChar updatedModel maybeInputChar, Cmd.none )
+            ( { model | enigma = newEnigma, messageHolder = newMessageHolder, substitutionLog = maybeLog }, Cmd.none )
 
 
 main : Program () Model Msg

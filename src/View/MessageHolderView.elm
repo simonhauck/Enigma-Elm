@@ -1,4 +1,10 @@
-module View.MessageHolderView exposing (ConvertMessageHolderMsg, ServerMessageHolderMsg(..), displayServerMessages, textInputBoxView, update)
+module View.MessageHolderView exposing
+    ( ConvertMessageHolderMsg
+    , ServerMessageHolderMsg(..)
+    , displayEncryptionResult
+    , displayServerMessages
+    , update
+    )
 
 import Html exposing (Html)
 import Html.Attributes
@@ -34,56 +40,55 @@ displayServerMessages serverMessageHolder convertMessageHolderFunction =
     displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
 
 
-textInputBoxView : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertMessageHolderMsg msg -> Html msg
-textInputBoxView messageHolder operationMode convertMessageHolderFunction =
-    Html.div []
-        [ Html.h3 [] [ Html.text "Text Input" ]
-        , Html.textarea
-            [ Html.Attributes.placeholder "Enter your text here"
-            , Html.Attributes.value messageHolder.rawInput
-            , Html.Events.onInput (\val -> MessageHolder.setRawInput messageHolder val |> SetMessageHolder |> convertMessageHolderFunction)
-            ]
+displayEncryptionResult : MessageHolder.MessageHolder -> ConvertMessageHolderMsg msg -> Html msg
+displayEncryptionResult messageHolder convertMessageHolderFunction =
+    let
+        ( formattedInput, formattedOutput ) =
+            MessageHolder.getFormattedProcessedInputOutput messageHolder
+    in
+    Html.div
+        []
+        [ Html.h3 [] [ Html.text "Encryption Results" ]
+        , Html.div
             []
-        , Html.button
-            [ Html.Events.onClick <| convertMessageHolderFunction <| SetMessageHolder <| MessageHolder.toggleEncryptionMode messageHolder
-            , enableAttributeWhenInEncryption operationMode
-            ]
-            [ case messageHolder.config.encryptionMode of
-                MessageHolder.Automatic ->
-                    Html.text "Disable automatic encryption"
-
-                MessageHolder.Manual ->
-                    Html.text "Enable automatic encryption"
-            ]
-        , Html.div []
-            [ Html.input
-                [ Html.Attributes.type_ "range"
-                , Html.Attributes.min "25"
-                , Html.Attributes.max "1000"
-                , Html.Attributes.value <| String.fromInt messageHolder.config.encryptionSpeed
-                , Html.Attributes.step "25"
+            [ Html.table
+                []
+                [ Html.tr
+                    []
+                    [ Html.td [] [ Html.text "Processed Input: " ]
+                    , Html.td [] [ Html.text formattedInput ]
+                    ]
+                , Html.tr
+                    []
+                    [ Html.td [] [ Html.text "Processed Output: " ]
+                    , Html.td [] [ Html.text formattedOutput ]
+                    ]
+                ]
+            , Html.input
+                [ Html.Attributes.type_ "text"
+                , Html.Attributes.placeholder "Add a description"
+                , Html.Attributes.value messageHolder.description
                 , Html.Events.onInput
                     (\val ->
-                        String.toInt val
-                            |> Maybe.withDefault 250
-                            |> MessageHolder.setEncryptionSpeed messageHolder
-                            |> SetMessageHolder
-                            |> convertMessageHolderFunction
+                        { messageHolder | description = val } |> SetMessageHolder |> convertMessageHolderFunction
                     )
-                , enableAttributeWhenInEncryption operationMode
                 ]
                 []
-            , Html.text ("Time between Ticks: " ++ String.fromInt messageHolder.config.encryptionSpeed)
+            , Html.button
+                [ Html.Events.onClick <| convertMessageHolderFunction <| SendMessageToServer
+                , Html.Attributes.disabled (String.isEmpty messageHolder.description || String.isEmpty messageHolder.processedOutput)
+                ]
+                [ Html.text "Send message to server" ]
             ]
         ]
 
 
-
---        TODO Remove
---SetEncryptionModeSpeed (Maybe.withDefault 250 (String.toInt val))
-
-
-update : ServerMessageHolderMsg -> ServerMessageHolder.ServerMessageHolder -> MessageHolder.MessageHolder -> ConvertMessageHolderMsg msg -> ( ServerMessageHolder.ServerMessageHolder, MessageHolder.MessageHolder, Cmd msg )
+update :
+    ServerMessageHolderMsg
+    -> ServerMessageHolder.ServerMessageHolder
+    -> MessageHolder.MessageHolder
+    -> ConvertMessageHolderMsg msg
+    -> ( ServerMessageHolder.ServerMessageHolder, MessageHolder.MessageHolder, Cmd msg )
 update serverMessageHolderMsg serverMessageHolder messageHolder convertMessageFunction =
     case serverMessageHolderMsg of
         SetMessageHolder newMessageHolder ->
@@ -165,13 +170,3 @@ displayServerMessageRow convertMessageHolderFunction index messageHolder =
         , Html.td [] [ messageHolder.rawInput |> String.slice 0 20 |> Html.text ]
         , Html.td [] [ Html.button [ Html.Events.onClick <| (convertMessageHolderFunction <| SelectServerMessage messageHolder) ] [ Html.text "Use" ] ]
         ]
-
-
-enableAttributeWhenInEncryption : OperationMode.OperationMode -> Html.Attribute msg
-enableAttributeWhenInEncryption operationMode =
-    case operationMode of
-        OperationMode.Configuration ->
-            Html.Attributes.disabled True
-
-        OperationMode.Encryption ->
-            Html.Attributes.disabled False
