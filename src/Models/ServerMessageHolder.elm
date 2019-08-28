@@ -80,7 +80,7 @@ serverUrl =
 -}
 decodeMessageHolderList : Json.Decode.Decoder (List MessageHolder.MessageHolder)
 decodeMessageHolderList =
-    Json.Decode.map5
+    Json.Decode.map6
         MessageHolder.MessageHolder
         (Json.Decode.field "description" Json.Decode.string)
         (Json.Decode.field "rawInput" Json.Decode.string)
@@ -96,6 +96,7 @@ decodeMessageHolderList =
                         Json.Decode.succeed MessageHolder.Ignore
                 )
         )
+        (Json.Decode.succeed MessageHolder.defaultConfig)
         |> Json.Decode.list
 
 

@@ -4,8 +4,8 @@ import Browser
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
-import Http
 import Models.Enigma.EnigmaMachine as EnigmaMachine
+import Models.Enigma.OperationMode
 import Models.Enigma.SubstitutionLog as Log
 import Models.MessageHolder as MessageHolder
 import Models.ServerMessageHolder as ServerMessageHolder
@@ -13,7 +13,7 @@ import String
 import Time
 import View.ConfigurationView
 import View.EnigmaSvg
-import View.ServerMessageView
+import View.MessageHolderView
 import View.StyleElements
 
 
@@ -23,31 +23,15 @@ import View.StyleElements
 
 type Msg
     = ConfigurationMsg View.ConfigurationView.ConfigurationMsg
+    | MessageHolderMsg View.MessageHolderView.ServerMessageHolderMsg
     | EncryptCharTick
-    | UpdateRawInput String
     | UpdateDescription String
-    | ToggleEncryptionMode
-    | SetEncryptionModeSpeed Int
-    | LoadServerMessages
-    | SelectServerMessage MessageHolder.MessageHolder
-    | SendMessageToServer
-    | ReceiveServerMessageHolder (Result Http.Error (List MessageHolder.MessageHolder))
-
-
-type EncryptionMode
-    = Automatic
-    | Manual
-
-
-type alias TextInputConfig =
-    { encryptionMode : EncryptionMode, encryptionSpeed : Int }
 
 
 type alias Model =
     { enigma : EnigmaMachine.Enigma
     , substitutionLog : Maybe Log.SubstitutionLog
     , messageHolder : MessageHolder.MessageHolder
-    , textInputConfig : TextInputConfig
     , serverMessageHolder : ServerMessageHolder.ServerMessageHolder
     }
 
@@ -74,7 +58,9 @@ view model =
         , Html.div
             []
             [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Server Messages" ]
-            , View.ServerMessageView.displayServerMessages SelectServerMessage LoadServerMessages model.serverMessageHolder
+            , View.MessageHolderView.displayServerMessages
+                model.serverMessageHolder
+                MessageHolderMsg
             ]
         ]
 
@@ -94,7 +80,7 @@ encryptionView model =
             [ Html.h3 [] [ Html.text "Encryption Results" ]
             , encryptionResultView model
             ]
-        , textInputView model
+        , View.MessageHolderView.textInputBoxView model.messageHolder model.enigma.operationMode MessageHolderMsg
         , Html.div
             []
             [ Html.h3 [] [ Html.text "Enigma View" ]
@@ -132,32 +118,10 @@ encryptionResultView model =
             ]
             []
         , Html.button
-            [ Html.Events.onClick SendMessageToServer
+            [ Html.Events.onClick (MessageHolderMsg View.MessageHolderView.SendMessageToServer)
             , Html.Attributes.disabled (String.isEmpty model.messageHolder.description || String.isEmpty model.messageHolder.processedOutput)
             ]
             [ Html.text "Send message to server" ]
-        ]
-
-
-textInputView : Model -> Html Msg
-textInputView model =
-    Html.div []
-        [ Html.h3 [] [ Html.text "Text Input" ]
-        , textInputField model
-        , textInputToggleButton model
-        , Html.div []
-            [ Html.input
-                [ Html.Attributes.type_ "range"
-                , Html.Attributes.min "25"
-                , Html.Attributes.max "1000"
-                , Html.Attributes.value (String.fromInt model.textInputConfig.encryptionSpeed)
-                , Html.Attributes.step "25"
-                , Html.Events.onInput (\val -> SetEncryptionModeSpeed (Maybe.withDefault 250 (String.toInt val)))
-                , enableAttributeWhenInEncryption model
-                ]
-                []
-            , Html.text ("Time between Ticks: " ++ String.fromInt model.textInputConfig.encryptionSpeed)
-            ]
         ]
 
 
@@ -166,38 +130,13 @@ enigmaSvg model =
     View.EnigmaSvg.enigmaSvg model.enigma model.substitutionLog
 
 
-textInputField : Model -> Html Msg
-textInputField model =
-    Html.textarea
-        [ Html.Attributes.placeholder "Enter your text here"
-        , Html.Attributes.value model.messageHolder.rawInput
-        , Html.Events.onInput UpdateRawInput
-        ]
-        []
-
-
-textInputToggleButton : Model -> Html Msg
-textInputToggleButton model =
-    Html.button
-        [ Html.Events.onClick ToggleEncryptionMode
-        , enableAttributeWhenInEncryption model
-        ]
-        [ case model.textInputConfig.encryptionMode of
-            Automatic ->
-                Html.text "Disable automatic encryption"
-
-            Manual ->
-                Html.text "Enable automatic encryption"
-        ]
-
-
 enableAttributeWhenInEncryption : Model -> Html.Attribute Msg
 enableAttributeWhenInEncryption model =
     case model.enigma.operationMode of
-        EnigmaMachine.Encryption ->
+        Models.Enigma.OperationMode.Encryption ->
             Html.Attributes.disabled False
 
-        EnigmaMachine.Configuration ->
+        Models.Enigma.OperationMode.Configuration ->
             Html.Attributes.disabled True
 
 
@@ -225,11 +164,6 @@ substituteChar model maybeInputChar =
     { model | enigma = newEnigma, messageHolder = updatedMessageHolder, substitutionLog = maybeSubstitutionLog }
 
 
-disableAutomaticTextInput : TextInputConfig -> TextInputConfig
-disableAutomaticTextInput textInputConfig =
-    { textInputConfig | encryptionMode = Manual }
-
-
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Browser functions
@@ -243,17 +177,14 @@ initialModel =
     let
         enigma =
             EnigmaMachine.defaultEnigma
-
-        textInputConfig =
-            { encryptionMode = Manual, encryptionSpeed = 250 }
     in
     ( { enigma = enigma
       , substitutionLog = Nothing
       , messageHolder = MessageHolder.defaultMessageHolder
-      , textInputConfig = textInputConfig
       , serverMessageHolder = ServerMessageHolder.defaultServerMessageHolder
       }
-    , ServerMessageHolder.requestServerMessages ReceiveServerMessageHolder
+      --      TODO Eta reduction somwhow?
+    , ServerMessageHolder.requestServerMessages (\reponse -> MessageHolderMsg (View.MessageHolderView.ResultLoadingServerMessages reponse))
     )
 
 
@@ -261,13 +192,13 @@ initialModel =
 -}
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    case ( model.enigma.operationMode, model.textInputConfig.encryptionMode ) of
-        ( EnigmaMachine.Encryption, Automatic ) ->
+    case ( model.enigma.operationMode, model.messageHolder.config.encryptionMode ) of
+        ( Models.Enigma.OperationMode.Encryption, MessageHolder.Automatic ) ->
             if String.isEmpty model.messageHolder.rawInput then
                 Sub.none
 
             else
-                Time.every (toFloat model.textInputConfig.encryptionSpeed) (\_ -> EncryptCharTick)
+                Time.every (toFloat model.messageHolder.config.encryptionSpeed) (\_ -> EncryptCharTick)
 
         _ ->
             Sub.none
@@ -285,33 +216,15 @@ update msg model =
             in
             ( { model | enigma = newEnigma, messageHolder = newMessageHolder }, newCmd )
 
-        UpdateRawInput input ->
-            ( { model | messageHolder = MessageHolder.setRawInput model.messageHolder input }, Cmd.none )
+        MessageHolderMsg serverMessageHolderMessage ->
+            let
+                ( newServerMessageHolder, newMessageHolder, newCmd ) =
+                    View.MessageHolderView.update serverMessageHolderMessage model.serverMessageHolder model.messageHolder MessageHolderMsg
+            in
+            ( { model | serverMessageHolder = newServerMessageHolder, messageHolder = newMessageHolder }, newCmd )
 
         UpdateDescription input ->
             ( { model | messageHolder = MessageHolder.setDescription model.messageHolder input }, Cmd.none )
-
-        ToggleEncryptionMode ->
-            let
-                textInputConfig =
-                    model.textInputConfig
-
-                newMode =
-                    case textInputConfig.encryptionMode of
-                        Automatic ->
-                            Manual
-
-                        Manual ->
-                            Automatic
-            in
-            ( { model | textInputConfig = { textInputConfig | encryptionMode = newMode } }, Cmd.none )
-
-        SetEncryptionModeSpeed newSpeedVal ->
-            let
-                textInputConfig =
-                    model.textInputConfig
-            in
-            ( { model | textInputConfig = { textInputConfig | encryptionSpeed = newSpeedVal } }, Cmd.none )
 
         EncryptCharTick ->
             let
@@ -322,22 +235,6 @@ update msg model =
                     { model | messageHolder = updatedMessageHolder }
             in
             ( substituteChar updatedModel maybeInputChar, Cmd.none )
-
-        LoadServerMessages ->
-            ( { model | serverMessageHolder = ServerMessageHolder.Loading }
-            , ServerMessageHolder.requestServerMessages ReceiveServerMessageHolder
-            )
-
-        SelectServerMessage messageHolder ->
-            ( { model | messageHolder = messageHolder, textInputConfig = disableAutomaticTextInput model.textInputConfig }, Cmd.none )
-
-        SendMessageToServer ->
-            ( { model | messageHolder = MessageHolder.defaultMessageHolder }
-            , ServerMessageHolder.sendMessageToServer model.messageHolder ReceiveServerMessageHolder
-            )
-
-        ReceiveServerMessageHolder result ->
-            ( { model | serverMessageHolder = ServerMessageHolder.handleServerResponse result }, Cmd.none )
 
 
 main : Program () Model Msg

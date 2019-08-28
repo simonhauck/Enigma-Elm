@@ -1,12 +1,19 @@
 module Models.MessageHolder exposing
-    ( ForeignChar(..)
+    ( Config
+    , EncryptionMode(..)
+    , ForeignChar(..)
     , MessageHolder
     , addProcessedChar
+    , copyConfig
+    , defaultConfig
     , defaultMessageHolder
+    , disableAutomaticEncryptionMode
     , getFirstCharFromRawInput
     , getFormattedProcessedInputOutput
     , setDescription
+    , setEncryptionSpeed
     , setRawInput
+    , toggleEncryptionMode
     , toggleForeignCharOption
     )
 
@@ -22,6 +29,7 @@ type alias MessageHolder =
     , processedInput : String
     , processedOutput : String
     , foreignCharOption : ForeignChar
+    , config : Config
     }
 
 
@@ -30,17 +38,33 @@ type ForeignChar
     | Ignore
 
 
+type EncryptionMode
+    = Automatic
+    | Manual
+
+
+type alias Config =
+    { encryptionMode : EncryptionMode, encryptionSpeed : Int }
+
+
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Exposed functions
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| default Config
+-}
+defaultConfig : Config
+defaultConfig =
+    { encryptionMode = Manual, encryptionSpeed = 250 }
+
+
 {-| Get a default message holder
 -}
 defaultMessageHolder : MessageHolder
 defaultMessageHolder =
-    { description = "", rawInput = "", processedInput = "", processedOutput = "", foreignCharOption = Include }
+    { description = "", rawInput = "", processedInput = "", processedOutput = "", foreignCharOption = Include, config = defaultConfig }
 
 
 {-| Set the raw input value of the messageHolder with the given string
@@ -120,6 +144,47 @@ toggleForeignCharOption messageHolder =
 
         Ignore ->
             { messageHolder | foreignCharOption = Include }
+
+
+{-| copy the config of the old MessageHolder to the new one and return the updated MessageHolder
+-}
+copyConfig : MessageHolder -> MessageHolder -> MessageHolder
+copyConfig oldMessageHolder newMessageHolder =
+    { newMessageHolder | config = oldMessageHolder.config }
+
+
+{-| Set the encryption Speed in the config
+-}
+setEncryptionSpeed : MessageHolder -> Int -> MessageHolder
+setEncryptionSpeed messageHolder newSpeedVal =
+    let
+        newConfig =
+            { encryptionMode = messageHolder.config.encryptionMode, encryptionSpeed = newSpeedVal }
+    in
+    { messageHolder | config = newConfig }
+
+
+{-| Toggle the encryptionMode in the config
+-}
+toggleEncryptionMode : MessageHolder -> MessageHolder
+toggleEncryptionMode messageHolder =
+    let
+        newMode =
+            case messageHolder.config.encryptionMode of
+                Automatic ->
+                    Manual
+
+                Manual ->
+                    Automatic
+    in
+    { messageHolder | config = { encryptionMode = newMode, encryptionSpeed = messageHolder.config.encryptionSpeed } }
+
+
+{-| Disable the Automatic encryption
+-}
+disableAutomaticEncryptionMode : MessageHolder -> MessageHolder
+disableAutomaticEncryptionMode messageHolder =
+    { messageHolder | config = { encryptionMode = Manual, encryptionSpeed = messageHolder.config.encryptionSpeed } }
 
 
 

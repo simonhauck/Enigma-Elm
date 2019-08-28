@@ -1,6 +1,5 @@
 module Models.Enigma.EnigmaMachine exposing
     ( Enigma
-    , OperationMode(..)
     , RandomizationType(..)
     , defaultEnigma
     , getRandomCharPositionsCmd
@@ -10,10 +9,10 @@ module Models.Enigma.EnigmaMachine exposing
     , randomizeReflectorCmd
     , randomizeRotorsCmd
     , resetPlugBoard
-    , setCurrentPositionToStartPosition
     , setReflector
     , setRingPositionOfRotor
     , setRotor
+    , setStartPositionAsCurrentPosition
     , setStartPositionOfRotor
     , substituteCharacter
     )
@@ -21,6 +20,7 @@ module Models.Enigma.EnigmaMachine exposing
 import Dict
 import List
 import List.Extra
+import Models.Enigma.OperationMode
 import Models.Enigma.Plugboard as Plugboard
 import Models.Enigma.Reflector as Reflector
 import Models.Enigma.Rotor as Rotor exposing (Rotor, rotor1, rotor2, rotor3, staticRotor)
@@ -35,13 +35,8 @@ type alias Enigma =
     { rotors : List Rotor
     , reflector : Reflector.Reflector
     , plugBoard : Plugboard.Plugboard
-    , operationMode : OperationMode
+    , operationMode : Models.Enigma.OperationMode.OperationMode
     }
-
-
-type OperationMode
-    = Configuration
-    | Encryption
 
 
 type RandomizationType
@@ -57,7 +52,7 @@ defaultEnigma =
     { rotors = [ rotor1, rotor2, rotor3 ]
     , reflector = Reflector.reflectorB
     , plugBoard = Plugboard.defaultPlugboard
-    , operationMode = Configuration
+    , operationMode = Models.Enigma.OperationMode.Configuration
     }
 
 
@@ -175,8 +170,8 @@ resetPlugBoard enigma =
 
 {-| Set the currentPosition in each rotor to the selected startPosition
 -}
-setCurrentPositionToStartPosition : Enigma -> Enigma
-setCurrentPositionToStartPosition enigma =
+setStartPositionAsCurrentPosition : Enigma -> Enigma
+setStartPositionAsCurrentPosition enigma =
     let
         updatedRotors =
             List.map (\rotor -> { rotor | currentPosition = rotor.startPosition }) enigma.rotors
