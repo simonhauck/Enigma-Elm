@@ -11,7 +11,6 @@ import Html.Attributes
 import Html.Events
 import Http
 import Loading exposing (defaultConfig)
-import Models.Enigma.OperationMode as OperationMode
 import Models.MessageHolder as MessageHolder
 import Models.ServerMessageHolder as ServerMessageHolder
 
@@ -70,7 +69,7 @@ displayEncryptionResult messageHolder convertMessageHolderFunction =
                 , Html.Attributes.value messageHolder.description
                 , Html.Events.onInput
                     (\val ->
-                        { messageHolder | description = val } |> SetMessageHolder |> convertMessageHolderFunction
+                        MessageHolder.setDescription messageHolder val |> SetMessageHolder |> convertMessageHolderFunction
                     )
                 ]
                 []

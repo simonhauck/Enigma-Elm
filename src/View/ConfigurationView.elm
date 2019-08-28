@@ -242,12 +242,6 @@ selectRotorPositionView enigma convertToMainMsgFunction =
         ]
 
 
-
---            [ Html.Events.on "change" (Json.Decode.map (\val -> SetRotorPosition index (Maybe.withDefault 0 (String.toInt val))) Html.Events.targetValue)
---TODO change pipeleine direction and remove comment line
---val -> Json.Decode.map (convertToMainMsgFunction index <| Maybe.withDefault 0 <| String.toInt <| val) Html.Events.targetValue
-
-
 displayRotorPositionSelectionInTable : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Int -> Rotor.Rotor -> Html msg
 displayRotorPositionSelectionInTable enigma convertToMainMsgFunction index rotor =
     Html.td
@@ -334,16 +328,6 @@ displayRingPositionSelectionInTable model convertToMainMsgFunction index rotor =
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Select Reflector functions
 -- ---------------------------------------------------------------------------------------------------------------------
---Html.Events.onInput
---                            (\reflectorName ->
---                                SetReflector
---                                    (Maybe.withDefault Enigma.Reflector.reflectorA (Dict.get reflectorName Enigma.Reflector.getAllReflectors))
---                            )
---TODO CHange direction
---                                convertToMainMsgFunction <|
---                                    Maybe.withDefault Enigma.Reflector.reflectorB <|
---                                        Flip.flip Dict.get Enigma.Reflector.getAllReflectors <|
---                                            reflectorName
 
 
 selectReflectorView : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Html msg

@@ -9,7 +9,6 @@ import Models.MessageHolder as MessageHolder
 import Models.ServerMessageHolder as ServerMessageHolder
 import View.ConfigurationView
 import View.EncryptionView
-import View.EnigmaSvg
 import View.MessageHolderView
 import View.StyleElements
 
@@ -78,8 +77,8 @@ initialModel =
       , messageHolder = MessageHolder.defaultMessageHolder
       , serverMessageHolder = ServerMessageHolder.defaultServerMessageHolder
       }
-      --      TODO Eta reduction somwhow?
-    , ServerMessageHolder.requestServerMessages (\reponse -> MessageHolderMsg (View.MessageHolderView.ResultLoadingServerMessages reponse))
+      --      TODO Eta reduction somehow?
+    , ServerMessageHolder.requestServerMessages (\response -> MessageHolderMsg (View.MessageHolderView.ResultLoadingServerMessages response))
     )
 
 
