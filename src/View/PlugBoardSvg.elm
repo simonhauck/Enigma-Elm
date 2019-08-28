@@ -1,7 +1,7 @@
 module View.PlugBoardSvg exposing (plugBoardCanvas)
 
-import Enigma.Plugboard
 import Html exposing (Html)
+import Models.Enigma.Plugboard as Plugboard
 import Svg
 import Svg.Attributes
 
@@ -12,7 +12,7 @@ import Svg.Attributes
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
-plugBoardCanvas : Enigma.Plugboard.Plugboard -> Int -> Html msg
+plugBoardCanvas : Plugboard.Plugboard -> Int -> Html msg
 plugBoardCanvas plugboard widthPerCharacter =
     let
         height =
@@ -36,7 +36,7 @@ plugBoardCanvas plugboard widthPerCharacter =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
-drawCircles : Enigma.Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)
+drawCircles : Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)
 drawCircles plugboard height heightOffset widthPerCharacter =
     let
         listFromMaybeFunction =
@@ -83,7 +83,7 @@ circleForCharacter ( x, y ) fillCircle =
         []
 
 
-drawLines : Enigma.Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)
+drawLines : Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)
 drawLines plugboard height heightOffset widthPerCharacter =
     List.foldl
         (\linePair resultList ->

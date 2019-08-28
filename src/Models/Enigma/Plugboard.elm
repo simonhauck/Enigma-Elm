@@ -1,4 +1,4 @@
-module Enigma.Plugboard exposing
+module Models.Enigma.Plugboard exposing
     ( CharPosition(..)
     , Plugboard
     , defaultPlugboard

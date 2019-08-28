@@ -1,4 +1,4 @@
-module Utils.MessageHolder exposing
+module Models.MessageHolder exposing
     ( ForeignChar(..)
     , MessageHolder
     , addProcessedChar

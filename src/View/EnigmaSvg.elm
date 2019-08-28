@@ -1,12 +1,12 @@
 module View.EnigmaSvg exposing (enigmaSvg)
 
-import Enigma.EnigmaMachine
-import Enigma.Plugboard
-import Enigma.Reflector
-import Enigma.Rotor
-import Enigma.SubstitutionLog exposing (SubstitutionLog)
 import Html exposing (Html)
 import List.Extra
+import Models.Enigma.EnigmaMachine as EnigmaMachine
+import Models.Enigma.Plugboard as Plugboard
+import Models.Enigma.Reflector as Reflector
+import Models.Enigma.Rotor as Rotor
+import Models.Enigma.SubstitutionLog as Log
 import Svg exposing (Svg)
 import Svg.Attributes
 import Utils.AlphabetHelper
@@ -35,7 +35,7 @@ type alias Opacity =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
-enigmaSvg : Enigma.EnigmaMachine.Enigma -> Maybe SubstitutionLog -> Html msg
+enigmaSvg : EnigmaMachine.Enigma -> Maybe Log.SubstitutionLog -> Html msg
 enigmaSvg enigma substitutionLog =
     let
         yCoordinate =
@@ -54,10 +54,10 @@ enigmaSvg enigma substitutionLog =
             Maybe.map
                 (\log ->
                     case log.postProcessing of
-                        Enigma.SubstitutionLog.InProgress ->
+                        Log.InProgress ->
                             []
 
-                        Enigma.SubstitutionLog.Finished ->
+                        Log.Finished ->
                             drawSubstitutionLog enigma
                                 log
                                 yCoordinate
@@ -193,7 +193,7 @@ reflector - that should be displayed int he svg
 x - xPosition of the reflector
 y - yPosition of the reflector
 -}
-drawReflector : Enigma.Reflector.Reflector -> Int -> Int -> List (Svg msg)
+drawReflector : Reflector.Reflector -> Int -> Int -> List (Svg msg)
 drawReflector reflector x y =
     let
         connectionLines =
@@ -227,7 +227,7 @@ rotors - the rotors of the enigma
 x - the xCoordinate in the top left corner where the rotors will be drawn
 y - the yCoordinate in the top left corner where the rotors will be drawn
 -}
-drawRotors : List Enigma.Rotor.Rotor -> Int -> Int -> List (Svg msg)
+drawRotors : List Rotor.Rotor -> Int -> Int -> List (Svg msg)
 drawRotors rotors x y =
     List.Extra.indexedFoldl
         (\index rotor listAcc ->
@@ -243,7 +243,7 @@ drawRotors rotors x y =
 
 {-| Draw the plugboard and all of its connections
 -}
-drawPlugBoard : Enigma.Plugboard.Plugboard -> Int -> Int -> List (Svg msg)
+drawPlugBoard : Plugboard.Plugboard -> Int -> Int -> List (Svg msg)
 drawPlugBoard plugboard x y =
     let
         connectionLines =
@@ -251,7 +251,7 @@ drawPlugBoard plugboard x y =
                 (\inputCharIndex ->
                     let
                         outputCharIndex =
-                            Enigma.Plugboard.substituteCharacter inputCharIndex plugboard
+                            Plugboard.substituteCharacter inputCharIndex plugboard
                     in
                     drawPlugboardConnection inputCharIndex outputCharIndex x y defaultColor defaultLineStrokeWidth semiTransparent
                 )
@@ -265,7 +265,7 @@ rotor - that will be drawn
 x - the xCoordinate of the canvas where the rotor will be drawn
 y - the yCoordinate of the canvas where the rotor will be drawn
 -}
-drawRotor : Enigma.Rotor.Rotor -> Int -> Int -> List (Svg msg)
+drawRotor : Rotor.Rotor -> Int -> Int -> List (Svg msg)
 drawRotor rotor x y =
     let
         connectionLines =
@@ -297,7 +297,7 @@ reflectorXCoordinate - the xCoordinate of the reflector
 rotorXCoordinate - the xCoordinate of the rotor
 plugboardXCoordinate - the xCoordinate of the plugboard
 -}
-drawSubstitutionLog : Enigma.EnigmaMachine.Enigma -> SubstitutionLog -> Int -> Int -> Int -> Int -> List (Svg msg)
+drawSubstitutionLog : EnigmaMachine.Enigma -> Log.SubstitutionLog -> Int -> Int -> Int -> Int -> List (Svg msg)
 drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate rotorXCoordinate plugboardXCoordinate =
     let
         plugboardToReflectorArrow =
@@ -622,7 +622,7 @@ drawConnectionBetweenRotors charIndex rotorIndex rotorX rotorY =
 
 {-| Draw a circle to represent the notches in the given rotor
 -}
-drawRotorNotch : Enigma.Rotor.Rotor -> Int -> Int -> List (Svg msg)
+drawRotorNotch : Rotor.Rotor -> Int -> Int -> List (Svg msg)
 drawRotorNotch rotor rotorX rotorY =
     let
         rightRotorColumnX =

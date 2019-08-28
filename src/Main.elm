@@ -1,16 +1,16 @@
 module Main exposing (main)
 
 import Browser
-import Enigma.EnigmaMachine exposing (Enigma)
-import Enigma.SubstitutionLog
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Http
+import Models.Enigma.EnigmaMachine as EnigmaMachine
+import Models.Enigma.SubstitutionLog as Log
+import Models.MessageHolder as MessageHolder
+import Models.ServerMessageHolder as ServerMessageHolder
 import String
 import Time
-import Utils.MessageHolder exposing (ForeignChar, MessageHolder)
-import Utils.ServerMessageHolder
 import View.ConfigurationView
 import View.EnigmaSvg
 import View.ServerMessageView
@@ -29,9 +29,9 @@ type Msg
     | ToggleEncryptionMode
     | SetEncryptionModeSpeed Int
     | LoadServerMessages
-    | SelectServerMessage MessageHolder
+    | SelectServerMessage MessageHolder.MessageHolder
     | SendMessageToServer
-    | ReceiveServerMessageHolder (Result Http.Error (List MessageHolder))
+    | ReceiveServerMessageHolder (Result Http.Error (List MessageHolder.MessageHolder))
 
 
 type EncryptionMode
@@ -44,11 +44,11 @@ type alias TextInputConfig =
 
 
 type alias Model =
-    { enigma : Enigma
-    , substitutionLog : Maybe Enigma.SubstitutionLog.SubstitutionLog
-    , messageHolder : MessageHolder
+    { enigma : EnigmaMachine.Enigma
+    , substitutionLog : Maybe Log.SubstitutionLog
+    , messageHolder : MessageHolder.MessageHolder
     , textInputConfig : TextInputConfig
-    , serverMessageHolder : Utils.ServerMessageHolder.ServerMessageHolder
+    , serverMessageHolder : ServerMessageHolder.ServerMessageHolder
     }
 
 
@@ -107,7 +107,7 @@ encryptionResultView : Model -> Html Msg
 encryptionResultView model =
     let
         ( formattedInput, formattedOutput ) =
-            Utils.MessageHolder.getFormattedProcessedInputOutput model.messageHolder
+            MessageHolder.getFormattedProcessedInputOutput model.messageHolder
     in
     Html.div
         []
@@ -194,10 +194,10 @@ textInputToggleButton model =
 enableAttributeWhenInEncryption : Model -> Html.Attribute Msg
 enableAttributeWhenInEncryption model =
     case model.enigma.operationMode of
-        Enigma.EnigmaMachine.Encryption ->
+        EnigmaMachine.Encryption ->
             Html.Attributes.disabled False
 
-        Enigma.EnigmaMachine.Configuration ->
+        EnigmaMachine.Configuration ->
             Html.Attributes.disabled True
 
 
@@ -217,10 +217,10 @@ substituteChar model maybeInputChar =
             Maybe.withDefault '-' maybeInputChar
 
         ( newEnigma, maybeSubstitutionLog, maybeOutputChar ) =
-            Enigma.EnigmaMachine.performRotationAndSubstitution model.enigma inputChar
+            EnigmaMachine.performRotationAndSubstitution model.enigma inputChar
 
         updatedMessageHolder =
-            Utils.MessageHolder.addProcessedChar model.messageHolder inputChar maybeOutputChar
+            MessageHolder.addProcessedChar model.messageHolder inputChar maybeOutputChar
     in
     { model | enigma = newEnigma, messageHolder = updatedMessageHolder, substitutionLog = maybeSubstitutionLog }
 
@@ -242,18 +242,18 @@ initialModel : ( Model, Cmd Msg )
 initialModel =
     let
         enigma =
-            Enigma.EnigmaMachine.defaultEnigma
+            EnigmaMachine.defaultEnigma
 
         textInputConfig =
             { encryptionMode = Manual, encryptionSpeed = 250 }
     in
     ( { enigma = enigma
       , substitutionLog = Nothing
-      , messageHolder = Utils.MessageHolder.defaultMessageHolder
+      , messageHolder = MessageHolder.defaultMessageHolder
       , textInputConfig = textInputConfig
-      , serverMessageHolder = Utils.ServerMessageHolder.defaultServerMessageHolder
+      , serverMessageHolder = ServerMessageHolder.defaultServerMessageHolder
       }
-    , Utils.ServerMessageHolder.requestServerMessages ReceiveServerMessageHolder
+    , ServerMessageHolder.requestServerMessages ReceiveServerMessageHolder
     )
 
 
@@ -262,7 +262,7 @@ initialModel =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     case ( model.enigma.operationMode, model.textInputConfig.encryptionMode ) of
-        ( Enigma.EnigmaMachine.Encryption, Automatic ) ->
+        ( EnigmaMachine.Encryption, Automatic ) ->
             if String.isEmpty model.messageHolder.rawInput then
                 Sub.none
 
@@ -286,10 +286,10 @@ update msg model =
             ( { model | enigma = newEnigma, messageHolder = newMessageHolder }, newCmd )
 
         UpdateRawInput input ->
-            ( { model | messageHolder = Utils.MessageHolder.setRawInput model.messageHolder input }, Cmd.none )
+            ( { model | messageHolder = MessageHolder.setRawInput model.messageHolder input }, Cmd.none )
 
         UpdateDescription input ->
-            ( { model | messageHolder = Utils.MessageHolder.setDescription model.messageHolder input }, Cmd.none )
+            ( { model | messageHolder = MessageHolder.setDescription model.messageHolder input }, Cmd.none )
 
         ToggleEncryptionMode ->
             let
@@ -316,7 +316,7 @@ update msg model =
         EncryptCharTick ->
             let
                 ( updatedMessageHolder, maybeInputChar ) =
-                    Utils.MessageHolder.getFirstCharFromRawInput model.messageHolder
+                    MessageHolder.getFirstCharFromRawInput model.messageHolder
 
                 updatedModel =
                     { model | messageHolder = updatedMessageHolder }
@@ -324,20 +324,20 @@ update msg model =
             ( substituteChar updatedModel maybeInputChar, Cmd.none )
 
         LoadServerMessages ->
-            ( { model | serverMessageHolder = Utils.ServerMessageHolder.Loading }
-            , Utils.ServerMessageHolder.requestServerMessages ReceiveServerMessageHolder
+            ( { model | serverMessageHolder = ServerMessageHolder.Loading }
+            , ServerMessageHolder.requestServerMessages ReceiveServerMessageHolder
             )
 
         SelectServerMessage messageHolder ->
             ( { model | messageHolder = messageHolder, textInputConfig = disableAutomaticTextInput model.textInputConfig }, Cmd.none )
 
         SendMessageToServer ->
-            ( { model | messageHolder = Utils.MessageHolder.defaultMessageHolder }
-            , Utils.ServerMessageHolder.sendMessageToServer model.messageHolder ReceiveServerMessageHolder
+            ( { model | messageHolder = MessageHolder.defaultMessageHolder }
+            , ServerMessageHolder.sendMessageToServer model.messageHolder ReceiveServerMessageHolder
             )
 
         ReceiveServerMessageHolder result ->
-            ( { model | serverMessageHolder = Utils.ServerMessageHolder.handleServerResponse result }, Cmd.none )
+            ( { model | serverMessageHolder = ServerMessageHolder.handleServerResponse result }, Cmd.none )
 
 
 main : Program () Model Msg

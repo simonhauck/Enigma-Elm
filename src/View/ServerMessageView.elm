@@ -4,8 +4,8 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Loading exposing (defaultConfig)
-import Utils.MessageHolder as MessageHolder
-import Utils.ServerMessageHolder
+import Models.MessageHolder as MessageHolder
+import Models.ServerMessageHolder as ServerMessageHolder
 
 
 
@@ -15,7 +15,7 @@ import Utils.ServerMessageHolder
 --TODO ETA Reduction
 
 
-displayServerMessages : (MessageHolder.MessageHolder -> msg) -> msg -> Utils.ServerMessageHolder.ServerMessageHolder -> Html msg
+displayServerMessages : (MessageHolder.MessageHolder -> msg) -> msg -> ServerMessageHolder.ServerMessageHolder -> Html msg
 displayServerMessages useFunction reloadFunction serverMessageHolder =
     displayServerMessageHolderTable useFunction reloadFunction serverMessageHolder
 
@@ -26,12 +26,12 @@ displayServerMessages useFunction reloadFunction serverMessageHolder =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
-displayServerMessageHolderTable : (MessageHolder.MessageHolder -> msg) -> msg -> Utils.ServerMessageHolder.ServerMessageHolder -> Html msg
+displayServerMessageHolderTable : (MessageHolder.MessageHolder -> msg) -> msg -> ServerMessageHolder.ServerMessageHolder -> Html msg
 displayServerMessageHolderTable useFunction reloadFunction serverMessageHolder =
     let
         displayedItemList =
             case serverMessageHolder of
-                Utils.ServerMessageHolder.Loading ->
+                ServerMessageHolder.Loading ->
                     [ Html.tr
                         []
                         [ Html.td
@@ -43,10 +43,10 @@ displayServerMessageHolderTable useFunction reloadFunction serverMessageHolder =
                         ]
                     ]
 
-                Utils.ServerMessageHolder.Error ->
+                ServerMessageHolder.Error ->
                     [ Html.tr [] [ Html.td [ Html.Attributes.colspan 4 ] [ Html.text "An error occurred while connecting to the server" ] ] ]
 
-                Utils.ServerMessageHolder.MessageHolderList list ->
+                ServerMessageHolder.MessageHolderList list ->
                     List.indexedMap (displayServerMessageRow useFunction) list
     in
     Html.table

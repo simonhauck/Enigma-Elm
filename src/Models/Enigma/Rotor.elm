@@ -1,4 +1,4 @@
-module Enigma.Rotor exposing
+module Models.Enigma.Rotor exposing
     ( Rotor
     , SignalDirection(..)
     , getAllRotors

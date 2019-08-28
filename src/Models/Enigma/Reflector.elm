@@ -1,4 +1,4 @@
-module Enigma.Reflector exposing
+module Models.Enigma.Reflector exposing
     ( Reflector
     , getAllReflectors
     , reflectorA

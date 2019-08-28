@@ -1,4 +1,4 @@
-module Utils.ServerMessageHolder exposing
+module Models.ServerMessageHolder exposing
     ( ServerMessageHolder(..)
     , defaultServerMessageHolder
     , handleServerResponse
@@ -9,12 +9,12 @@ module Utils.ServerMessageHolder exposing
 import Http
 import Json.Decode
 import Json.Encode
-import Utils.MessageHolder
+import Models.MessageHolder as MessageHolder
 
 
 type ServerMessageHolder
     = Loading
-    | MessageHolderList (List Utils.MessageHolder.MessageHolder)
+    | MessageHolderList (List MessageHolder.MessageHolder)
     | Error
 
 
@@ -33,7 +33,7 @@ defaultServerMessageHolder =
 
 {-| Create a command to send the given messageHolder to the server.
 -}
-sendMessageToServer : Utils.MessageHolder.MessageHolder -> (Result Http.Error (List Utils.MessageHolder.MessageHolder) -> msg) -> Cmd msg
+sendMessageToServer : MessageHolder.MessageHolder -> (Result Http.Error (List MessageHolder.MessageHolder) -> msg) -> Cmd msg
 sendMessageToServer messageHolder resultFunction =
     Http.post
         { url = serverUrl
@@ -44,7 +44,7 @@ sendMessageToServer messageHolder resultFunction =
 
 {-| Create a command to request all serverMessages
 -}
-requestServerMessages : (Result Http.Error (List Utils.MessageHolder.MessageHolder) -> msg) -> Cmd msg
+requestServerMessages : (Result Http.Error (List MessageHolder.MessageHolder) -> msg) -> Cmd msg
 requestServerMessages resultFunction =
     Http.get
         { url = serverUrl
@@ -54,7 +54,7 @@ requestServerMessages resultFunction =
 
 {-| Function that handles the result of the server requests and return the parsed ServerMessageHolder
 -}
-handleServerResponse : Result err (List Utils.MessageHolder.MessageHolder) -> ServerMessageHolder
+handleServerResponse : Result err (List MessageHolder.MessageHolder) -> ServerMessageHolder
 handleServerResponse result =
     case result of
         Ok val ->
@@ -78,10 +78,10 @@ serverUrl =
 
 {-| Decoder for a list of MessageHolder objects
 -}
-decodeMessageHolderList : Json.Decode.Decoder (List Utils.MessageHolder.MessageHolder)
+decodeMessageHolderList : Json.Decode.Decoder (List MessageHolder.MessageHolder)
 decodeMessageHolderList =
     Json.Decode.map5
-        Utils.MessageHolder.MessageHolder
+        MessageHolder.MessageHolder
         (Json.Decode.field "description" Json.Decode.string)
         (Json.Decode.field "rawInput" Json.Decode.string)
         (Json.Decode.field "processedInput" Json.Decode.string)
@@ -90,10 +90,10 @@ decodeMessageHolderList =
             |> Json.Decode.andThen
                 (\val ->
                     if val == 0 then
-                        Json.Decode.succeed Utils.MessageHolder.Include
+                        Json.Decode.succeed MessageHolder.Include
 
                     else
-                        Json.Decode.succeed Utils.MessageHolder.Ignore
+                        Json.Decode.succeed MessageHolder.Ignore
                 )
         )
         |> Json.Decode.list
@@ -101,7 +101,7 @@ decodeMessageHolderList =
 
 {-| Encode a MessageHolder as a json message
 -}
-encodeMessageHolder : Utils.MessageHolder.MessageHolder -> Json.Encode.Value
+encodeMessageHolder : MessageHolder.MessageHolder -> Json.Encode.Value
 encodeMessageHolder messageHolder =
     let
         list =
@@ -112,10 +112,10 @@ encodeMessageHolder messageHolder =
             , ( "foreignCharOption"
               , Json.Encode.int <|
                     case messageHolder.foreignCharOption of
-                        Utils.MessageHolder.Include ->
+                        MessageHolder.Include ->
                             0
 
-                        Utils.MessageHolder.Ignore ->
+                        MessageHolder.Ignore ->
                             1
               )
             ]

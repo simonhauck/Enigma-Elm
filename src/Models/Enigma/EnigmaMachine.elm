@@ -1,4 +1,4 @@
-module Enigma.EnigmaMachine exposing
+module Models.Enigma.EnigmaMachine exposing
     ( Enigma
     , OperationMode(..)
     , RandomizationType(..)
@@ -19,12 +19,12 @@ module Enigma.EnigmaMachine exposing
     )
 
 import Dict
-import Enigma.Plugboard exposing (Plugboard)
-import Enigma.Reflector exposing (Reflector)
-import Enigma.Rotor exposing (Rotor, rotor1, rotor2, rotor3, staticRotor)
-import Enigma.SubstitutionLog as Log exposing (SubstitutionLog, UpdateLogFunction)
 import List
 import List.Extra
+import Models.Enigma.Plugboard as Plugboard
+import Models.Enigma.Reflector as Reflector
+import Models.Enigma.Rotor as Rotor exposing (Rotor, rotor1, rotor2, rotor3, staticRotor)
+import Models.Enigma.SubstitutionLog as Log exposing (SubstitutionLog, UpdateLogFunction)
 import Random
 import Random.List
 import Utils.AlphabetHelper
@@ -33,8 +33,8 @@ import Utils.Helper
 
 type alias Enigma =
     { rotors : List Rotor
-    , reflector : Reflector
-    , plugBoard : Plugboard
+    , reflector : Reflector.Reflector
+    , plugBoard : Plugboard.Plugboard
     , operationMode : OperationMode
     }
 
@@ -47,7 +47,7 @@ type OperationMode
 type RandomizationType
     = RandomizePlugboard (List Int)
     | RandomizeRotor ( Int, Rotor )
-    | RandomizeReflector Reflector
+    | RandomizeReflector Reflector.Reflector
     | RandomizeRotorStartPosition ( Int, Int )
     | RandomizeRotorRingPosition ( Int, Int )
 
@@ -55,8 +55,8 @@ type RandomizationType
 defaultEnigma : Enigma
 defaultEnigma =
     { rotors = [ rotor1, rotor2, rotor3 ]
-    , reflector = Enigma.Reflector.reflectorB
-    , plugBoard = Enigma.Plugboard.defaultPlugboard
+    , reflector = Reflector.reflectorB
+    , plugBoard = Plugboard.defaultPlugboard
     , operationMode = Configuration
     }
 
@@ -128,7 +128,7 @@ setRotor enigma rotorPosition newRotor =
 
 {-| Set the reflector of the enigma
 -}
-setReflector : Enigma -> Reflector -> Enigma
+setReflector : Enigma -> Reflector.Reflector -> Enigma
 setReflector enigma newReflector =
     { enigma | reflector = newReflector }
 
@@ -161,16 +161,16 @@ enigma - the enigma with the plugboard
 charPosition - is the selected char an input or output value
 charIndex - index of the character in the alphabet
 -}
-pressCharOnPlugBoard : Enigma -> Enigma.Plugboard.CharPosition -> Int -> Enigma
+pressCharOnPlugBoard : Enigma -> Plugboard.CharPosition -> Int -> Enigma
 pressCharOnPlugBoard enigma charPosition charIndex =
-    { enigma | plugBoard = Enigma.Plugboard.pressChar enigma.plugBoard charPosition charIndex }
+    { enigma | plugBoard = Plugboard.pressChar enigma.plugBoard charPosition charIndex }
 
 
 {-| reset the plugboard. Remove all stored connections and set the selected Input/OutputChar to nothing
 -}
 resetPlugBoard : Enigma -> Enigma
 resetPlugBoard enigma =
-    { enigma | plugBoard = Enigma.Plugboard.resetPlugBoard enigma.plugBoard }
+    { enigma | plugBoard = Plugboard.resetPlugBoard enigma.plugBoard }
 
 
 {-| Set the currentPosition in each rotor to the selected startPosition
@@ -193,11 +193,11 @@ randomizeRotorsCmd function enigma =
 
 {-| Create a command to select a random reflector
 -}
-randomizeReflectorCmd : (Reflector -> msg) -> Cmd msg
+randomizeReflectorCmd : (Reflector.Reflector -> msg) -> Cmd msg
 randomizeReflectorCmd function =
-    Dict.values Enigma.Reflector.getAllReflectors
+    Dict.values Reflector.getAllReflectors
         |> Random.List.choose
-        |> Random.map (Maybe.withDefault Enigma.Reflector.reflectorB << Tuple.first)
+        |> Random.map (Maybe.withDefault Reflector.reflectorB << Tuple.first)
         |> Random.generate function
 
 
@@ -216,7 +216,7 @@ handleRandomizeResult : Enigma -> RandomizationType -> Enigma
 handleRandomizeResult enigma randomizationType =
     case randomizationType of
         RandomizePlugboard newPlugboardList ->
-            { enigma | plugBoard = Enigma.Plugboard.handleRandomPlugboardCmd enigma.plugBoard newPlugboardList }
+            { enigma | plugBoard = Plugboard.handleRandomPlugboardCmd enigma.plugBoard newPlugboardList }
 
         RandomizeRotor ( rotorPosition, newRotor ) ->
             setRotor enigma rotorPosition newRotor
@@ -245,7 +245,7 @@ substituteCharacterWithPlugboard enigma updateLogFunction ( maybeSubstitutionLog
         Just charIndex ->
             let
                 outputChar =
-                    Enigma.Plugboard.substituteCharacter charIndex enigma.plugBoard
+                    Plugboard.substituteCharacter charIndex enigma.plugBoard
             in
             ( updateLogFunction ( charIndex, outputChar ) maybeSubstitutionLog, Just outputChar )
 
@@ -266,7 +266,7 @@ substituteCharacterToReflector enigma updateLogFunction logIndexPair =
                     ( Nothing, Nothing )
 
                 Just inputCharIndex ->
-                    case Enigma.Rotor.substituteCharacter Enigma.Rotor.ToReflector inputCharIndex currentRotor previousRotor of
+                    case Rotor.substituteCharacter Rotor.ToReflector inputCharIndex currentRotor previousRotor of
                         Nothing ->
                             ( Nothing, Nothing )
 
@@ -291,7 +291,7 @@ substituteCharacterFromReflector enigma updateLogFunction logIndexPair =
                     ( Nothing, Nothing )
 
                 Just inputCharIndex ->
-                    case Enigma.Rotor.substituteCharacter Enigma.Rotor.FromReflector inputCharIndex currentRotor previousRotor of
+                    case Rotor.substituteCharacter Rotor.FromReflector inputCharIndex currentRotor previousRotor of
                         Nothing ->
                             ( Nothing, Nothing )
 
@@ -312,7 +312,7 @@ substituteCharacterWithReflector enigma updateLogFunction ( maybeSubstitutionLog
             ( Nothing, Nothing )
 
         Just inputCharIndex ->
-            case Enigma.Reflector.substituteCharacter inputCharIndex enigma.reflector of
+            case Reflector.substituteCharacter inputCharIndex enigma.reflector of
                 Nothing ->
                     ( Nothing, Nothing )
 
@@ -354,7 +354,7 @@ rotateRotor rotor shouldRotateRotor =
                 List.member rotor.currentPosition rotor.notches
 
             rotatedRotor =
-                Enigma.Rotor.rotateRotor rotor
+                Rotor.rotateRotor rotor
         in
         ( rotatedRotor, shouldRotateNextRotor )
 
@@ -368,7 +368,7 @@ rotorIndex - the index of the selected rotor
 -}
 randomizeRotor : (( Int, Rotor ) -> msg) -> Int -> Cmd msg
 randomizeRotor function rotorIndex =
-    Random.List.choose (Dict.values Enigma.Rotor.getAllRotors)
+    Random.List.choose (Dict.values Rotor.getAllRotors)
         |> Random.map
             (\( maybeRandomRotor, _ ) ->
                 ( rotorIndex, Maybe.withDefault rotor1 maybeRandomRotor )

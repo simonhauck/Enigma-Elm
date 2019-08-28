@@ -1,4 +1,4 @@
-module Enigma.SubstitutionLog exposing
+module Models.Enigma.SubstitutionLog exposing
     ( PostProcessing(..)
     , SubstitutionLog
     , UpdateLogFunction

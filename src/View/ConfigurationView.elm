@@ -5,28 +5,28 @@ module View.ConfigurationView exposing (ConfigurationMsg(..), displayEnigmaConfi
 -- ---------------------------------------------------------------------------------------------------------------------
 
 import Dict
-import Enigma.EnigmaMachine as EnigmaMachine
-import Enigma.Plugboard
-import Enigma.Reflector
-import Enigma.Rotor exposing (Rotor)
 import Flip
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Json.Decode
+import Models.Enigma.EnigmaMachine as EnigmaMachine
+import Models.Enigma.Plugboard as Plugboard
+import Models.Enigma.Reflector as Reflector
+import Models.Enigma.Rotor as Rotor
+import Models.MessageHolder as MessageHolder
 import Utils.AlphabetHelper
-import Utils.MessageHolder
 import View.PlugBoardSvg
 import View.StyleElements
 
 
 type ConfigurationMsg
-    = SetRotor Int Rotor
+    = SetRotor Int Rotor.Rotor
     | SetRotorPosition Int Int
     | SetRotorRingPosition Int Int
-    | SetReflector Enigma.Reflector.Reflector
+    | SetReflector Reflector.Reflector
     | ResetPlugboard
-    | PressCharOnPlugboard Enigma.Plugboard.CharPosition Int
+    | PressCharOnPlugboard Plugboard.CharPosition Int
     | ToggleForeignCharOption
     | ToggleOperationMode
     | StartRandomKeyGeneration
@@ -37,7 +37,7 @@ type alias ConvertToMainMsgFunction msg =
     ConfigurationMsg -> msg
 
 
-displayEnigmaConfiguration : EnigmaMachine.Enigma -> Utils.MessageHolder.MessageHolder -> ConvertToMainMsgFunction msg -> Html msg
+displayEnigmaConfiguration : EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> ConvertToMainMsgFunction msg -> Html msg
 displayEnigmaConfiguration enigma messageHolder convertToMainMsgFunction =
     Html.div
         []
@@ -47,7 +47,7 @@ displayEnigmaConfiguration enigma messageHolder convertToMainMsgFunction =
         ]
 
 
-update : ConfigurationMsg -> EnigmaMachine.Enigma -> Utils.MessageHolder.MessageHolder -> ConvertToMainMsgFunction msg -> ( EnigmaMachine.Enigma, Utils.MessageHolder.MessageHolder, Cmd msg )
+update : ConfigurationMsg -> EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> ConvertToMainMsgFunction msg -> ( EnigmaMachine.Enigma, MessageHolder.MessageHolder, Cmd msg )
 update msg enigma messageHolder convertToMainMsgFunction =
     let
         buildTuple3 =
@@ -73,7 +73,7 @@ update msg enigma messageHolder convertToMainMsgFunction =
             ( EnigmaMachine.pressCharOnPlugBoard enigma charPosition charIndex, messageHolder, Cmd.none )
 
         ToggleForeignCharOption ->
-            ( enigma, Utils.MessageHolder.toggleForeignCharOption messageHolder, Cmd.none )
+            ( enigma, MessageHolder.toggleForeignCharOption messageHolder, Cmd.none )
 
         ToggleOperationMode ->
             toggleOperationMode enigma messageHolder |> Flip.flip buildTuple3 Cmd.none
@@ -91,7 +91,7 @@ update msg enigma messageHolder convertToMainMsgFunction =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
-configurationView : EnigmaMachine.Enigma -> Utils.MessageHolder.MessageHolder -> ConvertToMainMsgFunction msg -> Html msg
+configurationView : EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> ConvertToMainMsgFunction msg -> Html msg
 configurationView enigma messageHolder convertToMainMsgFunction =
     Html.div
         []
@@ -128,7 +128,7 @@ configurationView enigma messageHolder convertToMainMsgFunction =
         ]
 
 
-toggleOperationMode : EnigmaMachine.Enigma -> Utils.MessageHolder.MessageHolder -> ( EnigmaMachine.Enigma, Utils.MessageHolder.MessageHolder )
+toggleOperationMode : EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> ( EnigmaMachine.Enigma, MessageHolder.MessageHolder )
 toggleOperationMode enigma messageHolder =
     case enigma.operationMode of
         EnigmaMachine.Encryption ->
@@ -145,7 +145,7 @@ toggleOperationMode enigma messageHolder =
 randomizeEnigma : EnigmaMachine.Enigma -> ConvertToMainMsgFunction msg -> Cmd msg
 randomizeEnigma enigma convertToMainMsgFunction =
     Cmd.batch
-        [ Enigma.Plugboard.randomPlugboardCmd
+        [ Plugboard.randomPlugboardCmd
             (\shuffledList -> EnigmaMachine.RandomizePlugboard shuffledList |> HandleRandomKeyGeneration |> convertToMainMsgFunction)
         , EnigmaMachine.randomizeRotorsCmd
             (\randomRotorPair -> EnigmaMachine.RandomizeRotor randomRotorPair |> HandleRandomKeyGeneration |> convertToMainMsgFunction)
@@ -182,12 +182,12 @@ selectRotorView enigma convertToMainMsgFunction =
 --convertToMainMsgFunction <| SetRotor index <| Flip.flip Dict.get Enigma.Rotor.getAllRotors <| val
 
 
-displayRotorSelectionInTable : EnigmaMachine.Enigma -> ConvertToMainMsgFunction msg -> Int -> Rotor -> Html msg
+displayRotorSelectionInTable : EnigmaMachine.Enigma -> ConvertToMainMsgFunction msg -> Int -> Rotor.Rotor -> Html msg
 displayRotorSelectionInTable enigma convertToMainMsgFunction index rotor =
     Html.td
         View.StyleElements.selectWrapperStyleElements
         [ Html.select
-            (Html.Events.on "change" (Json.Decode.map (\val -> Dict.get val Enigma.Rotor.getAllRotors |> Maybe.withDefault Enigma.Rotor.rotor1 |> SetRotor index |> convertToMainMsgFunction) Html.Events.targetValue)
+            (Html.Events.on "change" (Json.Decode.map (\val -> Dict.get val Rotor.getAllRotors |> Maybe.withDefault Rotor.rotor1 |> SetRotor index |> convertToMainMsgFunction) Html.Events.targetValue)
                 :: enableAttributeWhenInConfiguration enigma
                 :: View.StyleElements.selectStyleElements
             )
@@ -200,7 +200,7 @@ displayRotorSelectionInTable enigma convertToMainMsgFunction index rotor =
                         [ Html.text currentRotor.name
                         ]
                 )
-                (Dict.values Enigma.Rotor.getAllRotors)
+                (Dict.values Rotor.getAllRotors)
             )
         ]
 
@@ -236,7 +236,7 @@ selectRotorPositionView enigma convertToMainMsgFunction =
 --val -> Json.Decode.map (convertToMainMsgFunction index <| Maybe.withDefault 0 <| String.toInt <| val) Html.Events.targetValue
 
 
-displayRotorPositionSelectionInTable : EnigmaMachine.Enigma -> ConvertToMainMsgFunction msg -> Int -> Rotor -> Html msg
+displayRotorPositionSelectionInTable : EnigmaMachine.Enigma -> ConvertToMainMsgFunction msg -> Int -> Rotor.Rotor -> Html msg
 displayRotorPositionSelectionInTable enigma convertToMainMsgFunction index rotor =
     Html.td
         []
@@ -288,7 +288,7 @@ selectRingPositionView enigma convertToMainMsgFunction =
 --Json.Decode.map (\val -> convertToMainMsgFunction index <| Maybe.withDefault 0 <| String.toInt <| val) Html.Events.targetValue
 
 
-displayRingPositionSelectionInTable : EnigmaMachine.Enigma -> ConvertToMainMsgFunction msg -> Int -> Rotor -> Html msg
+displayRingPositionSelectionInTable : EnigmaMachine.Enigma -> ConvertToMainMsgFunction msg -> Int -> Rotor.Rotor -> Html msg
 displayRingPositionSelectionInTable model convertToMainMsgFunction index rotor =
     Html.td
         []
@@ -348,8 +348,8 @@ selectReflectorView enigma convertToMainMsgFunction =
                         , Html.Attributes.checked (reflector.name == enigma.reflector.name)
                         , Html.Events.onInput
                             (\reflectorName ->
-                                Dict.get reflectorName Enigma.Reflector.getAllReflectors
-                                    |> Maybe.withDefault Enigma.Reflector.reflectorB
+                                Dict.get reflectorName Reflector.getAllReflectors
+                                    |> Maybe.withDefault Reflector.reflectorB
                                     |> SetReflector
                                     |> convertToMainMsgFunction
                             )
@@ -359,7 +359,7 @@ selectReflectorView enigma convertToMainMsgFunction =
                     , Html.text reflector.name
                     ]
             )
-            (Dict.values Enigma.Reflector.getAllReflectors)
+            (Dict.values Reflector.getAllReflectors)
         )
 
 
@@ -382,13 +382,13 @@ configurePlugBoardView enigma convertToMainMsgFunction =
             ]
             [ Html.div
                 []
-                (plugBoardCharacterButtons enigma convertToMainMsgFunction Enigma.Plugboard.Input sizePerCharacter)
+                (plugBoardCharacterButtons enigma convertToMainMsgFunction Plugboard.Input sizePerCharacter)
             , Html.div
                 []
                 [ View.PlugBoardSvg.plugBoardCanvas enigma.plugBoard sizePerCharacter ]
             , Html.div
                 []
-                (plugBoardCharacterButtons enigma convertToMainMsgFunction Enigma.Plugboard.Output sizePerCharacter)
+                (plugBoardCharacterButtons enigma convertToMainMsgFunction Plugboard.Output sizePerCharacter)
             ]
         , Html.button
             [ enableAttributeWhenInConfiguration enigma
@@ -398,7 +398,7 @@ configurePlugBoardView enigma convertToMainMsgFunction =
         ]
 
 
-plugBoardCharacterButtons : EnigmaMachine.Enigma -> ConvertToMainMsgFunction msg -> Enigma.Plugboard.CharPosition -> Int -> List (Html msg)
+plugBoardCharacterButtons : EnigmaMachine.Enigma -> ConvertToMainMsgFunction msg -> Plugboard.CharPosition -> Int -> List (Html msg)
 plugBoardCharacterButtons model convertToMainMsgFunction charPosition sizePerCharacter =
     List.map
         (\index ->
@@ -419,7 +419,7 @@ plugBoardCharacterButtons model convertToMainMsgFunction charPosition sizePerCha
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
-otherConfigurationView : EnigmaMachine.Enigma -> Utils.MessageHolder.MessageHolder -> ConvertToMainMsgFunction msg -> Html msg
+otherConfigurationView : EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> ConvertToMainMsgFunction msg -> Html msg
 otherConfigurationView enigma messageHolder convertToMainMsgFunction =
     Html.div
         []
@@ -427,7 +427,7 @@ otherConfigurationView enigma messageHolder convertToMainMsgFunction =
             [ Html.input
                 [ Html.Attributes.type_ "checkBox"
                 , enableAttributeWhenInConfiguration enigma
-                , Html.Attributes.checked (messageHolder.foreignCharOption == Utils.MessageHolder.Include)
+                , Html.Attributes.checked (messageHolder.foreignCharOption == MessageHolder.Include)
                 , Html.Events.onClick (convertToMainMsgFunction ToggleForeignCharOption)
                 ]
                 []
@@ -464,7 +464,7 @@ toggleModeButton enigma convertToMainMsgFunction =
 
 {-| get a table row with the rotors
 -}
-tableRowWithRotorNumbers : List Rotor -> Html msg
+tableRowWithRotorNumbers : List Rotor.Rotor -> Html msg
 tableRowWithRotorNumbers rotors =
     Html.tr
         []
