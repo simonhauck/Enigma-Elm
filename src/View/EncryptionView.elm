@@ -49,6 +49,15 @@ textInputBoxView messageHolder operationMode convertEncryptionMsg =
                 MessageHolder.Manual ->
                     Html.text "Enable automatic encryption"
             ]
+        , Html.button
+            [ Html.Events.onClick <| convertEncryptionMsg <| EncryptChar
+            , if String.isEmpty messageHolder.rawInput then
+                Html.Attributes.disabled True
+
+              else
+                enableAttributeWhenInEncryption operationMode
+            ]
+            [ Html.text "Single Step" ]
         , Html.div []
             [ Html.input
                 [ Html.Attributes.type_ "range"
