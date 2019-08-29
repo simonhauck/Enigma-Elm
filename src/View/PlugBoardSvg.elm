@@ -4,6 +4,7 @@ import Html exposing (Html)
 import Models.Enigma.Plugboard as Plugboard
 import Svg
 import Svg.Attributes
+import View.StyleElements
 
 
 
@@ -72,7 +73,7 @@ circleForCharacter ( x, y ) fillCircle =
         , Svg.Attributes.r "10"
         , Svg.Attributes.fill
             (if fillCircle then
-                "#3c8c6e"
+                View.StyleElements.primaryColor
 
              else
                 "none"
@@ -123,7 +124,7 @@ drawLineBetweenCharacters ( inputChar, outputChar ) height heightOffset widthPer
         , Svg.Attributes.y1 <| String.fromInt startY
         , Svg.Attributes.x2 <| String.fromInt endX
         , Svg.Attributes.y2 <| String.fromInt endY
-        , Svg.Attributes.stroke "#3c8c6e"
+        , Svg.Attributes.stroke View.StyleElements.secondaryColor
         , Svg.Attributes.strokeWidth "3"
         ]
         []

@@ -41,15 +41,17 @@ view : Model -> Html Msg
 view model =
     Html.div
         View.StyleElements.backgroundImage
-        [ Html.div [ Html.Attributes.style "display" "flex" ]
-            [ Html.div [ Html.Attributes.style "flex" "50" ]
+        [ Html.div
+            View.StyleElements.flexDisplay
+            [ Html.div
+                View.StyleElements.mediumMargin
                 [ View.ConfigurationView.displayEnigmaConfiguration
                     model.enigma
                     model.messageHolder
                     ConfigurationMsg
                 ]
             , Html.div
-                [ Html.Attributes.style "flex" "50", Html.Attributes.style "display" "flex" ]
+                []
                 [ View.MessageHolderView.displayServerMessages
                     model.serverMessageHolder
                     MessageHolderMsg
