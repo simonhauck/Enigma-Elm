@@ -13,6 +13,7 @@ import Http
 import Loading exposing (defaultConfig)
 import Models.MessageHolder as MessageHolder
 import Models.ServerMessageHolder as ServerMessageHolder
+import View.StyleElements
 
 
 type alias ConvertMessageHolderMsg msg =
@@ -48,7 +49,7 @@ displayEncryptionResult messageHolder convertMessageHolderFunction =
     in
     Html.div
         []
-        [ Html.h3 [] [ Html.text "Encryption Results" ]
+        [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Encryption Results" ]
         , Html.div
             []
             [ Html.table
@@ -75,9 +76,10 @@ displayEncryptionResult messageHolder convertMessageHolderFunction =
                 ]
                 []
             , Html.button
-                [ Html.Events.onClick <| convertMessageHolderFunction <| SendMessageToServer
-                , Html.Attributes.disabled (String.isEmpty messageHolder.description || String.isEmpty messageHolder.processedOutput)
-                ]
+                ((Html.Events.onClick <| convertMessageHolderFunction <| SendMessageToServer)
+                    :: Html.Attributes.disabled (String.isEmpty messageHolder.description || String.isEmpty messageHolder.processedOutput)
+                    :: View.StyleElements.buttonStyleElements
+                )
                 [ Html.text "Send message to server" ]
             ]
         ]
@@ -161,7 +163,11 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
                     []
                 ]
             , Html.td [] [ Html.text "RawInput" ]
-            , Html.td [] [ Html.button [ Html.Events.onClick <| convertMessageHolderFunction StartLoadingServerMessages ] [ Html.text "Reload" ] ]
+            , Html.td []
+                [ Html.button
+                    ((Html.Events.onClick <| convertMessageHolderFunction StartLoadingServerMessages) :: View.StyleElements.buttonStyleElements)
+                    [ Html.text "Reload" ]
+                ]
             ]
             :: displayedItemList
         )
@@ -185,7 +191,11 @@ displayServerMessageRow convertMessageHolderFunction filter index messageHolder 
         [ Html.td [] [ index |> String.fromInt |> Html.text ]
         , Html.td [] [ messageHolder.description |> Html.text ]
         , Html.td [] [ messageHolder.rawInput |> String.slice 0 20 |> Html.text ]
-        , Html.td [] [ Html.button [ Html.Events.onClick <| (convertMessageHolderFunction <| SelectServerMessage messageHolder) ] [ Html.text "Use" ] ]
+        , Html.td []
+            [ Html.button
+                ((Html.Events.onClick <| (convertMessageHolderFunction <| SelectServerMessage messageHolder)) :: View.StyleElements.buttonStyleElements)
+                [ Html.text "Use" ]
+            ]
         ]
 
 

@@ -44,7 +44,7 @@ displayEnigmaConfiguration : EnigmaMachine.Enigma -> MessageHolder.MessageHolder
 displayEnigmaConfiguration enigma messageHolder convertToMainMsgFunction =
     Html.div
         []
-        [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Configuration" ]
+        [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Configuration" ]
         , configurationView enigma messageHolder convertToMainMsgFunction
         , toggleModeButton enigma convertToMainMsgFunction
         ]
@@ -105,32 +105,32 @@ configurationView enigma messageHolder convertToMainMsgFunction =
         []
         [ Html.div
             []
-            [ Html.h3 [] [ Html.text "Select rotor type" ]
+            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select rotor type" ]
             , selectRotorView enigma convertToMainMsgFunction
             ]
         , Html.div
             []
-            [ Html.h3 [] [ Html.text "Select rotor position" ]
+            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select rotor position" ]
             , selectRotorPositionView enigma convertToMainMsgFunction
             ]
         , Html.div
             []
-            [ Html.h3 [] [ Html.text "Select ring position" ]
+            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select ring position" ]
             , selectRingPositionView enigma convertToMainMsgFunction
             ]
         , Html.div
             []
-            [ Html.h3 [] [ Html.text "Select reflector" ]
+            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select reflector" ]
             , selectReflectorView enigma convertToMainMsgFunction
             ]
         , Html.div
             []
-            [ Html.h3 [] [ Html.text "Configure plugboard" ]
+            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Configure plugboard" ]
             , configurePlugBoardView enigma convertToMainMsgFunction
             ]
         , Html.div
             []
-            [ Html.h3 [] [ Html.text "Other configuration - Change later :D" ]
+            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Other configuration - Change later :D" ]
             , otherConfigurationView enigma messageHolder convertToMainMsgFunction
             ]
         ]
@@ -247,7 +247,7 @@ displayRotorPositionSelectionInTable enigma convertToMainMsgFunction index rotor
     Html.td
         []
         [ Html.select
-            [ Html.Events.on "change"
+            (Html.Events.on "change"
                 (Flip.flip Json.Decode.map
                     Html.Events.targetValue
                     (\val ->
@@ -257,8 +257,9 @@ displayRotorPositionSelectionInTable enigma convertToMainMsgFunction index rotor
                             |> convertToMainMsgFunction
                     )
                 )
-            , enableAttributeWhenInConfiguration enigma
-            ]
+                :: enableAttributeWhenInConfiguration enigma
+                :: View.StyleElements.selectStyleElements
+            )
             (List.map
                 (\position ->
                     Html.option
@@ -299,7 +300,7 @@ displayRingPositionSelectionInTable model convertToMainMsgFunction index rotor =
     Html.td
         []
         [ Html.select
-            [ Html.Events.on "change"
+            (Html.Events.on "change"
                 (Flip.flip Json.Decode.map
                     Html.Events.targetValue
                     (\val ->
@@ -309,8 +310,9 @@ displayRingPositionSelectionInTable model convertToMainMsgFunction index rotor =
                             |> convertToMainMsgFunction
                     )
                 )
-            , enableAttributeWhenInConfiguration model
-            ]
+                :: enableAttributeWhenInConfiguration model
+                :: View.StyleElements.selectStyleElements
+            )
             (List.map
                 (\position ->
                     Html.option
@@ -387,9 +389,10 @@ configurePlugBoardView enigma convertToMainMsgFunction =
                 (plugBoardCharacterButtons enigma convertToMainMsgFunction Plugboard.Output sizePerCharacter)
             ]
         , Html.button
-            [ enableAttributeWhenInConfiguration enigma
-            , Html.Events.onClick <| convertToMainMsgFunction <| ResetPlugboard
-            ]
+            (enableAttributeWhenInConfiguration enigma
+                :: (Html.Events.onClick <| convertToMainMsgFunction <| ResetPlugboard)
+                :: View.StyleElements.buttonStyleElements
+            )
             [ Html.text "Reset Plugboard" ]
         ]
 
@@ -399,11 +402,12 @@ plugBoardCharacterButtons model convertToMainMsgFunction charPosition sizePerCha
     List.map
         (\index ->
             Html.button
-                [ enableAttributeWhenInConfiguration model
-                , Html.Events.onClick <| convertToMainMsgFunction <| PressCharOnPlugboard charPosition index
-                , Html.Attributes.style "height" "25px"
-                , Html.Attributes.style "width" <| String.fromInt sizePerCharacter ++ "px"
-                ]
+                (enableAttributeWhenInConfiguration model
+                    :: (Html.Events.onClick <| convertToMainMsgFunction <| PressCharOnPlugboard charPosition index)
+                    :: Html.Attributes.style "height" "25px"
+                    :: (Html.Attributes.style "width" <| String.fromInt sizePerCharacter ++ "px")
+                    :: View.StyleElements.plugboardButtonStyleElements
+                )
                 [ index |> Just |> Utils.AlphabetHelper.characterIndexToCharacter |> Maybe.withDefault '-' |> String.fromChar |> Html.text ]
         )
         (List.range 0 25)
@@ -430,9 +434,10 @@ otherConfigurationView enigma messageHolder convertToMainMsgFunction =
             , Html.text "Include foreign chars"
             ]
         , Html.button
-            [ enableAttributeWhenInConfiguration enigma
-            , Html.Events.onClick (convertToMainMsgFunction StartRandomKeyGeneration)
-            ]
+            (enableAttributeWhenInConfiguration enigma
+                :: Html.Events.onClick (convertToMainMsgFunction StartRandomKeyGeneration)
+                :: View.StyleElements.buttonStyleElements
+            )
             [ Html.text "Generate random key" ]
         ]
 
@@ -441,7 +446,9 @@ toggleModeButton : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Html m
 toggleModeButton enigma convertToMainMsgFunction =
     Html.div []
         [ Html.button
-            [ Html.Events.onClick (convertToMainMsgFunction ToggleOperationMode) ]
+            (Html.Events.onClick (convertToMainMsgFunction ToggleOperationMode)
+                :: View.StyleElements.buttonStyleElements
+            )
             [ case enigma.operationMode of
                 OperationMode.Encryption ->
                     Html.text "Switch to Configuration Mode"

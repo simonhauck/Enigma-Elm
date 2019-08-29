@@ -47,14 +47,14 @@ view model =
             ConfigurationMsg
         , Html.div
             []
-            [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Preview" ]
+            [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Preview" ]
             , View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg
             , View.MessageHolderView.displayEncryptionResult model.messageHolder MessageHolderMsg
             , View.EncryptionView.enigmaPreview model.enigma model.substitutionLog
             ]
         , Html.div
             []
-            [ Html.h2 [ Html.Attributes.align "center" ] [ Html.text "Server Messages" ]
+            [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Server Messages" ]
             , View.MessageHolderView.displayServerMessages
                 model.serverMessageHolder
                 MessageHolderMsg

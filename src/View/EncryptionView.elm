@@ -10,6 +10,7 @@ import Models.Enigma.SubstitutionLog as Log
 import Models.MessageHolder as MessageHolder
 import Time
 import View.EnigmaSvg
+import View.StyleElements
 
 
 type alias ConvertEncryptionMsg msg =
@@ -31,7 +32,7 @@ textInputBoxView : MessageHolder.MessageHolder -> OperationMode.OperationMode ->
 textInputBoxView messageHolder operationMode convertEncryptionMsg =
     Html.div
         []
-        [ Html.h3 [] [ Html.text "Text Input" ]
+        [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Text Input" ]
         , Html.textarea
             [ Html.Attributes.placeholder "Enter your text here"
             , Html.Attributes.value messageHolder.rawInput
@@ -39,9 +40,10 @@ textInputBoxView messageHolder operationMode convertEncryptionMsg =
             ]
             []
         , Html.button
-            [ Html.Events.onClick <| convertEncryptionMsg <| SetMessageHolder <| MessageHolder.toggleEncryptionMode messageHolder
-            , enableAttributeWhenInEncryption operationMode
-            ]
+            ((Html.Events.onClick <| convertEncryptionMsg <| SetMessageHolder <| MessageHolder.toggleEncryptionMode messageHolder)
+                :: enableAttributeWhenInEncryption operationMode
+                :: View.StyleElements.buttonStyleElements
+            )
             [ case messageHolder.config.encryptionMode of
                 MessageHolder.Automatic ->
                     Html.text "Disable automatic encryption"
@@ -50,13 +52,15 @@ textInputBoxView messageHolder operationMode convertEncryptionMsg =
                     Html.text "Enable automatic encryption"
             ]
         , Html.button
-            [ Html.Events.onClick <| convertEncryptionMsg <| EncryptChar
-            , if String.isEmpty messageHolder.rawInput then
-                Html.Attributes.disabled True
+            ((Html.Events.onClick <| convertEncryptionMsg <| EncryptChar)
+                :: (if String.isEmpty messageHolder.rawInput then
+                        Html.Attributes.disabled True
 
-              else
-                enableAttributeWhenInEncryption operationMode
-            ]
+                    else
+                        enableAttributeWhenInEncryption operationMode
+                   )
+                :: View.StyleElements.buttonStyleElements
+            )
             [ Html.text "Single Step" ]
         , Html.div []
             [ Html.input
@@ -87,7 +91,7 @@ enigmaPreview enigma maybeLog =
         []
         [ Html.div
             []
-            [ Html.h3 [] [ Html.text "Enigma View" ]
+            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Enigma View" ]
             , View.EnigmaSvg.enigmaSvg enigma maybeLog
             ]
         ]

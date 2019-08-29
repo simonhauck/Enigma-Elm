@@ -1,4 +1,12 @@
-module View.StyleElements exposing (backgroundImage, selectStyleElements, selectWrapperStyleElements)
+module View.StyleElements exposing
+    ( backgroundImage
+    , buttonStyleElements
+    , h2StyleElements
+    , h3StyleElements
+    , plugboardButtonStyleElements
+    , selectStyleElements
+    , selectWrapperStyleElements
+    )
 
 import Html
 import Html.Attributes
@@ -38,7 +46,27 @@ selectStyleElements =
     --    , Html.Attributes.style "background-color" "#747474"
     --   TODO Not working , Html.Attributes.style "font-family" "'Open Sans', sans-serif"
     --    ]
-    []
+    [ Html.Attributes.style "background-color" "#747474" ]
+
+
+buttonStyleElements : List (Html.Attribute msg)
+buttonStyleElements =
+    [ Html.Attributes.style "background-color" "black" ]
+
+
+plugboardButtonStyleElements : List (Html.Attribute msg)
+plugboardButtonStyleElements =
+    [ Html.Attributes.style "background-color" "#747474" ]
+
+
+h3StyleElements : List (Html.Attribute msg)
+h3StyleElements =
+    [ Html.Attributes.style "font-size" "16px" ]
+
+
+h2StyleElements : List (Html.Attribute msg)
+h2StyleElements =
+    [ Html.Attributes.style "font-size" "30px" ]
 
 
 
