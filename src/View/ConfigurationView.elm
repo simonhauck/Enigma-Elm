@@ -44,9 +44,7 @@ displayEnigmaConfiguration : EnigmaMachine.Enigma -> MessageHolder.MessageHolder
 displayEnigmaConfiguration enigma messageHolder convertToMainMsgFunction =
     Html.div
         View.StyleElements.flexDirectionColumn
-        [ Html.h2
-            View.StyleElements.h2StyleElements
-            [ Html.text "Configuration" ]
+        [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Configuration" ]
         , configurationView enigma messageHolder convertToMainMsgFunction
         , toggleModeButton enigma convertToMainMsgFunction
         ]

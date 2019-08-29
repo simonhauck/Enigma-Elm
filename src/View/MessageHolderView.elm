@@ -39,28 +39,13 @@ type ServerMessageHolderMsg
 displayServerMessages : ServerMessageHolder.ServerMessageHolder -> ConvertMessageHolderMsg msg -> Html msg
 displayServerMessages serverMessageHolder convertMessageHolderFunction =
     Html.div
-        [ Html.Attributes.style "align-self" "stretch"
-        , Html.Attributes.style "flex" "1"
-        , Html.Attributes.style "display" "flex"
-        , Html.Attributes.style "align-items" "stretch"
-        ]
-        [ Html.div
-            [ Html.Attributes.style "flex" "1"
-            , Html.Attributes.style "display" "flex"
-            , Html.Attributes.style "flex-direction" "column"
-            , Html.Attributes.style "align-items" "stretch"
-            ]
-            [ Html.h2 (View.StyleElements.h2StyleElements ++ [ Html.Attributes.style "padding" "20px" ]) [ Html.text "Server Messages" ]
-            , Html.div
-                [ Html.Attributes.style "background-color" "rgba(255,255,255,0.2)"
-                , Html.Attributes.style "border-radius" "20px"
-                , Html.Attributes.style "padding" "20px"
-                , Html.Attributes.style "margin-right" "20px"
-                , Html.Attributes.style "margin-top" "20px"
-                , Html.Attributes.style "align-self" "stretch"
-                ]
-                [ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
-                ]
+        View.StyleElements.flexDirectionColumn
+        [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Server Messages" ]
+        , Html.div
+            (View.StyleElements.flexDisplay ++ View.StyleElements.smallMargin)
+            [ Html.div
+                View.StyleElements.smallElementBox
+                [ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction ]
             ]
         ]
 
