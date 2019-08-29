@@ -21,6 +21,7 @@ type alias ConvertMessageHolderMsg msg =
 
 type ServerMessageHolderMsg
     = SetMessageHolder MessageHolder.MessageHolder
+    | SetServerMessageHolder ServerMessageHolder.ServerMessageHolder
     | StartLoadingServerMessages
     | SelectServerMessage MessageHolder.MessageHolder
     | SendMessageToServer
@@ -93,10 +94,13 @@ update serverMessageHolderMsg serverMessageHolder messageHolder convertMessageFu
         SetMessageHolder newMessageHolder ->
             ( serverMessageHolder, newMessageHolder, Cmd.none )
 
+        SetServerMessageHolder newServerMessageHolder ->
+            ( newServerMessageHolder, messageHolder, Cmd.none )
+
         StartLoadingServerMessages ->
-            ( ServerMessageHolder.Loading
+            ( { serverMessageHolder | serverState = ServerMessageHolder.Loading }
             , messageHolder
-            , ResultLoadingServerMessages >> convertMessageFunction |> ServerMessageHolder.requestServerMessages
+            , (ResultLoadingServerMessages >> convertMessageFunction) |> ServerMessageHolder.requestServerMessages
             )
 
         SelectServerMessage selectedMessageHolder ->
@@ -106,13 +110,13 @@ update serverMessageHolderMsg serverMessageHolder messageHolder convertMessageFu
             )
 
         SendMessageToServer ->
-            ( ServerMessageHolder.Loading
+            ( { serverMessageHolder | serverState = ServerMessageHolder.Loading }
             , MessageHolder.defaultMessageHolder
             , (ResultLoadingServerMessages >> convertMessageFunction) |> ServerMessageHolder.sendMessageToServer messageHolder
             )
 
         ResultLoadingServerMessages result ->
-            ( ServerMessageHolder.handleServerResponse result
+            ( ServerMessageHolder.handleServerResponse serverMessageHolder result
             , messageHolder
             , Cmd.none
             )
@@ -128,24 +132,15 @@ displayServerMessageHolderTable : ServerMessageHolder.ServerMessageHolder -> Con
 displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction =
     let
         displayedItemList =
-            case serverMessageHolder of
+            case serverMessageHolder.serverState of
                 ServerMessageHolder.Loading ->
-                    [ Html.tr
-                        []
-                        [ Html.td
-                            [ Html.Attributes.colspan 4 ]
-                            [ Loading.render Loading.Bars
-                                { defaultConfig | color = "#333" }
-                                Loading.On
-                            ]
-                        ]
-                    ]
+                    displayLoadingBar
 
                 ServerMessageHolder.Error ->
-                    [ Html.tr [] [ Html.td [ Html.Attributes.colspan 4 ] [ Html.text "An error occurred while connecting to the server" ] ] ]
+                    displayServerError
 
                 ServerMessageHolder.MessageHolderList list ->
-                    List.indexedMap (displayServerMessageRow convertMessageHolderFunction) list
+                    List.indexedMap (displayServerMessageRow convertMessageHolderFunction serverMessageHolder.filter) list
     in
     Html.table
         []
@@ -153,6 +148,18 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
             []
             [ Html.td [] [ Html.text "Index" ]
             , Html.td [] [ Html.text "Description" ]
+            , Html.td []
+                [ Html.input
+                    [ Html.Attributes.type_ "text"
+                    , Html.Attributes.placeholder "Filter Description..."
+                    , Html.Attributes.value serverMessageHolder.filter
+                    , Html.Events.onInput
+                        (\val ->
+                            { serverMessageHolder | filter = val } |> SetServerMessageHolder |> convertMessageHolderFunction
+                        )
+                    ]
+                    []
+                ]
             , Html.td [] [ Html.text "RawInput" ]
             , Html.td [] [ Html.button [ Html.Events.onClick <| convertMessageHolderFunction StartLoadingServerMessages ] [ Html.text "Reload" ] ]
             ]
@@ -160,12 +167,42 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
         )
 
 
-displayServerMessageRow : ConvertMessageHolderMsg msg -> Int -> MessageHolder.MessageHolder -> Html msg
-displayServerMessageRow convertMessageHolderFunction index messageHolder =
+displayServerMessageRow : ConvertMessageHolderMsg msg -> ServerMessageHolder.Filter -> Int -> MessageHolder.MessageHolder -> Html msg
+displayServerMessageRow convertMessageHolderFunction filter index messageHolder =
+    let
+        cleanString =
+            \inputString -> String.trim inputString |> String.toLower |> String.toLower |> String.replace " " ""
+
+        visibility =
+            if cleanString messageHolder.description |> String.contains (cleanString filter) then
+                "visible"
+
+            else
+                "collapse"
+    in
     Html.tr
-        []
+        [ Html.Attributes.style "visibility" visibility ]
         [ Html.td [] [ index |> String.fromInt |> Html.text ]
         , Html.td [] [ messageHolder.description |> Html.text ]
         , Html.td [] [ messageHolder.rawInput |> String.slice 0 20 |> Html.text ]
         , Html.td [] [ Html.button [ Html.Events.onClick <| (convertMessageHolderFunction <| SelectServerMessage messageHolder) ] [ Html.text "Use" ] ]
         ]
+
+
+displayLoadingBar : List (Html msg)
+displayLoadingBar =
+    [ Html.tr
+        []
+        [ Html.td
+            [ Html.Attributes.colspan 4 ]
+            [ Loading.render Loading.Bars
+                { defaultConfig | color = "#333" }
+                Loading.On
+            ]
+        ]
+    ]
+
+
+displayServerError : List (Html msg)
+displayServerError =
+    [ Html.tr [] [ Html.td [ Html.Attributes.colspan 4 ] [ Html.text "An error occurred while connecting to the server" ] ] ]

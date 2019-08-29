@@ -12,6 +12,7 @@ module Models.MessageHolder exposing
     , getFormattedProcessedInputOutput
     , setDescription
     , setEncryptionSpeed
+    , setProcessedInputAsRawInput
     , setRawInput
     , toggleEncryptionMode
     , toggleForeignCharOption
@@ -185,6 +186,17 @@ toggleEncryptionMode messageHolder =
 disableAutomaticEncryptionMode : MessageHolder -> MessageHolder
 disableAutomaticEncryptionMode messageHolder =
     { messageHolder | config = { encryptionMode = Manual, encryptionSpeed = messageHolder.config.encryptionSpeed } }
+
+
+{-| Set the processed Input as rawInput. Set the processed Input/Output to ""
+-}
+setProcessedInputAsRawInput : MessageHolder -> MessageHolder
+setProcessedInputAsRawInput messageHolder =
+    { messageHolder
+        | rawInput = messageHolder.processedInput ++ messageHolder.rawInput
+        , processedInput = ""
+        , processedOutput = ""
+    }
 
 
 

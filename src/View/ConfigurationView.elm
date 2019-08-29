@@ -149,7 +149,7 @@ toggleOperationMode enigma messageHolder =
             )
 
         OperationMode.Configuration ->
-            ( toggledEnigma, messageHolder )
+            ( toggledEnigma, messageHolder |> MessageHolder.setProcessedInputAsRawInput )
 
 
 {-| generate a command to completely randomize the enigma

@@ -1,5 +1,7 @@
 module Models.ServerMessageHolder exposing
-    ( ServerMessageHolder(..)
+    ( Filter
+    , ServerMessageHolder
+    , ServerState(..)
     , defaultServerMessageHolder
     , handleServerResponse
     , requestServerMessages
@@ -12,10 +14,18 @@ import Json.Encode
 import Models.MessageHolder as MessageHolder
 
 
-type ServerMessageHolder
+type alias ServerMessageHolder =
+    { filter : Filter, serverState : ServerState }
+
+
+type ServerState
     = Loading
     | MessageHolderList (List MessageHolder.MessageHolder)
     | Error
+
+
+type alias Filter =
+    String
 
 
 
@@ -24,11 +34,18 @@ type ServerMessageHolder
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
-{-| Get the default ServerMessageHolder. Default is Loading
+{-| Get the default ServerMessageHolder. Default is no filter and loading
 -}
 defaultServerMessageHolder : ServerMessageHolder
 defaultServerMessageHolder =
-    Loading
+    { filter = emptyFilter, serverState = Loading }
+
+
+{-| Return an empty filter
+-}
+emptyFilter : Filter
+emptyFilter =
+    ""
 
 
 {-| Create a command to send the given messageHolder to the server.
@@ -54,14 +71,14 @@ requestServerMessages resultFunction =
 
 {-| Function that handles the result of the server requests and return the parsed ServerMessageHolder
 -}
-handleServerResponse : Result err (List MessageHolder.MessageHolder) -> ServerMessageHolder
-handleServerResponse result =
+handleServerResponse : ServerMessageHolder -> Result err (List MessageHolder.MessageHolder) -> ServerMessageHolder
+handleServerResponse serverMessageHolder result =
     case result of
         Ok val ->
-            MessageHolderList val
+            { serverMessageHolder | serverState = MessageHolderList val }
 
         Err _ ->
-            Error
+            { serverMessageHolder | serverState = Error }
 
 
 
