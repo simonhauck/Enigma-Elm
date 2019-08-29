@@ -38,7 +38,31 @@ type ServerMessageHolderMsg
 
 displayServerMessages : ServerMessageHolder.ServerMessageHolder -> ConvertMessageHolderMsg msg -> Html msg
 displayServerMessages serverMessageHolder convertMessageHolderFunction =
-    displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
+    Html.div
+        [ Html.Attributes.style "align-self" "stretch"
+        , Html.Attributes.style "flex" "1"
+        , Html.Attributes.style "display" "flex"
+        , Html.Attributes.style "align-items" "stretch"
+        ]
+        [ Html.div
+            [ Html.Attributes.style "flex" "1"
+            , Html.Attributes.style "display" "flex"
+            , Html.Attributes.style "flex-direction" "column"
+            , Html.Attributes.style "align-items" "stretch"
+            ]
+            [ Html.h2 (View.StyleElements.h2StyleElements ++ [ Html.Attributes.style "padding" "20px" ]) [ Html.text "Server Messages" ]
+            , Html.div
+                [ Html.Attributes.style "background-color" "rgba(255,255,255,0.2)"
+                , Html.Attributes.style "border-radius" "20px"
+                , Html.Attributes.style "padding" "20px"
+                , Html.Attributes.style "margin-right" "20px"
+                , Html.Attributes.style "margin-top" "20px"
+                , Html.Attributes.style "align-self" "stretch"
+                ]
+                [ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
+                ]
+            ]
+        ]
 
 
 displayEncryptionResult : MessageHolder.MessageHolder -> ConvertMessageHolderMsg msg -> Html msg
@@ -145,21 +169,23 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
                     List.indexedMap (displayServerMessageRow convertMessageHolderFunction serverMessageHolder.filter) list
     in
     Html.table
-        []
+        View.StyleElements.fontFamily
         (Html.tr
             []
             [ Html.td [] [ Html.text "Index" ]
             , Html.td [] [ Html.text "Description" ]
             , Html.td []
                 [ Html.input
-                    [ Html.Attributes.type_ "text"
-                    , Html.Attributes.placeholder "Filter Description..."
-                    , Html.Attributes.value serverMessageHolder.filter
-                    , Html.Events.onInput
+                    ([ Html.Attributes.type_ "text"
+                     , Html.Attributes.placeholder "Filter Description..."
+                     , Html.Attributes.value serverMessageHolder.filter
+                     , Html.Events.onInput
                         (\val ->
                             { serverMessageHolder | filter = val } |> SetServerMessageHolder |> convertMessageHolderFunction
                         )
-                    ]
+                     ]
+                        ++ View.StyleElements.input
+                    )
                     []
                 ]
             , Html.td [] [ Html.text "RawInput" ]

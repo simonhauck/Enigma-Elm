@@ -43,8 +43,12 @@ type alias ConvertConfigurationMsg msg =
 displayEnigmaConfiguration : EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> ConvertConfigurationMsg msg -> Html msg
 displayEnigmaConfiguration enigma messageHolder convertToMainMsgFunction =
     Html.div
-        []
-        [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Configuration" ]
+        [ Html.Attributes.style "flex-direction" "column" ]
+        [ Html.h2
+            (View.StyleElements.h2StyleElements
+                ++ [ Html.Attributes.style "padding" "20px" ]
+            )
+            [ Html.text "Configuration" ]
         , configurationView enigma messageHolder convertToMainMsgFunction
         , toggleModeButton enigma convertToMainMsgFunction
         ]
@@ -103,35 +107,78 @@ configurationView : EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> Conve
 configurationView enigma messageHolder convertToMainMsgFunction =
     Html.div
         []
-        [ Html.div
-            []
-            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select rotor type" ]
-            , selectRotorView enigma convertToMainMsgFunction
-            ]
-        , Html.div
-            []
-            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select rotor position" ]
-            , selectRotorPositionView enigma convertToMainMsgFunction
-            ]
-        , Html.div
-            []
-            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select ring position" ]
-            , selectRingPositionView enigma convertToMainMsgFunction
-            ]
-        , Html.div
-            []
-            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select reflector" ]
-            , selectReflectorView enigma convertToMainMsgFunction
-            ]
-        , Html.div
-            []
-            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Configure plugboard" ]
-            , configurePlugBoardView enigma convertToMainMsgFunction
-            ]
-        , Html.div
-            []
-            [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Other configuration - Change later :D" ]
-            , otherConfigurationView enigma messageHolder convertToMainMsgFunction
+        [ Html.div [ Html.Attributes.style "display" "flex" ]
+            [ Html.div
+                [ Html.Attributes.style "flex" "20"
+                , Html.Attributes.style "justify-content" "space-around"
+                , Html.Attributes.style "margin-right" "20px"
+                , Html.Attributes.style "margin-left" "20px"
+                ]
+                [ Html.div
+                    [ Html.Attributes.style "background-color" "rgba(255,255,255,0.2)"
+                    , Html.Attributes.style "border-radius" "20px"
+                    , Html.Attributes.style "padding" "20px"
+                    , Html.Attributes.style "margin-top" "20px"
+                    , Html.Attributes.style "margin-bottom" "10px"
+                    ]
+                    [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select rotor type" ]
+                    , selectRotorView enigma convertToMainMsgFunction
+                    ]
+                , Html.div
+                    [ Html.Attributes.style "background-color" "rgba(255,255,255,0.2)"
+                    , Html.Attributes.style "border-radius" "20px"
+                    , Html.Attributes.style "padding" "20px"
+                    , Html.Attributes.style "margin-top" "20px"
+                    , Html.Attributes.style "margin-bottom" "10px"
+                    ]
+                    [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select rotor position" ]
+                    , selectRotorPositionView enigma convertToMainMsgFunction
+                    ]
+                , Html.div
+                    [ Html.Attributes.style "background-color" "rgba(255,255,255,0.2)"
+                    , Html.Attributes.style "border-radius" "20px"
+                    , Html.Attributes.style "padding" "20px"
+                    , Html.Attributes.style "margin-top" "20px"
+                    , Html.Attributes.style "margin-bottom" "10px"
+                    ]
+                    [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select ring position" ]
+                    , selectRingPositionView enigma convertToMainMsgFunction
+                    ]
+                , Html.div
+                    [ Html.Attributes.style "background-color" "rgba(255,255,255,0.2)"
+                    , Html.Attributes.style "border-radius" "20px"
+                    , Html.Attributes.style "padding" "20px"
+                    , Html.Attributes.style "margin-top" "20px"
+                    , Html.Attributes.style "margin-bottom" "10px"
+                    ]
+                    [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select reflector" ]
+                    , selectReflectorView enigma convertToMainMsgFunction
+                    ]
+                ]
+            , Html.div
+                [ Html.Attributes.style "flex" "60"
+                ]
+                [ Html.div
+                    [ Html.Attributes.style "background-color" "rgba(255,255,255,0.2)"
+                    , Html.Attributes.style "margin" "20px"
+                    , Html.Attributes.style "margin-bottom" "10px"
+                    , Html.Attributes.style "padding" "20px"
+                    , Html.Attributes.style "border-radius" "20px"
+                    ]
+                    [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Configure plugboard" ]
+                    , configurePlugBoardView enigma convertToMainMsgFunction
+                    ]
+                , Html.div
+                    [ Html.Attributes.style "background-color" "rgba(255,255,255,0.2)"
+                    , Html.Attributes.style "border-radius" "20px"
+                    , Html.Attributes.style "padding" "20px"
+                    , Html.Attributes.style "margin" "20px"
+                    , Html.Attributes.style "margin-bottom" "10px"
+                    ]
+                    [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Other configuration - Change later :D" ]
+                    , otherConfigurationView enigma messageHolder convertToMainMsgFunction
+                    ]
+                ]
             ]
         ]
 
@@ -335,7 +382,7 @@ displayRingPositionSelectionInTable model convertToMainMsgFunction index rotor =
 selectReflectorView : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Html msg
 selectReflectorView enigma convertToMainMsgFunction =
     Html.div
-        []
+        ([ Html.Attributes.style "display" "flex", Html.Attributes.style "justify-content" "space-evenly" ] ++ View.StyleElements.fontFamily ++ View.StyleElements.fontColor)
         (List.map
             (\reflector ->
                 Html.label
@@ -372,21 +419,27 @@ configurePlugBoardView enigma convertToMainMsgFunction =
     let
         sizePerCharacter =
             30
+
+        marginButtons =
+            2
+
+        spaceBetween =
+            marginButtons * 2 + sizePerCharacter
     in
     Html.div
         []
         [ Html.div
-            [ Html.Attributes.width (sizePerCharacter * 27)
+            [ Html.Attributes.width (spaceBetween * 27)
             ]
             [ Html.div
                 []
-                (plugBoardCharacterButtons enigma convertToMainMsgFunction Plugboard.Input sizePerCharacter)
+                (plugBoardCharacterButtons enigma convertToMainMsgFunction Plugboard.Input sizePerCharacter marginButtons)
             , Html.div
                 []
-                [ View.PlugBoardSvg.plugBoardCanvas enigma.plugBoard sizePerCharacter ]
+                [ View.PlugBoardSvg.plugBoardCanvas enigma.plugBoard spaceBetween ]
             , Html.div
                 []
-                (plugBoardCharacterButtons enigma convertToMainMsgFunction Plugboard.Output sizePerCharacter)
+                (plugBoardCharacterButtons enigma convertToMainMsgFunction Plugboard.Output sizePerCharacter marginButtons)
             ]
         , Html.button
             (enableAttributeWhenInConfiguration enigma
@@ -397,8 +450,8 @@ configurePlugBoardView enigma convertToMainMsgFunction =
         ]
 
 
-plugBoardCharacterButtons : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Plugboard.CharPosition -> Int -> List (Html msg)
-plugBoardCharacterButtons model convertToMainMsgFunction charPosition sizePerCharacter =
+plugBoardCharacterButtons : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Plugboard.CharPosition -> Int -> Int -> List (Html msg)
+plugBoardCharacterButtons model convertToMainMsgFunction charPosition sizePerCharacter marginButtons =
     List.map
         (\index ->
             Html.button
@@ -406,6 +459,7 @@ plugBoardCharacterButtons model convertToMainMsgFunction charPosition sizePerCha
                     :: (Html.Events.onClick <| convertToMainMsgFunction <| PressCharOnPlugboard charPosition index)
                     :: Html.Attributes.style "height" "25px"
                     :: (Html.Attributes.style "width" <| String.fromInt sizePerCharacter ++ "px")
+                    :: (Html.Attributes.style "margin" <| String.fromInt marginButtons ++ "px")
                     :: View.StyleElements.plugboardButtonStyleElements
                 )
                 [ index |> Just |> Utils.AlphabetHelper.characterIndexToCharacter |> Maybe.withDefault '-' |> String.fromChar |> Html.text ]

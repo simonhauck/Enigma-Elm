@@ -34,10 +34,12 @@ textInputBoxView messageHolder operationMode convertEncryptionMsg =
         []
         [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Text Input" ]
         , Html.textarea
-            [ Html.Attributes.placeholder "Enter your text here"
-            , Html.Attributes.value messageHolder.rawInput
-            , Html.Events.onInput (\val -> MessageHolder.setRawInput messageHolder val |> SetMessageHolder |> convertEncryptionMsg)
-            ]
+            ([ Html.Attributes.placeholder "Enter your text here"
+             , Html.Attributes.value messageHolder.rawInput
+             , Html.Events.onInput (\val -> MessageHolder.setRawInput messageHolder val |> SetMessageHolder |> convertEncryptionMsg)
+             ]
+                ++ View.StyleElements.textarea
+            )
             []
         , Html.button
             ((Html.Events.onClick <| convertEncryptionMsg <| SetMessageHolder <| MessageHolder.toggleEncryptionMode messageHolder)

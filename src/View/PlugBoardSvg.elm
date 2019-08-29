@@ -72,7 +72,7 @@ circleForCharacter ( x, y ) fillCircle =
         , Svg.Attributes.r "10"
         , Svg.Attributes.fill
             (if fillCircle then
-                "red"
+                "#3c8c6e"
 
              else
                 "none"
@@ -123,7 +123,7 @@ drawLineBetweenCharacters ( inputChar, outputChar ) height heightOffset widthPer
         , Svg.Attributes.y1 <| String.fromInt startY
         , Svg.Attributes.x2 <| String.fromInt endX
         , Svg.Attributes.y2 <| String.fromInt endY
-        , Svg.Attributes.stroke "red"
+        , Svg.Attributes.stroke "#3c8c6e"
         , Svg.Attributes.strokeWidth "3"
         ]
         []

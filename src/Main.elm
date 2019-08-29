@@ -40,24 +40,27 @@ type alias Model =
 view : Model -> Html Msg
 view model =
     Html.div
-        [ View.StyleElements.backgroundImage ]
-        [ View.ConfigurationView.displayEnigmaConfiguration
-            model.enigma
-            model.messageHolder
-            ConfigurationMsg
+        View.StyleElements.backgroundImage
+        [ Html.div [ Html.Attributes.style "display" "flex" ]
+            [ Html.div [ Html.Attributes.style "flex" "50" ]
+                [ View.ConfigurationView.displayEnigmaConfiguration
+                    model.enigma
+                    model.messageHolder
+                    ConfigurationMsg
+                ]
+            , Html.div
+                [ Html.Attributes.style "flex" "50", Html.Attributes.style "display" "flex" ]
+                [ View.MessageHolderView.displayServerMessages
+                    model.serverMessageHolder
+                    MessageHolderMsg
+                ]
+            ]
         , Html.div
             []
             [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Preview" ]
             , View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg
             , View.MessageHolderView.displayEncryptionResult model.messageHolder MessageHolderMsg
             , View.EncryptionView.enigmaPreview model.enigma model.substitutionLog
-            ]
-        , Html.div
-            []
-            [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Server Messages" ]
-            , View.MessageHolderView.displayServerMessages
-                model.serverMessageHolder
-                MessageHolderMsg
             ]
         ]
 
