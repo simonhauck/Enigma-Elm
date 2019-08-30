@@ -31,7 +31,7 @@ type EncryptionMsg
 textInputBoxView : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
 textInputBoxView messageHolder operationMode convertEncryptionMsg =
     Html.div
-        []
+        (View.StyleElements.flexDirectionColumn ++ View.StyleElements.smallMargin ++ View.StyleElements.smallElementBox)
         [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Text Input" ]
         , Html.textarea
             ([ Html.Attributes.placeholder "Enter your text here"
@@ -90,7 +90,10 @@ textInputBoxView messageHolder operationMode convertEncryptionMsg =
 enigmaPreview : EnigmaMachine.Enigma -> Maybe Log.SubstitutionLog -> Html msg
 enigmaPreview enigma maybeLog =
     Html.div
-        []
+        (View.StyleElements.flexDirectionColumn
+            ++ View.StyleElements.smallElementBox
+            ++ View.StyleElements.smallMargin
+        )
         [ Html.div
             []
             [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Enigma View" ]

@@ -57,21 +57,21 @@ displayEncryptionResult messageHolder convertMessageHolderFunction =
             MessageHolder.getFormattedProcessedInputOutput messageHolder
     in
     Html.div
-        []
+        (View.StyleElements.smallMargin ++ View.StyleElements.smallElementBox)
         [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Encryption Results" ]
         , Html.div
             []
             [ Html.table
-                []
+                View.StyleElements.messageHolderTable
                 [ Html.tr
                     []
-                    [ Html.td [] [ Html.text "Processed Input: " ]
-                    , Html.td [] [ Html.text formattedInput ]
+                    [ Html.td ([ Html.Attributes.style "width" "160px" ] ++ View.StyleElements.monoSpaceText) [ Html.text "Processed Input : " ]
+                    , Html.td ([ Html.Attributes.style "width" "auto" ] ++ View.StyleElements.monoSpaceText) [ Html.text formattedInput ]
                     ]
                 , Html.tr
                     []
-                    [ Html.td [] [ Html.text "Processed Output: " ]
-                    , Html.td [] [ Html.text formattedOutput ]
+                    [ Html.td ([ Html.Attributes.style "width" "160px" ] ++ View.StyleElements.monoSpaceText) [ Html.text "Processed Output: " ]
+                    , Html.td ([ Html.Attributes.style "width" "auto" ] ++ View.StyleElements.monoSpaceText) [ Html.text formattedOutput ]
                     ]
                 ]
             , Html.input
@@ -217,7 +217,7 @@ displayLoadingBar =
         [ Html.td
             [ Html.Attributes.colspan 4 ]
             [ Loading.render Loading.Bars
-                { defaultConfig | color = "#333" }
+                { defaultConfig | color = "#fff" }
                 Loading.On
             ]
         ]

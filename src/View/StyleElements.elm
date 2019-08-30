@@ -1,14 +1,18 @@
 module View.StyleElements exposing
     ( backgroundImage
     , buttonStyleElements
+    , fillSvg
     , flexDirectionColumn
     , flexDisplay
     , fontColor
     , fontFamily
+    , fontFamilySvg
     , h2StyleElements
     , h3StyleElements
     , input
     , mediumMargin
+    , messageHolderTable
+    , monoSpaceText
     , plugboardButtonStyleElements
     , primaryColor
     , secondaryColor
@@ -21,6 +25,8 @@ module View.StyleElements exposing
 
 import Html
 import Html.Attributes
+import Svg
+import Svg.Attributes
 
 
 
@@ -71,9 +77,34 @@ fontFamily =
     [ Html.Attributes.style "font-family" "Arial" ]
 
 
+fontFamilySvg : Svg.Attribute msg
+fontFamilySvg =
+    Svg.Attributes.fontFamily "Arial"
+
+
+monoSpaceText : List (Html.Attribute msg)
+monoSpaceText =
+    [ Html.Attributes.style "font-family" "monospace"
+    , Html.Attributes.style "font-size" "15px"
+    , Html.Attributes.style "overflow-wrap" "break-word"
+    , Html.Attributes.style "word-wrap" "break-word"
+    , Html.Attributes.style "word-break" "break-word"
+    ]
+        ++ fontColor
+
+
+
+--    []
+
+
 fontColor : List (Html.Attribute msg)
 fontColor =
     [ Html.Attributes.style "color" "#ffffff" ]
+
+
+fillSvg : Svg.Attribute msg
+fillSvg =
+    Svg.Attributes.fill primaryColor
 
 
 smallMargin : List (Html.Attribute msg)
@@ -155,26 +186,15 @@ selectStyleElements =
     ]
 
 
+messageHolderTable : List (Html.Attribute msg)
+messageHolderTable =
+    [ Html.Attributes.style "table-layout" "fixed"
+    , Html.Attributes.style "width" "100%"
+    , Html.Attributes.style "white-space" "pre-line"
+    ]
 
---    [ Html.Attributes.style "-moz-appearance" "none"
---    , Html.Attributes.style "-webkit-appearance" "none"
---    , Html.Attributes.style "appearance" "none"
---    , Html.Attributes.style "border" "none"
---    , Html.Attributes.style "width" "100%"
---    , Html.Attributes.style "height" "40px"
---    , Html.Attributes.style "padding-left" "10px"
---    , Html.Attributes.style "color" "#FFE400"
---    , Html.Attributes.style "font-size" "16px"
---    , Html.Attributes.style "border-radius" "3px"
---    , Html.Attributes.style "cursor" "pointer"
---    , Html.Attributes.style "background-color" "#747474"
---   TODO Not working , Html.Attributes.style "font-family" "'Open Sans', sans-serif"
---    ]
+
+
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Internal functions
 -- ---------------------------------------------------------------------------------------------------------------------
-
-
-selectWrapperWidth : Int
-selectWrapperWidth =
-    200

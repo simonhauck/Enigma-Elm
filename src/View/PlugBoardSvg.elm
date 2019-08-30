@@ -124,7 +124,7 @@ drawLineBetweenCharacters ( inputChar, outputChar ) height heightOffset widthPer
         , Svg.Attributes.y1 <| String.fromInt startY
         , Svg.Attributes.x2 <| String.fromInt endX
         , Svg.Attributes.y2 <| String.fromInt endY
-        , Svg.Attributes.stroke View.StyleElements.secondaryColor
+        , Svg.Attributes.stroke View.StyleElements.primaryColor
         , Svg.Attributes.strokeWidth "3"
         ]
         []

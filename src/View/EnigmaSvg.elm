@@ -10,6 +10,7 @@ import Models.Enigma.SubstitutionLog as Log
 import Svg exposing (Svg)
 import Svg.Attributes
 import Utils.AlphabetHelper
+import View.StyleElements
 
 
 type CharacterOrientation
@@ -42,7 +43,7 @@ enigmaSvg enigma substitutionLog =
             20
 
         reflectorXCoordinate =
-            175
+            120
 
         rotorXCoordinate =
             reflectorXCoordinate + spaceBetweenReflectorAndRotor
@@ -68,8 +69,8 @@ enigmaSvg enigma substitutionLog =
                 >> Maybe.withDefault []
     in
     Svg.svg
-        [ Svg.Attributes.width "1500"
-        , Svg.Attributes.height "700"
+        [ Svg.Attributes.width "1230"
+        , Svg.Attributes.height "530"
         ]
         (drawReflector enigma.reflector reflectorXCoordinate yCoordinate
             ++ drawRotors enigma.rotors rotorXCoordinate yCoordinate
@@ -137,21 +138,21 @@ plugboardWidth =
 -}
 defaultColor : Color
 defaultColor =
-    "red"
+    View.StyleElements.primaryColor
 
 
 {-| color for active connections to the reflector
 -}
 colorToReflector : Color
 colorToReflector =
-    "blue"
+    "#34ff30"
 
 
 {-| color for active connections from the reflector
 -}
 colorFromReflector : Color
 colorFromReflector =
-    "green"
+    "#34ff30"
 
 
 {-| default stroke width for connection lines
@@ -502,6 +503,8 @@ drawCharacter x y char =
     Svg.text_
         [ Svg.Attributes.x (String.fromInt x)
         , Svg.Attributes.y (String.fromInt y)
+        , View.StyleElements.fontFamilySvg
+        , View.StyleElements.fillSvg
         ]
         [ Svg.text (String.fromChar char) ]
 
@@ -516,7 +519,7 @@ drawSmallCircles x y =
         [ Svg.Attributes.cx (String.fromInt x)
         , Svg.Attributes.cy (String.fromInt y)
         , Svg.Attributes.r "4"
-        , Svg.Attributes.fill "red"
+        , Svg.Attributes.fill "#34ff30"
         ]
         []
 
@@ -635,7 +638,7 @@ drawRotorNotch rotor rotorX rotorY =
                 , Svg.Attributes.cy <| String.fromInt <| rotorY + modBy 26 (notch - rotor.currentPosition) * rowYSpace
                 , Svg.Attributes.r "10"
                 , Svg.Attributes.fill "none"
-                , Svg.Attributes.stroke "black"
+                , Svg.Attributes.stroke "#ffffff"
                 , Svg.Attributes.strokeWidth "2"
                 ]
                 []

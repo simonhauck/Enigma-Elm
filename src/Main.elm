@@ -2,7 +2,6 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (Html)
-import Html.Attributes
 import Models.Enigma.EnigmaMachine as EnigmaMachine
 import Models.Enigma.SubstitutionLog as Log
 import Models.MessageHolder as MessageHolder
@@ -60,9 +59,18 @@ view model =
         , Html.div
             []
             [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Preview" ]
-            , View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg
-            , View.MessageHolderView.displayEncryptionResult model.messageHolder MessageHolderMsg
-            , View.EncryptionView.enigmaPreview model.enigma model.substitutionLog
+            , Html.div
+                View.StyleElements.mediumMargin
+                [ View.MessageHolderView.displayEncryptionResult model.messageHolder MessageHolderMsg ]
+            , Html.div
+                View.StyleElements.flexDisplay
+                [ Html.div
+                    View.StyleElements.mediumMargin
+                    [ View.EncryptionView.enigmaPreview model.enigma model.substitutionLog ]
+                , Html.div
+                    View.StyleElements.mediumMargin
+                    [ View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg ]
+                ]
             ]
         ]
 
