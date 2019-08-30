@@ -508,14 +508,13 @@ enableAttributeWhenInConfiguration enigma =
             Html.Attributes.disabled False
 
 
-{-| Return a text that contains the number and the corresponding char
+{-| Return a text that contains the number + 1 and the corresponding char
 -}
 getNumberAndCharText : Int -> String
 getNumberAndCharText number =
-    number
-        |> Just
+    Just number
         |> Utils.AlphabetHelper.characterIndexToCharacter
         |> Maybe.withDefault '-'
         |> String.fromChar
         |> String.append " - "
-        |> String.append (String.fromInt number)
+        |> String.append (String.fromInt (number + 1))

@@ -320,41 +320,39 @@ The result is the enigma with updated rotors
 -}
 rotateRotors : Enigma -> Enigma
 rotateRotors enigma =
-    let
-        ( newRotorList, _ ) =
-            List.foldr
-                (\rotor ( rotorList, shouldRotateRotor ) ->
-                    let
-                        ( updatedRotor, shouldRotateNext ) =
-                            rotateRotor rotor shouldRotateRotor
-                    in
-                    ( updatedRotor :: rotorList, shouldRotateNext )
-                )
-                ( [], True )
-                enigma.rotors
-    in
-    { enigma | rotors = newRotorList }
+    { enigma | rotors = Utils.Helper.map2 enigma.rotors rotateRotor2 True }
 
 
-{-| Rotate a single rotor.
-rotor - The rotor that should be rotated
-shouldRotateRotor - The rotor will only be rotated if this value is true.
-result - The rotor and a boolean value, if the next rotor should be rotated
+{-| Rotate the currentRotor if it is required.
+The rotor will be rotated when the bool is True (this indicates that the previous rotor turns the current rotor)
+OR the double stepping occurs. Double Stepping occurs, when a rotor in the middle is in its notch position and the
+first rotor is rotating (the first rotor is rotating each step). For further information visit :
+<http://www.intelligenia.org/downloads/rotors1.pdf> or <https://en.wikipedia.org/wiki/Enigma_rotor_details>
 -}
-rotateRotor : Rotor -> Bool -> ( Rotor, Bool )
-rotateRotor rotor shouldRotateRotor =
-    if shouldRotateRotor then
-        let
-            shouldRotateNextRotor =
-                List.member rotor.currentPosition rotor.notches
+rotateRotor2 : Rotor -> Maybe Rotor -> Bool -> ( Bool, Rotor )
+rotateRotor2 currentRotor maybeNextRotor shouldRotate =
+    let
+        rotatedResult =
+            ( List.member currentRotor.currentPosition currentRotor.notches, Rotor.rotateRotor currentRotor )
 
-            rotatedRotor =
-                Rotor.rotateRotor rotor
-        in
-        ( rotatedRotor, shouldRotateNextRotor )
+        notRotatedResult =
+            ( False, currentRotor )
+    in
+    case ( shouldRotate, maybeNextRotor ) of
+        ( True, _ ) ->
+            rotatedResult
 
-    else
-        ( rotor, False )
+        -- Double Stepping: For further information see: http://www.intelligenia.org/downloads/rotors1.pdf
+        -- or https://en.wikipedia.org/wiki/Enigma_rotor_details
+        ( _, Just _ ) ->
+            if List.member currentRotor.currentPosition currentRotor.notches then
+                rotatedResult
+
+            else
+                notRotatedResult
+
+        ( _, _ ) ->
+            notRotatedResult
 
 
 {-| Randomize the rotor for the given index
