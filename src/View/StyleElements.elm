@@ -4,6 +4,7 @@ module View.StyleElements exposing
     , fillSvg
     , flexDirectionColumn
     , flexDisplay
+    , flexGrow
     , fontColor
     , fontFamily
     , fontFamilySvg
@@ -60,6 +61,11 @@ flexDisplay =
 flexDirectionColumn : List (Html.Attribute msg)
 flexDirectionColumn =
     [ Html.Attributes.style "flex-direction" "column" ]
+
+
+flexGrow : List (Html.Attribute msg)
+flexGrow =
+    [ Html.Attributes.style "flex-grow" "1" ]
 
 
 smallElementBox : List (Html.Attribute msg)

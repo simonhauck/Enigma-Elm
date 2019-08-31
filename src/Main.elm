@@ -68,7 +68,7 @@ view model =
                     View.StyleElements.mediumMargin
                     [ View.EncryptionView.enigmaPreview model.enigma model.substitutionLog ]
                 , Html.div
-                    View.StyleElements.mediumMargin
+                    (View.StyleElements.mediumMargin ++ View.StyleElements.flexGrow)
                     [ View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg ]
                 ]
             ]

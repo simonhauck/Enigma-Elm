@@ -19,6 +19,7 @@ type alias ConvertEncryptionMsg msg =
 
 type EncryptionMsg
     = EncryptChar
+    | EncryptAll
     | SetMessageHolder MessageHolder.MessageHolder
 
 
@@ -31,58 +32,18 @@ type EncryptionMsg
 textInputBoxView : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
 textInputBoxView messageHolder operationMode convertEncryptionMsg =
     Html.div
-        (View.StyleElements.flexDirectionColumn ++ View.StyleElements.smallMargin ++ View.StyleElements.smallElementBox)
+        (View.StyleElements.smallMargin ++ View.StyleElements.smallElementBox)
         [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Text Input" ]
-        , Html.textarea
-            ([ Html.Attributes.placeholder "Enter your text here"
-             , Html.Attributes.value messageHolder.rawInput
-             , Html.Events.onInput (\val -> MessageHolder.setRawInput messageHolder val |> SetMessageHolder |> convertEncryptionMsg)
-             ]
-                ++ View.StyleElements.textarea
-            )
-            []
-        , Html.button
-            ((Html.Events.onClick <| convertEncryptionMsg <| SetMessageHolder <| MessageHolder.toggleEncryptionMode messageHolder)
-                :: enableAttributeWhenInEncryption operationMode
-                :: View.StyleElements.buttonStyleElements
-            )
-            [ case messageHolder.config.encryptionMode of
-                MessageHolder.Automatic ->
-                    Html.text "Disable automatic encryption"
-
-                MessageHolder.Manual ->
-                    Html.text "Enable automatic encryption"
+        , Html.div
+            [ Html.Attributes.style "width" "100%" ]
+            [ textInputArea messageHolder convertEncryptionMsg
+            , encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg
             ]
-        , Html.button
-            ((Html.Events.onClick <| convertEncryptionMsg <| EncryptChar)
-                :: (if String.isEmpty messageHolder.rawInput then
-                        Html.Attributes.disabled True
-
-                    else
-                        enableAttributeWhenInEncryption operationMode
-                   )
-                :: View.StyleElements.buttonStyleElements
-            )
-            [ Html.text "Single Step" ]
-        , Html.div []
-            [ Html.input
-                [ Html.Attributes.type_ "range"
-                , Html.Attributes.min "25"
-                , Html.Attributes.max "1000"
-                , Html.Attributes.value <| String.fromInt messageHolder.config.encryptionSpeed
-                , Html.Attributes.step "25"
-                , Html.Events.onInput
-                    (\val ->
-                        String.toInt val
-                            |> Maybe.withDefault 250
-                            |> MessageHolder.setEncryptionSpeed messageHolder
-                            |> SetMessageHolder
-                            |> convertEncryptionMsg
-                    )
-                , enableAttributeWhenInEncryption operationMode
-                ]
-                []
-            , Html.text ("Time between Ticks: " ++ String.fromInt messageHolder.config.encryptionSpeed)
+        , Html.div
+            []
+            [ toggleAutomaticEncryptionButton messageHolder operationMode convertEncryptionMsg
+            , singleEncryptionStepButton messageHolder operationMode convertEncryptionMsg
+            , instantEncryptionButton messageHolder operationMode convertEncryptionMsg
             ]
         ]
 
@@ -107,6 +68,9 @@ update encryptionMsg enigma messageHolder maybeLog =
     case encryptionMsg of
         EncryptChar ->
             substituteCharWithMessageHolder enigma messageHolder
+
+        EncryptAll ->
+            substituteRawInput enigma messageHolder
 
         SetMessageHolder newMessageHolder ->
             ( enigma, newMessageHolder, maybeLog )
@@ -134,6 +98,82 @@ subscription messageHolder enigma convertMessageHolderMsg =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+textInputArea : MessageHolder.MessageHolder -> ConvertEncryptionMsg msg -> Html msg
+textInputArea messageHolder convertEncryptionMsg =
+    Html.textarea
+        ([ Html.Attributes.placeholder "Enter your text here"
+         , Html.Attributes.value messageHolder.rawInput
+         , Html.Events.onInput (\val -> MessageHolder.setRawInput messageHolder val |> SetMessageHolder |> convertEncryptionMsg)
+         ]
+            ++ View.StyleElements.textarea
+        )
+        []
+
+
+encryptionSpeedSlider : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
+encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg =
+    Html.div []
+        [ Html.input
+            [ Html.Attributes.type_ "range"
+            , Html.Attributes.min "25"
+            , Html.Attributes.max "1000"
+            , Html.Attributes.value <| String.fromInt messageHolder.config.encryptionSpeed
+            , Html.Attributes.step "25"
+            , Html.Events.onInput
+                (\val ->
+                    String.toInt val
+                        |> Maybe.withDefault 250
+                        |> MessageHolder.setEncryptionSpeed messageHolder
+                        |> SetMessageHolder
+                        |> convertEncryptionMsg
+                )
+            , enableAttributeWhenInEncryption operationMode
+            ]
+            []
+        , Html.text ("Time between Ticks: " ++ String.fromInt messageHolder.config.encryptionSpeed)
+        ]
+
+
+toggleAutomaticEncryptionButton : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
+toggleAutomaticEncryptionButton messageHolder operationMode convertEncryptionMsg =
+    Html.button
+        ((Html.Events.onClick <| convertEncryptionMsg <| SetMessageHolder <| MessageHolder.toggleEncryptionMode messageHolder)
+            :: enableAttributeWhenInEncryption operationMode
+            :: View.StyleElements.buttonStyleElements
+        )
+        [ case messageHolder.config.encryptionMode of
+            MessageHolder.Automatic ->
+                Html.text "Disable automatic encryption"
+
+            MessageHolder.Manual ->
+                Html.text "Enable automatic encryption"
+        ]
+
+
+singleEncryptionStepButton : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
+singleEncryptionStepButton messageHolder operationMode convertEncryptionMsg =
+    Html.button
+        ((Html.Events.onClick <| convertEncryptionMsg <| EncryptChar)
+            :: enableEncryptionStepButton messageHolder operationMode
+            :: View.StyleElements.buttonStyleElements
+        )
+        [ Html.text "Single Step" ]
+
+
+instantEncryptionButton : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
+instantEncryptionButton messageHolder operationMode convertEncryptionMsg =
+    Html.button
+        ((Html.Events.onClick <| convertEncryptionMsg <| EncryptAll)
+            :: enableEncryptionStepButton messageHolder operationMode
+            :: View.StyleElements.buttonStyleElements
+        )
+        [ Html.text "Instant Encryption" ]
+
+
+{-| Substitute the first character from the rawInput in the messageHolder with the given enigma and add the result
+to the messageHolder processedInput/Output.
+The result contains the updated/rotated enigma, the updated messageHolder and the maybe SubstitutionLog for the character
+-}
 substituteCharWithMessageHolder : EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> ( EnigmaMachine.Enigma, MessageHolder.MessageHolder, Maybe Log.SubstitutionLog )
 substituteCharWithMessageHolder enigma messageHolder =
     let
@@ -161,6 +201,25 @@ substituteChar enigma messageHolder maybeInputChar =
     ( newEnigma, updatedMessageHolder, maybeSubstitutionLog )
 
 
+{-| Substitute the complete raw input in the given messageHolder. The state of the enigma will be updated after each
+character. The result contains the final enigma, the messageHolder and the maybe SubstitutionLog of the last character
+-}
+substituteRawInput : EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> ( EnigmaMachine.Enigma, MessageHolder.MessageHolder, Maybe Log.SubstitutionLog )
+substituteRawInput startEnigma startMessageHolder =
+    let
+        emptyRawInputMessageHolder =
+            { startMessageHolder | rawInput = "" }
+    in
+    String.foldl
+        (\inputChar ( enigma, messageHolder, _ ) ->
+            substituteChar enigma messageHolder (Just inputChar)
+        )
+        ( startEnigma, emptyRawInputMessageHolder, Nothing )
+        startMessageHolder.rawInput
+
+
+{-| The Html disabled attribute. The component will be disabled when the OperationMode is Configuration
+-}
 enableAttributeWhenInEncryption : OperationMode.OperationMode -> Html.Attribute msg
 enableAttributeWhenInEncryption operationMode =
     case operationMode of
@@ -169,3 +228,14 @@ enableAttributeWhenInEncryption operationMode =
 
         OperationMode.Encryption ->
             Html.Attributes.disabled False
+
+
+{-| The attribute is enabled when the OperationMode is Encryption and the rawInput of the messageHolder is not empty
+-}
+enableEncryptionStepButton : MessageHolder.MessageHolder -> OperationMode.OperationMode -> Html.Attribute msg
+enableEncryptionStepButton messageHolder operationMode =
+    if String.isEmpty messageHolder.rawInput then
+        Html.Attributes.disabled True
+
+    else
+        enableAttributeWhenInEncryption operationMode
