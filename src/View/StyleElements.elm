@@ -8,6 +8,7 @@ module View.StyleElements exposing
     , fontColor
     , fontFamily
     , fontFamilySvg
+    , fontSizeText
     , h2StyleElements
     , h3StyleElements
     , input
@@ -16,6 +17,7 @@ module View.StyleElements exposing
     , monoSpaceText
     , plugboardButtonStyleElements
     , primaryColor
+    , rangeSlider
     , secondaryColor
     , selectStyleElements
     , selectWrapperStyleElements
@@ -24,8 +26,11 @@ module View.StyleElements exposing
     , textarea
     )
 
+import Css
 import Html
 import Html.Attributes
+import Html.Styled
+import Html.Styled.Attributes
 import Svg
 import Svg.Attributes
 
@@ -99,13 +104,14 @@ monoSpaceText =
         ++ fontColor
 
 
-
---    []
-
-
 fontColor : List (Html.Attribute msg)
 fontColor =
     [ Html.Attributes.style "color" "#ffffff" ]
+
+
+fontSizeText : List (Html.Attribute msg)
+fontSizeText =
+    [ Html.Attributes.style "font-size" "15px" ]
 
 
 fillSvg : Svg.Attribute msg
@@ -165,8 +171,8 @@ plugboardButtonStyleElements =
 textarea : List (Html.Attribute msg)
 textarea =
     [ Html.Attributes.style "border-radius" "10px"
-    , Html.Attributes.style "width" "300px"
-    , Html.Attributes.style "height" "80px"
+    , Html.Attributes.style "width" "95%"
+    , Html.Attributes.style "height" "100px"
     , Html.Attributes.style "padding" "10px"
     ]
 
@@ -197,6 +203,36 @@ messageHolderTable =
     [ Html.Attributes.style "table-layout" "fixed"
     , Html.Attributes.style "width" "100%"
     , Html.Attributes.style "white-space" "pre-line"
+    ]
+
+
+{-| Elm cant define css attributes like hover -> So use library
+-}
+rangeSlider : List (Html.Styled.Attribute msg)
+rangeSlider =
+    [ Html.Styled.Attributes.css
+        [ Css.hover
+            [ Css.property "opacity" "1" ]
+        , Css.pseudoElement "-webkit-slider-thumb"
+            [ Css.property "-webkit-appearance" "none"
+            , Css.property "appearance" "none"
+            , Css.property "width" "25px"
+            , Css.property "height" "25px"
+            , Css.property "border-radius" "50%"
+            , Css.property "background" "#4CAF50"
+            , Css.property "cursor" "pointer"
+            ]
+        , Css.property "-webkit-appearance" "none"
+        , Css.property "appearance" "none"
+        , Css.property "width" "auto"
+        , Css.property "height" "15px"
+        , Css.property "border-radius" "5px"
+        , Css.property "background" "#d3d3d3"
+        , Css.property "outline" "none"
+        , Css.property "opacity" "0.7"
+        , Css.property "-webkit-transition" ".2s"
+        , Css.property "transition" "opacity .2s"
+        ]
     ]
 
 

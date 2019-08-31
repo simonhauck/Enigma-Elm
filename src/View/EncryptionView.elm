@@ -10,6 +10,7 @@ import Models.Enigma.SubstitutionLog as Log
 import Models.MessageHolder as MessageHolder
 import Time
 import View.EnigmaSvg
+import View.HtmlComponents
 import View.StyleElements
 
 
@@ -101,7 +102,7 @@ subscription messageHolder enigma convertMessageHolderMsg =
 textInputArea : MessageHolder.MessageHolder -> ConvertEncryptionMsg msg -> Html msg
 textInputArea messageHolder convertEncryptionMsg =
     Html.textarea
-        ([ Html.Attributes.placeholder "Enter your text here"
+        ([ Html.Attributes.placeholder "Enter your text here..."
          , Html.Attributes.value messageHolder.rawInput
          , Html.Events.onInput (\val -> MessageHolder.setRawInput messageHolder val |> SetMessageHolder |> convertEncryptionMsg)
          ]
@@ -112,14 +113,24 @@ textInputArea messageHolder convertEncryptionMsg =
 
 encryptionSpeedSlider : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
 encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg =
-    Html.div []
-        [ Html.input
-            [ Html.Attributes.type_ "range"
-            , Html.Attributes.min "25"
-            , Html.Attributes.max "1000"
-            , Html.Attributes.value <| String.fromInt messageHolder.config.encryptionSpeed
-            , Html.Attributes.step "25"
-            , Html.Events.onInput
+    Html.div
+        View.StyleElements.flexDisplay
+        [ Html.div
+            ([ Html.Attributes.style "width" "150" ]
+                ++ View.StyleElements.fontColor
+                ++ View.StyleElements.fontFamily
+                ++ View.StyleElements.fontSizeText
+                ++ View.StyleElements.smallMargin
+            )
+            [ Html.text "Encryption Speed: " ]
+        , View.HtmlComponents.rangeSlider2
+            ([ Html.Attributes.min "5"
+             , Html.Attributes.max "2000"
+             , Html.Attributes.value <| String.fromInt messageHolder.config.encryptionSpeed
+             , Html.Attributes.step "5"
+             , Html.Attributes.style "direction" "rtl"
+             , enableAttributeWhenInEncryption operationMode
+             , Html.Events.onInput
                 (\val ->
                     String.toInt val
                         |> Maybe.withDefault 250
@@ -127,10 +138,11 @@ encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg =
                         |> SetMessageHolder
                         |> convertEncryptionMsg
                 )
-            , enableAttributeWhenInEncryption operationMode
-            ]
+             ]
+                ++ View.StyleElements.flexGrow
+                ++ View.StyleElements.smallMargin
+            )
             []
-        , Html.text ("Time between Ticks: " ++ String.fromInt messageHolder.config.encryptionSpeed)
         ]
 
 
