@@ -13,6 +13,7 @@ import Models.Enigma.Reflector as Reflector
 import Models.Enigma.Rotor as Rotor
 import Models.MessageHolder as MessageHolder
 import Utils.AlphabetHelper
+import View.HtmlComponents
 import View.PlugBoardSvg
 import View.StyleElements
 
@@ -455,6 +456,7 @@ otherConfigurationView enigma messageHolder convertToMainMsgFunction =
                 []
             , Html.text "Include foreign chars"
             ]
+        , View.HtmlComponents.checkBox [] []
         , Html.button
             (enableAttributeWhenInConfiguration enigma
                 :: Html.Events.onClick (convertToMainMsgFunction StartRandomKeyGeneration)

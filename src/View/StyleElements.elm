@@ -1,6 +1,9 @@
 module View.StyleElements exposing
     ( backgroundImage
     , buttonStyleElements
+    , checkBoxInput
+    , checkBoxLabel
+    , checkBoxSpan
     , fillSvg
     , flexDirectionColumn
     , flexDisplay
@@ -232,6 +235,50 @@ rangeSlider =
         , Css.property "opacity" "0.7"
         , Css.property "-webkit-transition" ".2s"
         , Css.property "transition" "opacity .2s"
+        ]
+    ]
+
+
+checkBoxLabel : List (Html.Styled.Attribute msg)
+checkBoxLabel =
+    [ Html.Styled.Attributes.css
+        [ Css.hover
+            []
+        , Css.property "display" "block"
+        , Css.property "position" "relative"
+        , Css.property "padding-left" "35px"
+        , Css.property " margin-bottom" "12px"
+        , Css.property "cursor" "pointer"
+        , Css.property "font-size" "22px"
+        , Css.property "-webkit-user-select" "none"
+        , Css.property "-moz-user-select" "none"
+        , Css.property "-ms-user-select" "none"
+        , Css.property "user-select" "none"
+        ]
+    ]
+
+
+checkBoxInput : List (Html.Styled.Attribute msg)
+checkBoxInput =
+    [ Html.Styled.Attributes.css
+        [ Css.property "position" "absolute"
+        , Css.property "opacity" "0"
+        , Css.property "cursor" "pointer"
+        , Css.property "height" "0"
+        , Css.property "width" "0"
+        ]
+    ]
+
+
+checkBoxSpan : List (Html.Styled.Attribute msg)
+checkBoxSpan =
+    [ Html.Styled.Attributes.css
+        [ Css.property "position" "absolute"
+        , Css.property "top" "0"
+        , Css.property "left" "0"
+        , Css.property "height" "25px"
+        , Css.property "width" "25px"
+        , Css.property "background-color" "#eee"
         ]
     ]
 

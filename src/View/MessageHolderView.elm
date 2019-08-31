@@ -65,12 +65,24 @@ displayEncryptionResult messageHolder convertMessageHolderFunction =
                 View.StyleElements.messageHolderTable
                 [ Html.tr
                     View.StyleElements.smallMargin
-                    [ Html.td ([ Html.Attributes.style "width" "160px" ] ++ View.StyleElements.monoSpaceText) [ Html.text "Processed Input : " ]
+                    [ Html.td
+                        ([ Html.Attributes.style "width" "160px"
+                         , Html.Attributes.style "vertical-align" "top"
+                         ]
+                            ++ View.StyleElements.monoSpaceText
+                        )
+                        [ Html.text "Processed Input : " ]
                     , Html.td ([ Html.Attributes.style "width" "auto" ] ++ View.StyleElements.monoSpaceText) [ Html.text formattedInput ]
                     ]
                 , Html.tr
                     View.StyleElements.smallMargin
-                    [ Html.td ([ Html.Attributes.style "width" "160px" ] ++ View.StyleElements.monoSpaceText) [ Html.text "Processed Output: " ]
+                    [ Html.td
+                        ([ Html.Attributes.style "width" "160px"
+                         , Html.Attributes.style "vertical-align" "top"
+                         ]
+                            ++ View.StyleElements.monoSpaceText
+                        )
+                        [ Html.text "Processed Output: " ]
                     , Html.td ([ Html.Attributes.style "width" "auto" ] ++ View.StyleElements.monoSpaceText) [ Html.text formattedOutput ]
                     ]
                 ]

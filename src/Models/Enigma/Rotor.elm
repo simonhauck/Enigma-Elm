@@ -61,28 +61,13 @@ getAllRotors =
 
 
 {-| Substitute a character with a rotor.
-The SignalDirection indicates if the signal is in direction to the rotor or from the rotor
+The SignalDirection indicates if the signal is in direction to the reflector or from the reflector
 The int value is the position of the character in the alphabet
 The first rotor is the current rotor used to replace the character
 The second rotor is the previous used rotor
 -}
 substituteCharacter : SignalDirection -> Int -> Rotor -> Rotor -> Maybe Int
-substituteCharacter signalDirection =
-    case signalDirection of
-        ToReflector ->
-            substituteCharacterToReflector
-
-        FromReflector ->
-            substituteCharacterFromReflector
-
-
-{-| Substitute a character in direction to the reflector with the current and previous rotor
-The index is the position of the character in the alphabet
-The first rotor is the current rotor, which is used to replace the character
-The second rotor is the previous rotor used to replace a char
--}
-substituteCharacterToReflector : Int -> Rotor -> Rotor -> Maybe Int
-substituteCharacterToReflector index currentRotor previousRotor =
+substituteCharacter signalDirection index currentRotor previousRotor =
     let
         rotorDifference =
             currentRotor.currentPosition - previousRotor.currentPosition
@@ -92,28 +77,16 @@ substituteCharacterToReflector index currentRotor previousRotor =
 
         correctedIndex =
             modBy 26 (index + rotorDifference + ringDifference)
+
+        getElementFunction =
+            case signalDirection of
+                ToReflector ->
+                    List.Extra.getAt
+
+                FromReflector ->
+                    List.Extra.elemIndex
     in
-    List.Extra.getAt correctedIndex currentRotor.characterSequence
-
-
-{-| Substitute a character in direction from the reflector with the current and previous rotor
-The index is the position of the character in the alphabet
-The first rotor is the current rotor, which is used to replace the character
-The second rotor is the previous rotor used to replace a char
--}
-substituteCharacterFromReflector : Int -> Rotor -> Rotor -> Maybe Int
-substituteCharacterFromReflector index currentRotor previousRotor =
-    let
-        rotorDifference =
-            currentRotor.currentPosition - previousRotor.currentPosition
-
-        ringDifference =
-            previousRotor.ringPosition - currentRotor.ringPosition
-
-        correctedIndex =
-            modBy 26 (index + rotorDifference + ringDifference)
-    in
-    List.Extra.elemIndex correctedIndex currentRotor.characterSequence
+    getElementFunction correctedIndex currentRotor.characterSequence
 
 
 {-| Rotate the rotor by one.
