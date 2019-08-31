@@ -50,7 +50,7 @@ view model =
                     ConfigurationMsg
                 ]
             , Html.div
-                View.StyleElements.mediumMargin
+                (View.StyleElements.flexGrow ++ View.StyleElements.mediumMargin)
                 [ View.MessageHolderView.displayServerMessages
                     model.serverMessageHolder
                     MessageHolderMsg

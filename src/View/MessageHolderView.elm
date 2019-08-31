@@ -42,9 +42,9 @@ displayServerMessages serverMessageHolder convertMessageHolderFunction =
         View.StyleElements.flexDirectionColumn
         [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Server Messages" ]
         , Html.div
-            (View.StyleElements.flexDisplay ++ View.StyleElements.smallMargin)
+            ([ Html.Attributes.style "max-height" "600px" ] ++ View.StyleElements.flexDisplay ++ View.StyleElements.smallMargin)
             [ Html.div
-                View.StyleElements.smallElementBox
+                ([ Html.Attributes.style "overflow" "auto", Html.Attributes.style "width" "100%" ] ++ View.StyleElements.smallElementBox)
                 [ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction ]
             ]
         ]
@@ -166,11 +166,21 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
                     List.indexedMap (displayServerMessageRow convertMessageHolderFunction serverMessageHolder.filter) list
     in
     Html.table
-        View.StyleElements.fontFamily
-        (Html.tr
+        (View.StyleElements.fontFamily ++ View.StyleElements.fontColor)
+        ([ Html.tr
             []
-            [ Html.td [] [ Html.text "Index" ]
-            , Html.td [] [ Html.text "Description" ]
+            [ Html.td [ Html.Attributes.style "width" "5%", Html.Attributes.style "text-align" "center" ] [ Html.text "#" ]
+            , Html.td [ Html.Attributes.style "width" "45%" ] [ Html.text "Description" ]
+            , Html.td [ Html.Attributes.style "width" "40%" ] [ Html.text "RawInput" ]
+            , Html.td [ Html.Attributes.style "width" "10%", Html.Attributes.style "text-align" "center" ]
+                [ Html.button
+                    ((Html.Events.onClick <| convertMessageHolderFunction StartLoadingServerMessages) :: View.StyleElements.buttonStyleElements)
+                    [ Html.text "Reload" ]
+                ]
+            ]
+         , Html.tr
+            []
+            [ Html.td [] []
             , Html.td []
                 [ Html.input
                     ([ Html.Attributes.type_ "text"
@@ -185,14 +195,11 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
                     )
                     []
                 ]
-            , Html.td [] [ Html.text "RawInput" ]
-            , Html.td []
-                [ Html.button
-                    ((Html.Events.onClick <| convertMessageHolderFunction StartLoadingServerMessages) :: View.StyleElements.buttonStyleElements)
-                    [ Html.text "Reload" ]
-                ]
+            , Html.td [] []
+            , Html.td [] []
             ]
-            :: displayedItemList
+         ]
+            ++ displayedItemList
         )
 
 
@@ -212,11 +219,14 @@ displayServerMessageRow convertMessageHolderFunction filter index messageHolder 
     Html.tr
         [ Html.Attributes.style "visibility" visibility ]
         [ Html.td [] [ index |> String.fromInt |> Html.text ]
-        , Html.td [] [ messageHolder.description |> Html.text ]
-        , Html.td [] [ messageHolder.rawInput |> String.slice 0 20 |> Html.text ]
-        , Html.td []
+        , Html.td View.StyleElements.serverMessageColumn [ messageHolder.description |> Html.text ]
+        , Html.td View.StyleElements.serverMessageColumn [ messageHolder.rawInput |> String.slice 0 20 |> Html.text ]
+        , Html.td [ Html.Attributes.style "text-align" "center" ]
             [ Html.button
-                ((Html.Events.onClick <| (convertMessageHolderFunction <| SelectServerMessage messageHolder)) :: View.StyleElements.buttonStyleElements)
+                ([ Html.Events.onClick <| convertMessageHolderFunction <| SelectServerMessage messageHolder
+                 ]
+                    ++ View.StyleElements.buttonStyleElements
+                )
                 [ Html.text "Use" ]
             ]
         ]

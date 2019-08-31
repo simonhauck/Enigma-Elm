@@ -124,8 +124,8 @@ encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg =
             )
             [ Html.text "Encryption Speed: " ]
         , View.HtmlComponents.rangeSlider
-            ([ Html.Attributes.min "5"
-             , Html.Attributes.max "2000"
+            ([ Html.Attributes.min "25"
+             , Html.Attributes.max "1000"
              , Html.Attributes.value <| String.fromInt messageHolder.config.encryptionSpeed
              , Html.Attributes.step "5"
              , Html.Attributes.style "direction" "rtl"
