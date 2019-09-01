@@ -1,4 +1,4 @@
-module View.EncryptionView exposing (EncryptionMsg(..), enigmaPreview, subscription, textInputBoxView, update)
+module View.EncryptionView exposing (EncryptionMsg(..), enigmaPreview, lampBoardPreview, subscription, textInputBoxView, update)
 
 import Flip
 import Html exposing (Html)
@@ -11,6 +11,7 @@ import Models.MessageHolder as MessageHolder
 import Time
 import View.EnigmaSvg
 import View.HtmlComponents
+import View.LampboardSvg
 import View.StyleElements
 
 
@@ -61,6 +62,15 @@ enigmaPreview enigma maybeLog =
             [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Enigma View" ]
             , View.EnigmaSvg.enigmaSvg enigma maybeLog
             ]
+        ]
+
+
+lampBoardPreview : Maybe Log.SubstitutionLog -> Html msg
+lampBoardPreview maybeLog =
+    Html.div
+        (View.StyleElements.smallMargin ++ View.StyleElements.smallElementBox)
+        [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Lamps" ]
+        , View.LampboardSvg.drawLampBoard maybeLog
         ]
 
 

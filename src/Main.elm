@@ -8,6 +8,7 @@ import Models.MessageHolder as MessageHolder
 import Models.ServerMessageHolder as ServerMessageHolder
 import View.ConfigurationView
 import View.EncryptionView
+import View.LampboardSvg
 import View.MessageHolderView
 import View.StyleElements
 
@@ -69,7 +70,9 @@ view model =
                     [ View.EncryptionView.enigmaPreview model.enigma model.substitutionLog ]
                 , Html.div
                     (View.StyleElements.mediumMargin ++ View.StyleElements.flexGrow)
-                    [ View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg ]
+                    [ View.EncryptionView.lampBoardPreview model.substitutionLog
+                    , View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg
+                    ]
                 ]
             ]
         ]

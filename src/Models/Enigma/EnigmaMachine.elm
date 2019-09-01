@@ -75,7 +75,7 @@ performRotationAndSubstitution enigma input =
             ( maybeLog, maybeResult ) =
                 substituteCharacter input rotatedEnigma
         in
-        ( rotatedEnigma, maybeLog |> Log.finishSubstitutionLog, maybeResult )
+        ( rotatedEnigma, maybeLog |> Log.postProcessLog, maybeResult )
 
     else
         ( enigma, Nothing, Nothing )

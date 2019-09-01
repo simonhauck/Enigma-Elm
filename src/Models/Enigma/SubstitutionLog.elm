@@ -8,7 +8,8 @@ module Models.Enigma.SubstitutionLog exposing
     , addRotorFromReflectorSubstitution
     , addRotorToReflectorSubstitution
     , emptySubstitutionLog
-    , finishSubstitutionLog
+    , getResultChar
+    , postProcessLog
     )
 
 
@@ -39,6 +40,13 @@ type alias UpdateLogFunction =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Get the result char of the substitution in the log
+-}
+getResultChar : SubstitutionLog -> Int
+getResultChar log =
+    Tuple.second log.plugboardOutputSubstitution
+
+
 {-| Return an empty SubstitutionLog with default values
 -}
 emptySubstitutionLog : SubstitutionLog
@@ -57,8 +65,8 @@ The state of the SubstitutionLog will be changed to finished. If the Substitutio
 Finished, the SubstitutionLog will not be modified
 If the given Log is Nothing, Nothing will be returned.
 -}
-finishSubstitutionLog : Maybe SubstitutionLog -> Maybe SubstitutionLog
-finishSubstitutionLog maybeSubstitutionLog =
+postProcessLog : Maybe SubstitutionLog -> Maybe SubstitutionLog
+postProcessLog maybeSubstitutionLog =
     case maybeSubstitutionLog of
         Nothing ->
             Nothing
