@@ -39,8 +39,11 @@ type alias Opacity =
 enigmaSvg : EnigmaMachine.Enigma -> Maybe Log.SubstitutionLog -> Html msg
 enigmaSvg enigma substitutionLog =
     let
+        headLineYCoordinate =
+            15
+
         yCoordinate =
-            20
+            45
 
         reflectorXCoordinate =
             120
@@ -70,9 +73,10 @@ enigmaSvg enigma substitutionLog =
     in
     Svg.svg
         [ Svg.Attributes.width "1230"
-        , Svg.Attributes.height "530"
+        , Svg.Attributes.height "550"
         ]
-        (drawReflector enigma.reflector reflectorXCoordinate yCoordinate
+        (drawHeadlines enigma headLineYCoordinate reflectorXCoordinate rotorXCoordinate plugBoardXCoordinate
+            ++ drawReflector enigma.reflector reflectorXCoordinate yCoordinate
             ++ drawRotors enigma.rotors rotorXCoordinate yCoordinate
             ++ drawPlugBoard enigma.plugBoard plugBoardXCoordinate yCoordinate
             ++ unwrapSubstitutionLogFunction substitutionLog
@@ -187,6 +191,36 @@ semiTransparent =
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Internal functions
 -- ---------------------------------------------------------------------------------------------------------------------
+
+
+drawHeadlines : EnigmaMachine.Enigma -> Int -> Int -> Int -> Int -> List (Svg msg)
+drawHeadlines enigma y reflectorX rotorX plugboardX =
+    [ drawReflectorHeadline enigma.reflector reflectorX y
+    , drawPlugboardHeadline plugboardX y
+    ]
+        ++ drawRotorHeadlines enigma.rotors rotorX y
+
+
+drawReflectorHeadline : Reflector.Reflector -> Int -> Int -> Svg msg
+drawReflectorHeadline reflector =
+    drawString "end" reflector.name
+
+
+drawRotorHeadlines : List Rotor.Rotor -> Int -> Int -> List (Svg msg)
+drawRotorHeadlines rotorList x y =
+    let
+        halfRotorWith =
+            toFloat rotorWidth / 2 |> round
+
+        calculateCenterX =
+            \startX index -> index * (rotorWidth + spaceBetweenRotors) + startX + halfRotorWith
+    in
+    List.indexedMap (\index rotor -> drawString "middle" rotor.name (calculateCenterX x index) y) rotorList
+
+
+drawPlugboardHeadline : Int -> Int -> Svg msg
+drawPlugboardHeadline x y =
+    drawString "middle" "Plugboard" ((toFloat plugboardWidth / 2) |> round |> (+) x) y
 
 
 {-| Get a list with Svg elements that display the given reflector
@@ -480,16 +514,16 @@ drawCircleCharacterRow characterOrientation x y inputChar =
         characterOffsetX =
             case characterOrientation of
                 Left ->
-                    -25
+                    -20
 
                 Right ->
-                    25
+                    20
 
         characterOffsetY =
             -5
     in
     [ drawSmallCircles x y
-    , drawCharacter (x + characterOffsetX) (y + characterOffsetY) inputChar
+    , drawCharacter inputChar (x + characterOffsetX) (y + characterOffsetY)
     ]
 
 
@@ -498,15 +532,21 @@ x - the xCoordinate
 y - the yCoordinate
 char - the char that will be written
 -}
-drawCharacter : Int -> Int -> Char -> Svg msg
-drawCharacter x y char =
+drawCharacter : Char -> Int -> Int -> Svg msg
+drawCharacter char =
+    String.fromChar char |> drawString "middle"
+
+
+drawString : String -> String -> Int -> Int -> Svg msg
+drawString anchor inputString x y =
     Svg.text_
-        [ Svg.Attributes.x (String.fromInt x)
-        , Svg.Attributes.y (String.fromInt y)
+        [ Svg.Attributes.x <| String.fromInt x
+        , Svg.Attributes.y <| String.fromInt y
         , View.StyleElements.fontFamilySvg
         , View.StyleElements.fillSvg
+        , Svg.Attributes.textAnchor anchor
         ]
-        [ Svg.text (String.fromChar char) ]
+        [ Svg.text inputString ]
 
 
 {-| draw a circle at the given coordinate
