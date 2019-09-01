@@ -169,23 +169,24 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
         (View.StyleElements.fontFamily ++ View.StyleElements.fontColor)
         ([ Html.tr
             []
-            [ Html.td [ Html.Attributes.style "width" "5%", Html.Attributes.style "text-align" "center" ] [ Html.text "#" ]
-            , Html.td [ Html.Attributes.style "width" "45%" ] [ Html.text "Description" ]
-            , Html.td [ Html.Attributes.style "width" "40%" ] [ Html.text "RawInput" ]
-            , Html.td [ Html.Attributes.style "width" "10%", Html.Attributes.style "text-align" "center" ]
+            [ Html.th [ Html.Attributes.style "width" "5%", Html.Attributes.style "text-align" "center" ] [ Html.text "#" ]
+            , Html.th [ Html.Attributes.style "width" "45%" ] [ Html.text "Description" ]
+            , Html.th [ Html.Attributes.style "width" "40%" ] [ Html.text "RawInput" ]
+            , Html.th [ Html.Attributes.style "width" "10%", Html.Attributes.style "text-align" "center" ]
                 [ Html.button
                     ((Html.Events.onClick <| convertMessageHolderFunction StartLoadingServerMessages) :: View.StyleElements.buttonStyleElements)
                     [ Html.text "Reload" ]
                 ]
             ]
          , Html.tr
-            []
-            [ Html.td [] []
-            , Html.td []
+            View.StyleElements.tableBorderBottom
+            [ Html.th [] []
+            , Html.th []
                 [ Html.input
                     ([ Html.Attributes.type_ "text"
                      , Html.Attributes.placeholder "Filter Description..."
                      , Html.Attributes.value serverMessageHolder.filter
+                     , Html.Attributes.style "width" "-webkit-fill-available"
                      , Html.Events.onInput
                         (\val ->
                             { serverMessageHolder | filter = val } |> SetServerMessageHolder |> convertMessageHolderFunction
@@ -195,8 +196,8 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
                     )
                     []
                 ]
-            , Html.td [] []
-            , Html.td [] []
+            , Html.th [] []
+            , Html.th [] []
             ]
          ]
             ++ displayedItemList
@@ -218,10 +219,17 @@ displayServerMessageRow convertMessageHolderFunction filter index messageHolder 
     in
     Html.tr
         [ Html.Attributes.style "visibility" visibility ]
-        [ Html.td [] [ index |> String.fromInt |> Html.text ]
-        , Html.td View.StyleElements.serverMessageColumn [ messageHolder.description |> Html.text ]
-        , Html.td View.StyleElements.serverMessageColumn [ messageHolder.rawInput |> Html.text ]
-        , Html.td [ Html.Attributes.style "text-align" "center" ]
+        [ Html.td
+            View.StyleElements.mediumPaddingRight
+            [ index |> String.fromInt |> Html.text ]
+        , Html.td
+            (View.StyleElements.serverMessageColumn ++ View.StyleElements.mediumPaddingRight)
+            [ messageHolder.description |> Html.text ]
+        , Html.td
+            (View.StyleElements.serverMessageColumn ++ View.StyleElements.mediumPaddingRight)
+            [ messageHolder.rawInput |> Html.text ]
+        , Html.td
+            [ Html.Attributes.style "text-align" "center" ]
             [ Html.button
                 ([ Html.Events.onClick <| convertMessageHolderFunction <| SelectServerMessage messageHolder
                  ]

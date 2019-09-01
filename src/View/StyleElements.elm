@@ -16,6 +16,7 @@ module View.StyleElements exposing
     , h3StyleElements
     , input
     , mediumMargin
+    , mediumPaddingRight
     , messageHolderTable
     , monoSpaceText
     , plugboardButtonStyleElements
@@ -27,6 +28,7 @@ module View.StyleElements exposing
     , serverMessageColumn
     , smallElementBox
     , smallMargin
+    , tableBorderBottom
     , textarea
     )
 
@@ -135,6 +137,11 @@ mediumMargin =
     [ Html.Attributes.style "margin" "10px" ]
 
 
+mediumPaddingRight : List (Html.Attribute msg)
+mediumPaddingRight =
+    [ Html.Attributes.style "padding-right" "10px" ]
+
+
 h2StyleElements : List (Html.Attribute msg)
 h2StyleElements =
     [ Html.Attributes.style "font-weight" "normal"
@@ -210,6 +217,11 @@ messageHolderTable =
     , Html.Attributes.style "width" "100%"
     , Html.Attributes.style "white-space" "pre-line"
     ]
+
+
+tableBorderBottom : List (Html.Attribute msg)
+tableBorderBottom =
+    [ Html.Attributes.style "border-bottom" "1px solid white;" ]
 
 
 serverMessageColumn : List (Html.Attribute msg)
