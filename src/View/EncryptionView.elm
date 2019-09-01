@@ -4,6 +4,7 @@ import Flip
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
+import Model exposing (Model)
 import Models.Enigma.EnigmaMachine as EnigmaMachine
 import Models.Enigma.OperationMode as OperationMode
 import Models.Enigma.SubstitutionLog as Log
@@ -74,17 +75,25 @@ lampBoardPreview maybeLog =
         ]
 
 
-update : EncryptionMsg -> EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> Maybe Log.SubstitutionLog -> ( EnigmaMachine.Enigma, MessageHolder.MessageHolder, Maybe Log.SubstitutionLog )
-update encryptionMsg enigma messageHolder maybeLog =
+update : EncryptionMsg -> Model -> ( Model, Cmd msg )
+update encryptionMsg model =
     case encryptionMsg of
         EncryptChar ->
-            substituteCharWithMessageHolder enigma messageHolder
+            let
+                ( enigma, messageHolder, maybeLog ) =
+                    substituteCharWithMessageHolder model.enigma model.messageHolder
+            in
+            ( { model | enigma = enigma, messageHolder = messageHolder, substitutionLog = maybeLog }, Cmd.none )
 
         EncryptAll ->
-            substituteRawInput enigma messageHolder
+            let
+                ( enigma, messageHolder, maybeLog ) =
+                    substituteRawInput model.enigma model.messageHolder
+            in
+            ( { model | enigma = enigma, messageHolder = messageHolder, substitutionLog = maybeLog }, Cmd.none )
 
         SetMessageHolder newMessageHolder ->
-            ( enigma, newMessageHolder, maybeLog )
+            ( { model | messageHolder = newMessageHolder }, Cmd.none )
 
 
 {-| Get the subscriptions to encrypt the raw input

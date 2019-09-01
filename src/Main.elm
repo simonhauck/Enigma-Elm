@@ -2,13 +2,11 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (Html)
-import Models.Enigma.EnigmaMachine as EnigmaMachine
-import Models.Enigma.SubstitutionLog as Log
-import Models.MessageHolder as MessageHolder
+import Model exposing (Model)
+import Models.Enigma.EnigmaMachine
 import Models.ServerMessageHolder as ServerMessageHolder
 import View.ConfigurationView
 import View.EncryptionView
-import View.LampboardSvg
 import View.MessageHolderView
 import View.StyleElements
 
@@ -21,14 +19,6 @@ type Msg
     = ConfigurationMsg View.ConfigurationView.ConfigurationMsg
     | MessageHolderMsg View.MessageHolderView.ServerMessageHolderMsg
     | EncryptionMsg View.EncryptionView.EncryptionMsg
-
-
-type alias Model =
-    { enigma : EnigmaMachine.Enigma
-    , substitutionLog : Maybe Log.SubstitutionLog
-    , messageHolder : MessageHolder.MessageHolder
-    , serverMessageHolder : ServerMessageHolder.ServerMessageHolder
-    }
 
 
 
@@ -88,11 +78,7 @@ view model =
 -}
 initialModel : ( Model, Cmd Msg )
 initialModel =
-    ( { enigma = EnigmaMachine.defaultEnigma
-      , substitutionLog = Nothing
-      , messageHolder = MessageHolder.defaultMessageHolder
-      , serverMessageHolder = ServerMessageHolder.defaultServerMessageHolder
-      }
+    ( Model.defaultModel
       --      TODO Eta reduction somehow?
     , ServerMessageHolder.requestServerMessages (\response -> MessageHolderMsg (View.MessageHolderView.ResultLoadingServerMessages response))
     )
@@ -111,25 +97,13 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ConfigurationMsg configurationMessage ->
-            let
-                ( newEnigma, newMessageHolder, newCmd ) =
-                    View.ConfigurationView.update configurationMessage model.enigma model.messageHolder ConfigurationMsg
-            in
-            ( { model | enigma = newEnigma, messageHolder = newMessageHolder }, newCmd )
+            View.ConfigurationView.update configurationMessage model ConfigurationMsg
 
         MessageHolderMsg serverMessageHolderMessage ->
-            let
-                ( newServerMessageHolder, newMessageHolder, newCmd ) =
-                    View.MessageHolderView.update serverMessageHolderMessage model.serverMessageHolder model.messageHolder MessageHolderMsg
-            in
-            ( { model | serverMessageHolder = newServerMessageHolder, messageHolder = newMessageHolder }, newCmd )
+            View.MessageHolderView.update serverMessageHolderMessage model MessageHolderMsg
 
         EncryptionMsg encryptionMsg ->
-            let
-                ( newEnigma, newMessageHolder, maybeLog ) =
-                    View.EncryptionView.update encryptionMsg model.enigma model.messageHolder model.substitutionLog
-            in
-            ( { model | enigma = newEnigma, messageHolder = newMessageHolder, substitutionLog = maybeLog }, Cmd.none )
+            View.EncryptionView.update encryptionMsg model
 
 
 main : Program () Model Msg

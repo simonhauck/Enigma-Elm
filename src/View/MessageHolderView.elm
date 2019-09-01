@@ -11,6 +11,8 @@ import Html.Attributes
 import Html.Events
 import Http
 import Loading exposing (defaultConfig)
+import Model exposing (Model)
+import Models.Enigma.EnigmaMachine
 import Models.MessageHolder as MessageHolder
 import Models.ServerMessageHolder as ServerMessageHolder
 import View.StyleElements
@@ -106,41 +108,41 @@ displayEncryptionResult messageHolder convertMessageHolderFunction =
         ]
 
 
-update :
-    ServerMessageHolderMsg
-    -> ServerMessageHolder.ServerMessageHolder
-    -> MessageHolder.MessageHolder
-    -> ConvertMessageHolderMsg msg
-    -> ( ServerMessageHolder.ServerMessageHolder, MessageHolder.MessageHolder, Cmd msg )
-update serverMessageHolderMsg serverMessageHolder messageHolder convertMessageFunction =
+update : ServerMessageHolderMsg -> Model -> ConvertMessageHolderMsg msg -> ( Model, Cmd msg )
+update serverMessageHolderMsg model convertMessageFunction =
     case serverMessageHolderMsg of
         SetMessageHolder newMessageHolder ->
-            ( serverMessageHolder, newMessageHolder, Cmd.none )
+            ( { model | messageHolder = newMessageHolder }, Cmd.none )
 
         SetServerMessageHolder newServerMessageHolder ->
-            ( newServerMessageHolder, messageHolder, Cmd.none )
+            ( { model | serverMessageHolder = newServerMessageHolder }, Cmd.none )
 
         StartLoadingServerMessages ->
-            ( { serverMessageHolder | serverState = ServerMessageHolder.Loading }
-            , messageHolder
+            ( { model | serverMessageHolder = ServerMessageHolder.setState model.serverMessageHolder ServerMessageHolder.Loading }
             , (ResultLoadingServerMessages >> convertMessageFunction) |> ServerMessageHolder.requestServerMessages
             )
 
         SelectServerMessage selectedMessageHolder ->
-            ( serverMessageHolder
-            , MessageHolder.copyConfig messageHolder selectedMessageHolder |> MessageHolder.disableAutomaticEncryptionMode
+            ( { model
+                | enigma = Models.Enigma.EnigmaMachine.setStartPositionAsCurrentPosition model.enigma
+                , messageHolder =
+                    MessageHolder.copyConfig model.messageHolder selectedMessageHolder
+                        |> MessageHolder.disableAutomaticEncryptionMode
+                , substitutionLog = Nothing
+              }
             , Cmd.none
             )
 
         SendMessageToServer ->
-            ( { serverMessageHolder | serverState = ServerMessageHolder.Loading }
-            , MessageHolder.defaultMessageHolder
-            , (ResultLoadingServerMessages >> convertMessageFunction) |> ServerMessageHolder.sendMessageToServer messageHolder
+            ( { model
+                | serverMessageHolder = ServerMessageHolder.setState model.serverMessageHolder ServerMessageHolder.Loading
+                , messageHolder = MessageHolder.defaultMessageHolder
+              }
+            , (ResultLoadingServerMessages >> convertMessageFunction) |> ServerMessageHolder.sendMessageToServer model.messageHolder
             )
 
         ResultLoadingServerMessages result ->
-            ( ServerMessageHolder.handleServerResponse serverMessageHolder result
-            , messageHolder
+            ( { model | serverMessageHolder = ServerMessageHolder.handleServerResponse model.serverMessageHolder result }
             , Cmd.none
             )
 

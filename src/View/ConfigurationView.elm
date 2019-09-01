@@ -6,6 +6,7 @@ import Html exposing (Html)
 import Html.Attributes
 import Html.Events
 import Json.Decode
+import Model exposing (Model)
 import Models.Enigma.EnigmaMachine as EnigmaMachine
 import Models.Enigma.OperationMode as OperationMode
 import Models.Enigma.Plugboard as Plugboard
@@ -51,47 +52,42 @@ displayEnigmaConfiguration enigma messageHolder convertToMainMsgFunction =
         ]
 
 
-update :
-    ConfigurationMsg
-    -> EnigmaMachine.Enigma
-    -> MessageHolder.MessageHolder
-    -> ConvertConfigurationMsg msg
-    -> ( EnigmaMachine.Enigma, MessageHolder.MessageHolder, Cmd msg )
-update msg enigma messageHolder convertToMainMsgFunction =
-    let
-        buildTuple3 =
-            \( a, b ) c -> ( a, b, c )
-    in
+update : ConfigurationMsg -> Model -> ConvertConfigurationMsg msg -> ( Model, Cmd msg )
+update msg model convertToMainMsgFunction =
     case msg of
         SetRotor index rotor ->
-            ( EnigmaMachine.setRotor enigma index rotor, messageHolder, Cmd.none )
+            ( { model | enigma = EnigmaMachine.setRotor model.enigma index rotor }, Cmd.none )
 
         SetRotorPosition index position ->
-            ( EnigmaMachine.setStartPositionOfRotor enigma index position, messageHolder, Cmd.none )
+            ( { model | enigma = EnigmaMachine.setStartPositionOfRotor model.enigma index position }, Cmd.none )
 
         SetRotorRingPosition index position ->
-            ( EnigmaMachine.setRingPositionOfRotor enigma index position, messageHolder, Cmd.none )
+            ( { model | enigma = EnigmaMachine.setRingPositionOfRotor model.enigma index position }, Cmd.none )
 
         SetReflector reflector ->
-            ( EnigmaMachine.setReflector enigma reflector, messageHolder, Cmd.none )
+            ( { model | enigma = EnigmaMachine.setReflector model.enigma reflector }, Cmd.none )
 
         ResetPlugboard ->
-            ( EnigmaMachine.resetPlugBoard enigma, messageHolder, Cmd.none )
+            ( { model | enigma = EnigmaMachine.resetPlugBoard model.enigma }, Cmd.none )
 
         PressCharOnPlugboard charPosition charIndex ->
-            ( EnigmaMachine.pressCharOnPlugBoard enigma charPosition charIndex, messageHolder, Cmd.none )
+            ( { model | enigma = EnigmaMachine.pressCharOnPlugBoard model.enigma charPosition charIndex }, Cmd.none )
 
         ToggleForeignCharOption ->
-            ( enigma, MessageHolder.toggleForeignCharOption messageHolder, Cmd.none )
+            ( { model | messageHolder = MessageHolder.toggleForeignCharOption model.messageHolder }, Cmd.none )
 
         ToggleOperationMode ->
-            toggleOperationMode enigma messageHolder |> Flip.flip buildTuple3 Cmd.none
+            let
+                ( newEnigma, newMessageHolder ) =
+                    toggleOperationMode model.enigma model.messageHolder
+            in
+            ( { model | enigma = newEnigma, messageHolder = newMessageHolder, substitutionLog = Nothing }, Cmd.none )
 
         StartRandomKeyGeneration ->
-            ( enigma, messageHolder, randomizeEnigma enigma convertToMainMsgFunction )
+            ( model, randomizeEnigma model.enigma convertToMainMsgFunction )
 
         HandleRandomKeyGeneration randomizationType ->
-            ( EnigmaMachine.handleRandomizeResult enigma randomizationType, messageHolder, Cmd.none )
+            ( { model | enigma = EnigmaMachine.handleRandomizeResult model.enigma randomizationType }, Cmd.none )
 
 
 

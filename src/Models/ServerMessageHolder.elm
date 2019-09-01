@@ -6,6 +6,7 @@ module Models.ServerMessageHolder exposing
     , handleServerResponse
     , requestServerMessages
     , sendMessageToServer
+    , setState
     )
 
 import Http
@@ -79,6 +80,13 @@ handleServerResponse serverMessageHolder result =
 
         Err _ ->
             { serverMessageHolder | serverState = Error }
+
+
+{-| Set the State of the messageHolder
+-}
+setState : ServerMessageHolder -> ServerState -> ServerMessageHolder
+setState serverMessageHolder serverState =
+    { serverMessageHolder | serverState = serverState }
 
 
 
