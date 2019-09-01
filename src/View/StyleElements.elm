@@ -214,12 +214,11 @@ messageHolderTable =
 
 serverMessageColumn : List (Html.Attribute msg)
 serverMessageColumn =
-    --    [ Html.Attributes.style "max-width" "0"
-    --    , Html.Attributes.style "overflow" "hidden"
-    --    , Html.Attributes.style "text-overflow" "ellipsis"
-    --    , Html.Attributes.style "white-space" "nowrap"
-    --    ]
-    []
+    [ Html.Attributes.style "max-width" "0"
+    , Html.Attributes.style "overflow" "hidden"
+    , Html.Attributes.style "text-overflow" "ellipsis"
+    , Html.Attributes.style "white-space" "nowrap"
+    ]
 
 
 {-| Elm cant define css attributes like hover -> So use library

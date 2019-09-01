@@ -220,7 +220,7 @@ displayServerMessageRow convertMessageHolderFunction filter index messageHolder 
         [ Html.Attributes.style "visibility" visibility ]
         [ Html.td [] [ index |> String.fromInt |> Html.text ]
         , Html.td View.StyleElements.serverMessageColumn [ messageHolder.description |> Html.text ]
-        , Html.td View.StyleElements.serverMessageColumn [ messageHolder.rawInput |> String.slice 0 20 |> Html.text ]
+        , Html.td View.StyleElements.serverMessageColumn [ messageHolder.rawInput |> Html.text ]
         , Html.td [ Html.Attributes.style "text-align" "center" ]
             [ Html.button
                 ([ Html.Events.onClick <| convertMessageHolderFunction <| SelectServerMessage messageHolder
