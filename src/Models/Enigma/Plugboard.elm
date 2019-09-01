@@ -51,7 +51,7 @@ pressChar plugboard charPosition selectedCharIndex =
         Input ->
             case plugboard.selectedOutputChar of
                 Nothing ->
-                    removeOldConnection selectedCharIndex { plugboard | selectedInputChar = Just selectedCharIndex }
+                    { plugboard | selectedInputChar = Just selectedCharIndex } |> removeOldConnection selectedCharIndex
 
                 Just outputChar ->
                     addPair { plugboard | selectedInputChar = Nothing, selectedOutputChar = Nothing } ( selectedCharIndex, outputChar )
@@ -132,7 +132,7 @@ addPair plugboard ( input, output ) =
             plugboard |> removeOldConnection input |> removeOldConnection output
 
         newSwitchedCharsList =
-            ( input, output ) :: plugboard.switchedCharsList
+            ( input, output ) :: updatedPlugboard.switchedCharsList
     in
     { updatedPlugboard | switchedCharsList = newSwitchedCharsList }
 
