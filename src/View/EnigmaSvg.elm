@@ -46,7 +46,7 @@ enigmaSvg enigma substitutionLog =
             45
 
         reflectorXCoordinate =
-            120
+            130
 
         rotorXCoordinate =
             reflectorXCoordinate + spaceBetweenReflectorAndRotor
@@ -73,7 +73,7 @@ enigmaSvg enigma substitutionLog =
     in
     Svg.svg
         [ Svg.Attributes.width "1230"
-        , Svg.Attributes.height "550"
+        , Svg.Attributes.height "560"
         ]
         (drawHeadlines enigma headLineYCoordinate reflectorXCoordinate rotorXCoordinate plugBoardXCoordinate
             ++ drawReflector enigma.reflector reflectorXCoordinate yCoordinate
@@ -193,6 +193,8 @@ semiTransparent =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Draw the headlines for the components
+-}
 drawHeadlines : EnigmaMachine.Enigma -> Int -> Int -> Int -> Int -> List (Svg msg)
 drawHeadlines enigma y reflectorX rotorX plugboardX =
     [ drawReflectorHeadline enigma.reflector reflectorX y
@@ -201,11 +203,15 @@ drawHeadlines enigma y reflectorX rotorX plugboardX =
         ++ drawRotorHeadlines enigma.rotors rotorX y
 
 
+{-| Draw the headline for the reflector at the given x and y coordinate
+-}
 drawReflectorHeadline : Reflector.Reflector -> Int -> Int -> Svg msg
 drawReflectorHeadline reflector =
     drawString "end" reflector.name
 
 
+{-| Draw the headlines for the rotors at the given x and y coordinate
+-}
 drawRotorHeadlines : List Rotor.Rotor -> Int -> Int -> List (Svg msg)
 drawRotorHeadlines rotorList x y =
     let
@@ -218,6 +224,8 @@ drawRotorHeadlines rotorList x y =
     List.indexedMap (\index rotor -> drawString "middle" rotor.name (calculateCenterX x index) y) rotorList
 
 
+{-| Draw the headline for the Plugboard at the given x and y coordinate
+-}
 drawPlugboardHeadline : Int -> Int -> Svg msg
 drawPlugboardHeadline x y =
     drawString "middle" "Plugboard" ((toFloat plugboardWidth / 2) |> round |> (+) x) y
@@ -514,10 +522,10 @@ drawCircleCharacterRow characterOrientation x y inputChar =
         characterOffsetX =
             case characterOrientation of
                 Left ->
-                    -20
+                    -30
 
                 Right ->
-                    20
+                    30
 
         characterOffsetY =
             -5
@@ -537,6 +545,8 @@ drawCharacter char =
     String.fromChar char |> drawString "middle"
 
 
+{-| Draw the given string on the svg at the given coordinates and the given anchor
+-}
 drawString : String -> String -> Int -> Int -> Svg msg
 drawString anchor inputString x y =
     Svg.text_
