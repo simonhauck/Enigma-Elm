@@ -5,6 +5,7 @@ import Models.Enigma.SubstitutionLog as Log
 import Svg
 import Svg.Attributes
 import Utils.AlphabetHelper
+import View.StyleElements
 
 
 
@@ -120,6 +121,16 @@ drawLampBoardRow characterList maybeLog xOffset x y =
         |> List.concat
 
 
+
+--Svg.Attributes.fill
+--            (if fillCircle then
+--                "yellow"
+--
+--             else
+--                "white"
+--            )
+
+
 {-| Draw a circle at the given coordinates with a character inside
 -}
 drawCharacterCircle : Int -> Int -> Bool -> Char -> List (Svg.Svg msg)
@@ -129,24 +140,28 @@ drawCharacterCircle x y fillCircle character =
             5
     in
     [ Svg.circle
-        [ Svg.Attributes.cx (String.fromInt x)
-        , Svg.Attributes.cy (String.fromInt y)
-        , Svg.Attributes.r "15"
-        , Svg.Attributes.fill
-            (if fillCircle then
-                "yellow"
+        ([ Svg.Attributes.cx (String.fromInt x)
+         , Svg.Attributes.cy (String.fromInt y)
+         , Svg.Attributes.r "15"
+         , Svg.Attributes.stroke "black"
+         , Svg.Attributes.strokeWidth "2"
+         ]
+            ++ (if fillCircle then
+                    [ Svg.Attributes.fill "#fbff2e" ]
 
-             else
-                "white"
-            )
-        , Svg.Attributes.stroke "black"
-        , Svg.Attributes.strokeWidth "2"
-        ]
+                else
+                    [ Svg.Attributes.fill View.StyleElements.thirdColor
+                    , Svg.Attributes.opacity "0.5"
+                    ]
+               )
+        )
         []
     , Svg.text_
         [ Svg.Attributes.x <| String.fromInt x
         , Svg.Attributes.y <| String.fromInt <| y + characterYOffset
         , Svg.Attributes.textAnchor "middle"
+        , Svg.Attributes.fontFamily "monospace"
+        , Svg.Attributes.fontSize "16px"
         ]
         [ Svg.text <| String.fromChar character ]
     ]
