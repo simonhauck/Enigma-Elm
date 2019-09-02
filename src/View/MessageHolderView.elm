@@ -35,7 +35,6 @@ type ServerMessageHolderMsg
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Exposed functions
 -- ---------------------------------------------------------------------------------------------------------------------
---TODO ETA Reduction
 
 
 displayServerMessages : ServerMessageHolder.ServerMessageHolder -> ConvertMessageHolderMsg msg -> Html msg

@@ -1,11 +1,9 @@
 module View.ConfigurationView exposing (ConfigurationMsg(..), displayEnigmaConfiguration, update)
 
 import Dict
-import Flip
 import Html exposing (Html)
 import Html.Attributes
 import Html.Events
-import Json.Decode
 import Model exposing (Model)
 import Models.Enigma.EnigmaMachine as EnigmaMachine
 import Models.Enigma.OperationMode as OperationMode
@@ -187,17 +185,11 @@ randomizeEnigma enigma convertToMainMsgFunction =
 
 selectRotorView : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Html msg
 selectRotorView enigma convertToMainMsgFunction =
-    --    TODO Remove first Rotor?
     Html.table
         []
         [ tableRowWithRotorNumbers enigma.rotors
         , Html.tr [] (Html.td [] [ Html.text "Rotor:" ] :: List.indexedMap (displayRotorSelectionInTable enigma convertToMainMsgFunction) enigma.rotors)
         ]
-
-
-
---TODO change pipeline direction
---convertToMainMsgFunction <| SetRotor index <| Flip.flip Dict.get Enigma.Rotor.getAllRotors <| val
 
 
 displayRotorSelectionInTable : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Int -> Rotor.Rotor -> Html msg
@@ -292,12 +284,6 @@ selectRingPositionView enigma convertToMainMsgFunction =
         ]
 
 
-
---TODO Check and remove
---SetRingPosition index (Maybe.withDefault 0 (String.toInt val))
---Json.Decode.map (\val -> convertToMainMsgFunction index <| Maybe.withDefault 0 <| String.toInt <| val) Html.Events.targetValue
-
-
 displayRingPositionSelectionInTable : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Int -> Rotor.Rotor -> Html msg
 displayRingPositionSelectionInTable model convertToMainMsgFunction index rotor =
     Html.td
@@ -330,7 +316,6 @@ displayRingPositionSelectionInTable model convertToMainMsgFunction index rotor =
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Select Reflector functions
 -- ---------------------------------------------------------------------------------------------------------------------
---TODO Custom Radio Buttons?
 
 
 selectReflectorView : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Html msg

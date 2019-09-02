@@ -39,28 +39,27 @@ THe function offers in f the the current, and the next element. If the next elem
 -}
 map2 : List b -> (b -> Maybe b -> a -> ( a, c )) -> a -> List c
 map2 list =
-    map2Helper (List.reverse list) Nothing []
+    map2Helper (List.reverse list) []
 
 
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Internal functions
 -- ---------------------------------------------------------------------------------------------------------------------
---TODO Eta reduction
 
 
 foldl2Helper : (a -> b -> b -> a) -> a -> List b -> b -> b -> a
-foldl2Helper f input list neutralElement previousElement =
+foldl2Helper f input list currentElement previousElement =
     case list of
         [] ->
-            f input neutralElement previousElement
+            f input currentElement previousElement
 
         x :: xs ->
-            foldl2Helper f (f input x previousElement) xs neutralElement x
+            foldl2Helper f (f input x previousElement) xs currentElement x
 
 
-map2Helper : List b -> Maybe b -> List c -> (b -> Maybe b -> a -> ( a, c )) -> a -> List c
-map2Helper list previousElement resultList f extra =
+map2Helper : List b -> List c -> (b -> Maybe b -> a -> ( a, c )) -> a -> List c
+map2Helper list resultList f extra =
     case list of
         [] ->
             resultList
@@ -73,4 +72,4 @@ map2Helper list previousElement resultList f extra =
                 ( nextExtra, resultElement ) =
                     f x nextElement extra
             in
-            map2Helper xs (Just x) (resultElement :: resultList) f nextExtra
+            map2Helper xs (resultElement :: resultList) f nextExtra

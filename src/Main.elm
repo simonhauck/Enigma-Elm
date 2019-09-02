@@ -11,10 +11,6 @@ import View.MessageHolderView
 import View.StyleElements
 
 
-
--- TODO Rename HandleRandomCmd
-
-
 type Msg
     = ConfigurationMsg View.ConfigurationView.ConfigurationMsg
     | MessageHolderMsg View.MessageHolderView.ServerMessageHolderMsg
@@ -83,7 +79,6 @@ view model =
 initialModel : ( Model, Cmd Msg )
 initialModel =
     ( Model.defaultModel
-      --      TODO Eta reduction somehow?
     , ServerMessageHolder.requestServerMessages (\response -> MessageHolderMsg (View.MessageHolderView.ResultLoadingServerMessages response))
     )
 

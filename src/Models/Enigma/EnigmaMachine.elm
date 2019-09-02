@@ -18,6 +18,7 @@ module Models.Enigma.EnigmaMachine exposing
     )
 
 import Dict
+import Flip
 import List
 import List.Extra
 import Models.Enigma.OperationMode
@@ -134,7 +135,6 @@ setStartPositionOfRotor : Enigma -> Int -> Int -> Enigma
 setStartPositionOfRotor enigma rotorIndex newStartPosition =
     let
         newRotors =
-            --            TODO Remove currentPosition
             List.Extra.updateAt rotorIndex (\rotor -> { rotor | startPosition = newStartPosition, currentPosition = newStartPosition }) enigma.rotors
     in
     { enigma | rotors = newRotors }
@@ -254,7 +254,6 @@ in the SubstitutionLog
 substituteCharacterToReflector : Enigma -> UpdateLogFunction -> ( Maybe SubstitutionLog, Maybe Int ) -> ( Maybe SubstitutionLog, Maybe Int )
 substituteCharacterToReflector enigma updateLogFunction logIndexPair =
     Utils.Helper.foldr2
-        --    TODO Eta reduction?
         (\( maybeSubstitutionLog, maybeInputIndex ) currentRotor previousRotor ->
             case maybeInputIndex of
                 Nothing ->
@@ -266,7 +265,10 @@ substituteCharacterToReflector enigma updateLogFunction logIndexPair =
                             ( Nothing, Nothing )
 
                         Just outputCharIndex ->
-                            ( updateLogFunction (updateRotorReflectorLogPair currentRotor previousRotor ( inputCharIndex, outputCharIndex )) maybeSubstitutionLog, Just outputCharIndex )
+                            ( updateRotorReflectorLogPair currentRotor previousRotor ( inputCharIndex, outputCharIndex )
+                                |> Flip.flip updateLogFunction maybeSubstitutionLog
+                            , Just outputCharIndex
+                            )
         )
         logIndexPair
         enigma.rotors
@@ -279,7 +281,6 @@ in the SubstitutionLog
 substituteCharacterFromReflector : Enigma -> UpdateLogFunction -> ( Maybe SubstitutionLog, Maybe Int ) -> ( Maybe SubstitutionLog, Maybe Int )
 substituteCharacterFromReflector enigma updateLogFunction logIndexPair =
     Utils.Helper.foldl2
-        --    TODO Eta reduction
         (\( maybeSubstitutionLog, maybeInputIndex ) currentRotor previousRotor ->
             case maybeInputIndex of
                 Nothing ->
@@ -291,7 +292,10 @@ substituteCharacterFromReflector enigma updateLogFunction logIndexPair =
                             ( Nothing, Nothing )
 
                         Just outputCharIndex ->
-                            ( updateLogFunction (updateRotorReflectorLogPair currentRotor previousRotor ( inputCharIndex, outputCharIndex )) maybeSubstitutionLog, Just outputCharIndex )
+                            ( updateRotorReflectorLogPair currentRotor previousRotor ( inputCharIndex, outputCharIndex )
+                                |> Flip.flip updateLogFunction maybeSubstitutionLog
+                            , Just outputCharIndex
+                            )
         )
         logIndexPair
         enigma.rotors
@@ -321,10 +325,6 @@ The result is the enigma with updated rotors
 rotateRotors : Enigma -> Enigma
 rotateRotors enigma =
     { enigma | rotors = Utils.Helper.map2 enigma.rotors rotateRotor True }
-
-
-
---TODO RENAME
 
 
 {-| Rotate the currentRotor if it is required.
