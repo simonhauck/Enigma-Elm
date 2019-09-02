@@ -1,7 +1,6 @@
-module View.HtmlComponents exposing (checkBox, rangeSlider)
+module View.HtmlComponents exposing (checkBox, radioButton, rangeSlider)
 
 import Html exposing (Html)
-import Html.Attributes
 import Html.Styled
 import Html.Styled.Attributes
 import View.StyleElements
@@ -33,12 +32,35 @@ checkBox attributes childElements =
     in
     Html.Styled.toUnstyled <|
         Html.Styled.label
-            View.StyleElements.checkBoxLabel
+            View.StyleElements.customLabel
             ([ Html.Styled.input
-                ([ Html.Styled.Attributes.type_ "checkBox" ] ++ View.StyleElements.checkBoxInput ++ styledAttributes)
+                ([ Html.Styled.Attributes.type_ "checkBox" ] ++ View.StyleElements.customInput ++ styledAttributes)
                 []
              , Html.Styled.span
                 View.StyleElements.checkBoxSpan
+                []
+             ]
+                ++ styledChildElements
+            )
+
+
+radioButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+radioButton attributes childElements =
+    let
+        styledAttributes =
+            List.map Html.Styled.Attributes.fromUnstyled attributes
+
+        styledChildElements =
+            List.map Html.Styled.fromUnstyled childElements
+    in
+    Html.Styled.toUnstyled <|
+        Html.Styled.label
+            View.StyleElements.customLabel
+            ([ Html.Styled.input
+                ([ Html.Styled.Attributes.type_ "radio" ] ++ View.StyleElements.customInput ++ styledAttributes)
+                []
+             , Html.Styled.span
+                View.StyleElements.radioSpan
                 []
              ]
                 ++ styledChildElements

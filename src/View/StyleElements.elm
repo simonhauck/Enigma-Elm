@@ -1,9 +1,9 @@
 module View.StyleElements exposing
     ( backgroundImage
     , buttonStyleElements
-    , checkBoxInput
-    , checkBoxLabel
     , checkBoxSpan
+    , customInput
+    , customLabel
     , fillSvg
     , flexDirectionColumn
     , flexDisplay
@@ -21,6 +21,7 @@ module View.StyleElements exposing
     , monoSpaceText
     , plugboardButtonStyleElements
     , primaryColor
+    , radioSpan
     , rangeSlider
     , secondaryColor
     , selectStyleElements
@@ -261,8 +262,8 @@ rangeSlider =
     ]
 
 
-checkBoxLabel : List (Html.Styled.Attribute msg)
-checkBoxLabel =
+customLabel : List (Html.Styled.Attribute msg)
+customLabel =
     [ Html.Styled.Attributes.css
         [ Css.property "display" "block"
         , Css.property "position" "relative"
@@ -278,8 +279,8 @@ checkBoxLabel =
     ]
 
 
-checkBoxInput : List (Html.Styled.Attribute msg)
-checkBoxInput =
+customInput : List (Html.Styled.Attribute msg)
+customInput =
     [ Html.Styled.Attributes.css
         [ Css.checked
             [ Css.Global.generalSiblings
@@ -308,20 +309,7 @@ checkBoxSpan : List (Html.Styled.Attribute msg)
 checkBoxSpan =
     [ Html.Styled.Attributes.css
         [ Css.hover [ Css.property "background-color" "#ccc" ]
-        , Css.after
-            [ Css.property "display" "none"
-            , Css.property "content" "\"\""
-            , Css.property "position" "absolute"
-            , Css.property "left" "9px"
-            , Css.property "top" "5px"
-            , Css.property "width" "5px"
-            , Css.property "height" "10px"
-            , Css.property "border" "solid white"
-            , Css.property "border-width" "0 3px 3px 0"
-            , Css.property "-webkit-transform" "rotate(45deg)"
-            , Css.property "-ms-transform" "rotate(45deg)"
-            , Css.property "transform" "rotate(45deg)"
-            ]
+        , Css.after checkSymbol
         , Css.property "position" "absolute"
         , Css.property "top" "0"
         , Css.property "left" "0"
@@ -332,7 +320,54 @@ checkBoxSpan =
     ]
 
 
+radioSpan : List (Html.Styled.Attribute msg)
+radioSpan =
+    [ Html.Styled.Attributes.css
+        [ Css.hover [ Css.property "background-color" "#ccc" ]
+        , Css.after radioSymbol
+        , Css.property "position" "absolute"
+        , Css.property "top" "0"
+        , Css.property "left" "0"
+        , Css.property "height" "25px"
+        , Css.property "width" "25px"
+        , Css.property "background-color" "#eee"
+        , Css.property "border-radius" "50%"
+        ]
+    ]
+
+
 
 -- ---------------------------------------------------------------------------------------------------------------------
 -- Internal functions
 -- ---------------------------------------------------------------------------------------------------------------------
+
+
+checkSymbol : List Css.Style
+checkSymbol =
+    [ Css.property "display" "none"
+    , Css.property "content" "\"\""
+    , Css.property "position" "absolute"
+    , Css.property "left" "9px"
+    , Css.property "top" "5px"
+    , Css.property "width" "5px"
+    , Css.property "height" "10px"
+    , Css.property "border" "solid white"
+    , Css.property "border-width" "0 3px 3px 0"
+    , Css.property "-webkit-transform" "rotate(45deg)"
+    , Css.property "-ms-transform" "rotate(45deg)"
+    , Css.property "transform" "rotate(45deg)"
+    ]
+
+
+radioSymbol : List Css.Style
+radioSymbol =
+    [ Css.property "display" "none"
+    , Css.property "content" "\"\""
+    , Css.property "position" "absolute"
+    , Css.property "left" "9px"
+    , Css.property "top" "9px"
+    , Css.property "width" "8px"
+    , Css.property "height" "8px"
+    , Css.property "border-radius" "50%"
+    , Css.property "background" "white"
+    ]

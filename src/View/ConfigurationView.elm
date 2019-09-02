@@ -343,24 +343,20 @@ selectReflectorView enigma convertToMainMsgFunction =
         ]
         (List.map
             (\reflector ->
-                Html.label
-                    []
-                    [ Html.input
-                        [ Html.Attributes.type_ "radio"
-                        , Html.Attributes.value reflector.name
-                        , Html.Attributes.checked (reflector.name == enigma.reflector.name)
-                        , Html.Events.onInput
-                            (\reflectorName ->
-                                Dict.get reflectorName Reflector.getAllReflectors
-                                    |> Maybe.withDefault Reflector.reflectorB
-                                    |> SetReflector
-                                    |> convertToMainMsgFunction
-                            )
-                        , enableAttributeWhenInConfiguration enigma
-                        ]
-                        []
-                    , Html.text reflector.name
+                View.HtmlComponents.radioButton
+                    [ Html.Attributes.type_ "radio"
+                    , Html.Attributes.value reflector.name
+                    , Html.Attributes.checked (reflector.name == enigma.reflector.name)
+                    , enableAttributeWhenInConfiguration enigma
+                    , Html.Events.onInput
+                        (\reflectorName ->
+                            Dict.get reflectorName Reflector.getAllReflectors
+                                |> Maybe.withDefault Reflector.reflectorB
+                                |> SetReflector
+                                |> convertToMainMsgFunction
+                        )
                     ]
+                    [ Html.text reflector.name ]
             )
             (Dict.values Reflector.getAllReflectors)
         )
