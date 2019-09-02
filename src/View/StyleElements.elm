@@ -30,6 +30,7 @@ module View.StyleElements exposing
     , smallElementBox
     , smallMargin
     , textarea
+    , thirdColor
     )
 
 import Css
@@ -59,12 +60,17 @@ backgroundImage =
 
 primaryColor : String
 primaryColor =
-    "#1ab87b"
+    "#00ffea"
 
 
 secondaryColor : String
 secondaryColor =
-    "#3c8c6e"
+    "#828282"
+
+
+thirdColor : String
+thirdColor =
+    "#d6d6d6"
 
 
 flexDisplay : Html.Attribute msg
@@ -174,7 +180,7 @@ buttonStyleElements =
 
 plugboardButtonStyleElements : List (Html.Attribute msg)
 plugboardButtonStyleElements =
-    [ Html.Attributes.style "background-color" primaryColor
+    [ Html.Attributes.style "background-color" secondaryColor
     , Html.Attributes.style "border-radius" "5px"
     , Html.Attributes.style "border-width" "0px"
     , Html.Attributes.style "font-size" "18px"

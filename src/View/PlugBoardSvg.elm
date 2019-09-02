@@ -78,7 +78,7 @@ circleForCharacter ( x, y ) fillCircle =
              else
                 "none"
             )
-        , Svg.Attributes.stroke "black"
+        , Svg.Attributes.stroke View.StyleElements.thirdColor
         , Svg.Attributes.strokeWidth "2"
         ]
         []
