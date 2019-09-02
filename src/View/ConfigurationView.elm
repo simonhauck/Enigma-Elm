@@ -45,7 +45,7 @@ type alias ConvertConfigurationMsg msg =
 displayEnigmaConfiguration : EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> ConvertConfigurationMsg msg -> Html msg
 displayEnigmaConfiguration enigma messageHolder convertToMainMsgFunction =
     Html.div
-        View.StyleElements.flexDirectionColumn
+        [ View.StyleElements.flexDirectionColumn ]
         [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Configuration" ]
         , configurationView enigma messageHolder convertToMainMsgFunction
         , toggleModeButton enigma convertToMainMsgFunction
@@ -101,9 +101,9 @@ configurationView enigma messageHolder convertToMainMsgFunction =
     Html.div
         []
         [ Html.div
-            View.StyleElements.flexDisplay
+            [ View.StyleElements.flexDisplay ]
             [ Html.div
-                View.StyleElements.smallMargin
+                [ View.StyleElements.smallMargin ]
                 [ Html.div
                     View.StyleElements.smallElementBox
                     [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Select rotor type" ]
@@ -126,7 +126,7 @@ configurationView enigma messageHolder convertToMainMsgFunction =
                     ]
                 ]
             , Html.div
-                View.StyleElements.smallMargin
+                [ View.StyleElements.smallMargin ]
                 [ Html.div
                     View.StyleElements.smallElementBox
                     [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Configure plugboard" ]
@@ -342,12 +342,11 @@ displayRingPositionSelectionInTable model convertToMainMsgFunction index rotor =
 selectReflectorView : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg -> Html msg
 selectReflectorView enigma convertToMainMsgFunction =
     Html.div
-        ([ Html.Attributes.style "display" "flex"
-         , Html.Attributes.style "justify-content" "space-evenly"
-         ]
-            ++ View.StyleElements.fontFamily
-            ++ View.StyleElements.fontColor
-        )
+        [ Html.Attributes.style "display" "flex"
+        , Html.Attributes.style "justify-content" "space-evenly"
+        , View.StyleElements.fontFamily
+        , View.StyleElements.fontColor
+        ]
         (List.map
             (\reflector ->
                 Html.label

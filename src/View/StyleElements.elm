@@ -28,7 +28,6 @@ module View.StyleElements exposing
     , serverMessageColumn
     , smallElementBox
     , smallMargin
-    , tableBorderBottom
     , textarea
     )
 
@@ -66,19 +65,19 @@ secondaryColor =
     "#3c8c6e"
 
 
-flexDisplay : List (Html.Attribute msg)
+flexDisplay : Html.Attribute msg
 flexDisplay =
-    [ Html.Attributes.style "display" "flex" ]
+    Html.Attributes.style "display" "flex"
 
 
-flexDirectionColumn : List (Html.Attribute msg)
+flexDirectionColumn : Html.Attribute msg
 flexDirectionColumn =
-    [ Html.Attributes.style "flex-direction" "column" ]
+    Html.Attributes.style "flex-direction" "column"
 
 
-flexGrow : List (Html.Attribute msg)
+flexGrow : Html.Attribute msg
 flexGrow =
-    [ Html.Attributes.style "flex-grow" "1" ]
+    Html.Attributes.style "flex-grow" "1"
 
 
 smallElementBox : List (Html.Attribute msg)
@@ -91,9 +90,9 @@ smallElementBox =
     ]
 
 
-fontFamily : List (Html.Attribute msg)
+fontFamily : Html.Attribute msg
 fontFamily =
-    [ Html.Attributes.style "font-family" "Arial" ]
+    Html.Attributes.style "font-family" "Arial"
 
 
 fontFamilySvg : Svg.Attribute msg
@@ -108,18 +107,18 @@ monoSpaceText =
     , Html.Attributes.style "overflow-wrap" "break-word"
     , Html.Attributes.style "word-wrap" "break-word"
     , Html.Attributes.style "word-break" "break-word"
+    , fontColor
     ]
-        ++ fontColor
 
 
-fontColor : List (Html.Attribute msg)
+fontColor : Html.Attribute msg
 fontColor =
-    [ Html.Attributes.style "color" "#ffffff" ]
+    Html.Attributes.style "color" "#ffffff"
 
 
-fontSizeText : List (Html.Attribute msg)
+fontSizeText : Html.Attribute msg
 fontSizeText =
-    [ Html.Attributes.style "font-size" "15px" ]
+    Html.Attributes.style "font-size" "15px"
 
 
 fillSvg : Svg.Attribute msg
@@ -127,19 +126,19 @@ fillSvg =
     Svg.Attributes.fill primaryColor
 
 
-smallMargin : List (Html.Attribute msg)
+smallMargin : Html.Attribute msg
 smallMargin =
-    [ Html.Attributes.style "margin" "5px" ]
+    Html.Attributes.style "margin" "5px"
 
 
-mediumMargin : List (Html.Attribute msg)
+mediumMargin : Html.Attribute msg
 mediumMargin =
-    [ Html.Attributes.style "margin" "10px" ]
+    Html.Attributes.style "margin" "10px"
 
 
-mediumPaddingRight : List (Html.Attribute msg)
+mediumPaddingRight : Html.Attribute msg
 mediumPaddingRight =
-    [ Html.Attributes.style "padding-right" "10px" ]
+    Html.Attributes.style "padding-right" "10px"
 
 
 h2StyleElements : List (Html.Attribute msg)
@@ -147,16 +146,17 @@ h2StyleElements =
     [ Html.Attributes.style "font-weight" "normal"
     , Html.Attributes.style "padding-left" "5px"
     , Html.Attributes.style "text-align" "center"
+    , fontFamily
+    , fontColor
     ]
-        ++ fontFamily
-        ++ fontColor
 
 
 h3StyleElements : List (Html.Attribute msg)
 h3StyleElements =
-    [ Html.Attributes.style "font-weight" "normal" ]
-        ++ fontFamily
-        ++ fontColor
+    [ Html.Attributes.style "font-weight" "normal"
+    , fontFamily
+    , fontColor
+    ]
 
 
 buttonStyleElements : List (Html.Attribute msg)
@@ -176,9 +176,9 @@ plugboardButtonStyleElements =
     , Html.Attributes.style "border-radius" "5px"
     , Html.Attributes.style "border-width" "0px"
     , Html.Attributes.style "font-size" "18px"
+    , fontColor
+    , fontFamily
     ]
-        ++ fontColor
-        ++ fontFamily
 
 
 textarea : List (Html.Attribute msg)
@@ -217,11 +217,6 @@ messageHolderTable =
     , Html.Attributes.style "width" "100%"
     , Html.Attributes.style "white-space" "pre-line"
     ]
-
-
-tableBorderBottom : List (Html.Attribute msg)
-tableBorderBottom =
-    [ Html.Attributes.style "border-bottom" "1px solid white;" ]
 
 
 serverMessageColumn : List (Html.Attribute msg)

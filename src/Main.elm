@@ -32,16 +32,18 @@ view model =
     Html.div
         View.StyleElements.backgroundImage
         [ Html.div
-            View.StyleElements.flexDisplay
+            [ View.StyleElements.flexDisplay ]
             [ Html.div
-                View.StyleElements.mediumMargin
+                [ View.StyleElements.mediumMargin ]
                 [ View.ConfigurationView.displayEnigmaConfiguration
                     model.enigma
                     model.messageHolder
                     ConfigurationMsg
                 ]
             , Html.div
-                (View.StyleElements.flexGrow ++ View.StyleElements.mediumMargin)
+                [ View.StyleElements.flexGrow
+                , View.StyleElements.mediumMargin
+                ]
                 [ View.MessageHolderView.displayServerMessages
                     model.serverMessageHolder
                     MessageHolderMsg
@@ -51,15 +53,17 @@ view model =
             []
             [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Preview" ]
             , Html.div
-                View.StyleElements.mediumMargin
+                [ View.StyleElements.mediumMargin ]
                 [ View.MessageHolderView.displayEncryptionResult model.messageHolder MessageHolderMsg ]
             , Html.div
-                View.StyleElements.flexDisplay
+                [ View.StyleElements.flexDisplay ]
                 [ Html.div
-                    View.StyleElements.mediumMargin
+                    [ View.StyleElements.mediumMargin ]
                     [ View.EncryptionView.enigmaPreview model.enigma model.substitutionLog ]
                 , Html.div
-                    (View.StyleElements.mediumMargin ++ View.StyleElements.flexGrow)
+                    [ View.StyleElements.mediumMargin
+                    , View.StyleElements.flexGrow
+                    ]
                     [ View.EncryptionView.lampBoardPreview model.substitutionLog
                     , View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg
                     ]

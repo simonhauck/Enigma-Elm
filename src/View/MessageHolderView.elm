@@ -41,10 +41,13 @@ type ServerMessageHolderMsg
 displayServerMessages : ServerMessageHolder.ServerMessageHolder -> ConvertMessageHolderMsg msg -> Html msg
 displayServerMessages serverMessageHolder convertMessageHolderFunction =
     Html.div
-        View.StyleElements.flexDirectionColumn
+        [ View.StyleElements.flexDirectionColumn ]
         [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Server Messages" ]
         , Html.div
-            ([ Html.Attributes.style "max-height" "600px" ] ++ View.StyleElements.flexDisplay ++ View.StyleElements.smallMargin)
+            [ Html.Attributes.style "max-height" "600px"
+            , View.StyleElements.smallMargin
+            , View.StyleElements.flexDisplay
+            ]
             [ Html.div
                 ([ Html.Attributes.style "overflow" "auto", Html.Attributes.style "width" "100%" ] ++ View.StyleElements.smallElementBox)
                 [ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction ]
@@ -59,14 +62,14 @@ displayEncryptionResult messageHolder convertMessageHolderFunction =
             MessageHolder.getFormattedProcessedInputOutput messageHolder
     in
     Html.div
-        (View.StyleElements.smallMargin ++ View.StyleElements.smallElementBox)
+        ([ View.StyleElements.smallMargin ] ++ View.StyleElements.smallElementBox)
         [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Encryption Results" ]
         , Html.div
             []
             [ Html.table
                 View.StyleElements.messageHolderTable
                 [ Html.tr
-                    View.StyleElements.smallMargin
+                    [ View.StyleElements.smallMargin ]
                     [ Html.td
                         ([ Html.Attributes.style "width" "160px"
                          , Html.Attributes.style "vertical-align" "top"
@@ -77,7 +80,7 @@ displayEncryptionResult messageHolder convertMessageHolderFunction =
                     , Html.td ([ Html.Attributes.style "width" "auto" ] ++ View.StyleElements.monoSpaceText) [ Html.text formattedInput ]
                     ]
                 , Html.tr
-                    View.StyleElements.smallMargin
+                    [ View.StyleElements.smallMargin ]
                     [ Html.td
                         ([ Html.Attributes.style "width" "160px"
                          , Html.Attributes.style "vertical-align" "top"
@@ -168,7 +171,9 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
                     List.indexedMap (displayServerMessageRow convertMessageHolderFunction serverMessageHolder.filter) list
     in
     Html.table
-        (View.StyleElements.fontFamily ++ View.StyleElements.fontColor)
+        [ View.StyleElements.fontFamily
+        , View.StyleElements.fontColor
+        ]
         ([ Html.tr
             []
             [ Html.th [ Html.Attributes.style "width" "5%", Html.Attributes.style "text-align" "center" ] [ Html.text "#" ]
@@ -181,7 +186,7 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
                 ]
             ]
          , Html.tr
-            View.StyleElements.tableBorderBottom
+            []
             [ Html.th [] []
             , Html.th []
                 [ Html.input
@@ -222,13 +227,13 @@ displayServerMessageRow convertMessageHolderFunction filter index messageHolder 
     Html.tr
         [ Html.Attributes.style "visibility" visibility ]
         [ Html.td
-            View.StyleElements.mediumPaddingRight
+            [ View.StyleElements.mediumPaddingRight ]
             [ index |> String.fromInt |> Html.text ]
         , Html.td
-            (View.StyleElements.serverMessageColumn ++ View.StyleElements.mediumPaddingRight)
+            ([ View.StyleElements.mediumPaddingRight ] ++ View.StyleElements.serverMessageColumn)
             [ messageHolder.description |> Html.text ]
         , Html.td
-            (View.StyleElements.serverMessageColumn ++ View.StyleElements.mediumPaddingRight)
+            ([ View.StyleElements.mediumPaddingRight ] ++ View.StyleElements.serverMessageColumn)
             [ messageHolder.rawInput |> Html.text ]
         , Html.td
             [ Html.Attributes.style "text-align" "center" ]

@@ -35,7 +35,7 @@ type EncryptionMsg
 textInputBoxView : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
 textInputBoxView messageHolder operationMode convertEncryptionMsg =
     Html.div
-        (View.StyleElements.smallMargin ++ View.StyleElements.smallElementBox)
+        ([ View.StyleElements.smallMargin ] ++ View.StyleElements.smallElementBox)
         [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Text Input" ]
         , Html.div
             [ Html.Attributes.style "width" "100%" ]
@@ -54,10 +54,7 @@ textInputBoxView messageHolder operationMode convertEncryptionMsg =
 enigmaPreview : EnigmaMachine.Enigma -> Maybe Log.SubstitutionLog -> Html msg
 enigmaPreview enigma maybeLog =
     Html.div
-        (View.StyleElements.flexDirectionColumn
-            ++ View.StyleElements.smallElementBox
-            ++ View.StyleElements.smallMargin
-        )
+        ([ View.StyleElements.flexDirectionColumn, View.StyleElements.smallMargin ] ++ View.StyleElements.smallElementBox)
         [ Html.div
             []
             [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Enigma View" ]
@@ -69,7 +66,7 @@ enigmaPreview enigma maybeLog =
 lampBoardPreview : Maybe Log.SubstitutionLog -> Html msg
 lampBoardPreview maybeLog =
     Html.div
-        (View.StyleElements.smallMargin ++ View.StyleElements.smallElementBox)
+        ([ View.StyleElements.smallMargin ] ++ View.StyleElements.smallElementBox)
         [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Lamps" ]
         , View.LampboardSvg.drawLampBoard maybeLog
         ]
@@ -133,23 +130,25 @@ textInputArea messageHolder convertEncryptionMsg =
 encryptionSpeedSlider : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
 encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg =
     Html.div
-        View.StyleElements.flexDisplay
+        [ View.StyleElements.flexDisplay ]
         [ Html.div
-            ([ Html.Attributes.style "width" "150" ]
-                ++ View.StyleElements.fontColor
-                ++ View.StyleElements.fontFamily
-                ++ View.StyleElements.fontSizeText
-                ++ View.StyleElements.smallMargin
-            )
+            [ Html.Attributes.style "width" "150"
+            , View.StyleElements.fontColor
+            , View.StyleElements.fontFamily
+            , View.StyleElements.fontSizeText
+            , View.StyleElements.smallMargin
+            ]
             [ Html.text "Encryption Speed: " ]
         , View.HtmlComponents.rangeSlider
-            ([ Html.Attributes.min "25"
-             , Html.Attributes.max "1000"
-             , Html.Attributes.value <| String.fromInt messageHolder.config.encryptionSpeed
-             , Html.Attributes.step "5"
-             , Html.Attributes.style "direction" "rtl"
-             , enableAttributeWhenInEncryption operationMode
-             , Html.Events.onInput
+            [ Html.Attributes.min "25"
+            , Html.Attributes.max "1000"
+            , Html.Attributes.value <| String.fromInt messageHolder.config.encryptionSpeed
+            , Html.Attributes.step "5"
+            , Html.Attributes.style "direction" "rtl"
+            , enableAttributeWhenInEncryption operationMode
+            , View.StyleElements.smallMargin
+            , View.StyleElements.flexGrow
+            , Html.Events.onInput
                 (\val ->
                     String.toInt val
                         |> Maybe.withDefault 250
@@ -157,10 +156,7 @@ encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg =
                         |> SetMessageHolder
                         |> convertEncryptionMsg
                 )
-             ]
-                ++ View.StyleElements.flexGrow
-                ++ View.StyleElements.smallMargin
-            )
+            ]
             []
         ]
 
