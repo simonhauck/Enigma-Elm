@@ -121,16 +121,6 @@ drawLampBoardRow characterList maybeLog xOffset x y =
         |> List.concat
 
 
-
---Svg.Attributes.fill
---            (if fillCircle then
---                "yellow"
---
---             else
---                "white"
---            )
-
-
 {-| Draw a circle at the given coordinates with a character inside
 -}
 drawCharacterCircle : Int -> Int -> Bool -> Char -> List (Svg.Svg msg)
