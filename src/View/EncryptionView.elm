@@ -148,7 +148,7 @@ encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg =
             , Html.Attributes.value <| String.fromInt messageHolder.config.encryptionSpeed
             , Html.Attributes.step "5"
             , Html.Attributes.style "direction" "rtl"
-            , enableAttributeWhenInEncryption operationMode
+            , enableAttributeWhenInEncrptionAndManuelMode operationMode messageHolder.config
             , View.StyleElements.smallMargin
             , View.StyleElements.flexGrow
             , Html.Events.onInput
@@ -261,6 +261,16 @@ enableAttributeWhenInEncryption operationMode =
 
         OperationMode.Encryption ->
             Html.Attributes.disabled False
+
+
+enableAttributeWhenInEncrptionAndManuelMode : OperationMode.OperationMode -> MessageHolder.Config -> Html.Attribute msg
+enableAttributeWhenInEncrptionAndManuelMode operationMode config =
+    case ( operationMode, config.encryptionMode ) of
+        ( OperationMode.Encryption, MessageHolder.Manual ) ->
+            Html.Attributes.disabled False
+
+        ( _, _ ) ->
+            Html.Attributes.disabled True
 
 
 {-| The attribute is enabled when the OperationMode is Encryption and the rawInput of the messageHolder is not empty

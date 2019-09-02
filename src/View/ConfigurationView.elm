@@ -132,7 +132,7 @@ configurationView enigma messageHolder convertToMainMsgFunction =
                     ]
                 , Html.div
                     View.StyleElements.smallElementBox
-                    [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Other configuration - Change later :D" ]
+                    [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "General Configuration" ]
                     , otherConfigurationView enigma messageHolder convertToMainMsgFunction
                     ]
                 ]
