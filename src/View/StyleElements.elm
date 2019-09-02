@@ -233,10 +233,16 @@ serverMessageColumn =
 rangeSlider : List (Html.Styled.Attribute msg)
 rangeSlider =
     [ Html.Styled.Attributes.css
-        [ Css.hover
-            [ Css.property "opacity" "1" ]
+        [ Css.disabled
+            [ Css.property "background" "#EBEBE4" ]
+        , Css.enabled
+            [ Css.hover
+                [ Css.property "opacity" "1" ]
+            ]
         , Css.pseudoElement "-webkit-slider-thumb"
-            [ Css.property "-webkit-appearance" "none"
+            [ Css.disabled
+                [ Css.property "background" "#a3a399" ]
+            , Css.property "-webkit-appearance" "none"
             , Css.property "appearance" "none"
             , Css.property "width" "25px"
             , Css.property "height" "25px"
