@@ -27,7 +27,8 @@ view : Model -> Html Msg
 view model =
     Html.div
         View.StyleElements.backgroundImage
-        [ Html.div
+        [ Html.h1 View.StyleElements.h1StyleElements [ Html.text "Elmigma" ]
+        , Html.div
             [ View.StyleElements.flexDisplay ]
             [ Html.div
                 [ View.StyleElements.mediumMargin ]

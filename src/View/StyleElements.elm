@@ -13,6 +13,7 @@ module View.StyleElements exposing
     , fontFamilySvg
     , fontSizeText
     , fourthColor
+    , h1StyleElements
     , h2StyleElements
     , h3StyleElements
     , input
@@ -79,8 +80,8 @@ fourthColor =
     "#ffa10f"
 
 
-fithColor : String
-fithColor =
+fifthColor : String
+fifthColor =
     "#619bff"
 
 
@@ -158,6 +159,14 @@ mediumMargin =
 mediumPaddingRight : Html.Attribute msg
 mediumPaddingRight =
     Html.Attributes.style "padding-right" "10px"
+
+
+h1StyleElements : List (Html.Attribute msg)
+h1StyleElements =
+    [ fontColor
+    , Html.Attributes.style "text-align" "center"
+    , Html.Attributes.style "font-size" "350%"
+    ]
 
 
 h2StyleElements : List (Html.Attribute msg)
@@ -262,7 +271,7 @@ rangeSlider =
             , Css.property "width" "25px"
             , Css.property "height" "25px"
             , Css.property "border-radius" "50%"
-            , Css.property "background" fithColor
+            , Css.property "background" fifthColor
             , Css.property "cursor" "pointer"
             ]
         , Css.property "-webkit-appearance" "none"
@@ -302,7 +311,7 @@ customInput =
         [ Css.checked
             [ Css.Global.generalSiblings
                 [ Css.Global.typeSelector "span"
-                    [ Css.property "background-color" fithColor
+                    [ Css.property "background-color" fifthColor
                     , Css.after [ Css.property "display" "block" ]
                     ]
                 ]
