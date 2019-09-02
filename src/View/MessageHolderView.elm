@@ -91,14 +91,17 @@ displayEncryptionResult messageHolder convertMessageHolderFunction =
                     ]
                 ]
             , Html.input
-                [ Html.Attributes.type_ "text"
-                , Html.Attributes.placeholder "Add a description"
-                , Html.Attributes.value messageHolder.description
-                , Html.Events.onInput
+                ([ Html.Attributes.type_ "text"
+                 , Html.Attributes.placeholder "Add a description..."
+                 , Html.Attributes.value messageHolder.description
+                 , Html.Attributes.style "width" "200px"
+                 , Html.Events.onInput
                     (\val ->
                         MessageHolder.setDescription messageHolder val |> SetMessageHolder |> convertMessageHolderFunction
                     )
-                ]
+                 ]
+                    ++ View.StyleElements.input
+                )
                 []
             , Html.button
                 ((Html.Events.onClick <| convertMessageHolderFunction <| SendMessageToServer)

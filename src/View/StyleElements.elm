@@ -12,6 +12,7 @@ module View.StyleElements exposing
     , fontFamily
     , fontFamilySvg
     , fontSizeText
+    , fourthColor
     , h2StyleElements
     , h3StyleElements
     , input
@@ -71,6 +72,16 @@ secondaryColor =
 thirdColor : String
 thirdColor =
     "#d6d6d6"
+
+
+fourthColor : String
+fourthColor =
+    "#ffa10f"
+
+
+fithColor : String
+fithColor =
+    "#619bff"
 
 
 flexDisplay : Html.Attribute msg
@@ -251,7 +262,7 @@ rangeSlider =
             , Css.property "width" "25px"
             , Css.property "height" "25px"
             , Css.property "border-radius" "50%"
-            , Css.property "background" "#4CAF50"
+            , Css.property "background" fithColor
             , Css.property "cursor" "pointer"
             ]
         , Css.property "-webkit-appearance" "none"
@@ -291,7 +302,7 @@ customInput =
         [ Css.checked
             [ Css.Global.generalSiblings
                 [ Css.Global.typeSelector "span"
-                    [ Css.property "background-color" "#2196F3"
+                    [ Css.property "background-color" fithColor
                     , Css.after [ Css.property "display" "block" ]
                     ]
                 ]
@@ -319,8 +330,8 @@ checkBoxSpan =
         , Css.property "position" "absolute"
         , Css.property "top" "0"
         , Css.property "left" "0"
-        , Css.property "height" "25px"
-        , Css.property "width" "25px"
+        , Css.property "height" "20px"
+        , Css.property "width" "20px"
         , Css.property "background-color" "#eee"
         ]
     ]
@@ -334,8 +345,8 @@ radioSpan =
         , Css.property "position" "absolute"
         , Css.property "top" "0"
         , Css.property "left" "0"
-        , Css.property "height" "25px"
-        , Css.property "width" "25px"
+        , Css.property "height" "17px"
+        , Css.property "width" "17px"
         , Css.property "background-color" "#eee"
         , Css.property "border-radius" "50%"
         ]
@@ -353,10 +364,10 @@ checkSymbol =
     [ Css.property "display" "none"
     , Css.property "content" "\"\""
     , Css.property "position" "absolute"
-    , Css.property "left" "9px"
-    , Css.property "top" "5px"
-    , Css.property "width" "5px"
-    , Css.property "height" "10px"
+    , Css.property "left" "7px"
+    , Css.property "top" "3px"
+    , Css.property "width" "4px"
+    , Css.property "height" "8px"
     , Css.property "border" "solid white"
     , Css.property "border-width" "0 3px 3px 0"
     , Css.property "-webkit-transform" "rotate(45deg)"
@@ -370,10 +381,10 @@ radioSymbol =
     [ Css.property "display" "none"
     , Css.property "content" "\"\""
     , Css.property "position" "absolute"
-    , Css.property "left" "9px"
-    , Css.property "top" "9px"
-    , Css.property "width" "8px"
-    , Css.property "height" "8px"
+    , Css.property "left" "6px"
+    , Css.property "top" "6px"
+    , Css.property "width" "5px"
+    , Css.property "height" "5px"
     , Css.property "border-radius" "50%"
     , Css.property "background" "white"
     ]

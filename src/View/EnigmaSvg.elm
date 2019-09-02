@@ -149,7 +149,7 @@ defaultColor =
 -}
 colorConnectionLine : Color
 colorConnectionLine =
-    "#ffa10f"
+    View.StyleElements.fourthColor
 
 
 {-| default stroke width for connection lines
