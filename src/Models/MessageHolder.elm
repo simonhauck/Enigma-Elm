@@ -10,6 +10,7 @@ module Models.MessageHolder exposing
     , disableAutomaticEncryptionMode
     , getFirstCharFromRawInput
     , getFormattedProcessedInputOutput
+    , getFormattedText
     , setDescription
     , setEncryptionSpeed
     , setProcessedInputAsRawInput
@@ -127,12 +128,24 @@ getFormattedProcessedInputOutput : MessageHolder -> ( String, String )
 getFormattedProcessedInputOutput messageHolder =
     case messageHolder.foreignCharOption of
         Ignore ->
-            ( Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") messageHolder.processedInput
-            , Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") messageHolder.processedOutput
+            ( getFormattedText messageHolder messageHolder.processedInput
+            , getFormattedText messageHolder messageHolder.processedOutput
             )
 
         Include ->
             ( messageHolder.processedInput, messageHolder.processedOutput )
+
+
+{-| Get the text formatted for the given messageHolder
+-}
+getFormattedText : MessageHolder -> String -> String
+getFormattedText messageHolder inputString =
+    case messageHolder.foreignCharOption of
+        Ignore ->
+            Regex.replace (Maybe.withDefault Regex.never (Regex.fromString ".{5}")) (\match -> match.match ++ " ") inputString
+
+        Include ->
+            inputString
 
 
 {-| Toggle the foreignCharOption between Ignore and Include

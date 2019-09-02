@@ -233,7 +233,7 @@ displayServerMessageRow convertMessageHolderFunction filter index messageHolder 
             [ messageHolder.description |> Html.text ]
         , Html.td
             ([ View.StyleElements.mediumPaddingRight ] ++ View.StyleElements.serverMessageColumn)
-            [ messageHolder.rawInput |> Html.text ]
+            [ messageHolder.rawInput |> MessageHolder.getFormattedText messageHolder |> Html.text ]
         , Html.td
             [ Html.Attributes.style "text-align" "center" ]
             [ Html.button
