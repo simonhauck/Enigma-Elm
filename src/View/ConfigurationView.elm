@@ -188,7 +188,15 @@ selectRotorView enigma convertToMainMsgFunction =
     Html.table
         []
         [ tableRowWithRotorNumbers enigma.rotors
-        , Html.tr [] (Html.td [] [ Html.text "Rotor:" ] :: List.indexedMap (displayRotorSelectionInTable enigma convertToMainMsgFunction) enigma.rotors)
+        , Html.tr []
+            (Html.td
+                [ View.StyleElements.fontColor
+                , View.StyleElements.fontFamily
+                , View.StyleElements.fontSizeText
+                ]
+                [ Html.text "Rotor:" ]
+                :: List.indexedMap (displayRotorSelectionInTable enigma convertToMainMsgFunction) enigma.rotors
+            )
         ]
 
 
@@ -226,12 +234,29 @@ selectRotorPositionView enigma convertToMainMsgFunction =
     Html.table
         []
         [ tableRowWithRotorNumbers enigma.rotors
-        , Html.tr [] (Html.td [] [ Html.text "Start Position:" ] :: List.indexedMap (displayRotorPositionSelectionInTable enigma convertToMainMsgFunction) enigma.rotors)
         , Html.tr []
-            (Html.td [] [ Html.text "Current Position:" ]
+            (Html.td
+                [ View.StyleElements.fontColor
+                , View.StyleElements.fontFamily
+                , View.StyleElements.fontSizeText
+                ]
+                [ Html.text "Start Position:" ]
+                :: List.indexedMap (displayRotorPositionSelectionInTable enigma convertToMainMsgFunction) enigma.rotors
+            )
+        , Html.tr []
+            (Html.td
+                [ View.StyleElements.fontColor
+                , View.StyleElements.fontFamily
+                , View.StyleElements.fontSizeText
+                ]
+                [ Html.text "Current Position:" ]
                 :: List.map
                     (\rotor ->
-                        Html.td []
+                        Html.td
+                            [ View.StyleElements.fontColor
+                            , View.StyleElements.fontFamily
+                            , View.StyleElements.fontSizeText
+                            ]
                             [ Html.text (getNumberAndCharText rotor.currentPosition)
                             ]
                     )
@@ -280,7 +305,15 @@ selectRingPositionView enigma convertToMainMsgFunction =
     Html.table
         []
         [ tableRowWithRotorNumbers enigma.rotors
-        , Html.tr [] (Html.td [] [ Html.text "Ring Position:" ] :: List.indexedMap (displayRingPositionSelectionInTable enigma convertToMainMsgFunction) enigma.rotors)
+        , Html.tr []
+            (Html.td
+                [ View.StyleElements.fontColor
+                , View.StyleElements.fontFamily
+                , View.StyleElements.fontSizeText
+                ]
+                [ Html.text "Ring Position:" ]
+                :: List.indexedMap (displayRingPositionSelectionInTable enigma convertToMainMsgFunction) enigma.rotors
+            )
         ]
 
 
@@ -341,7 +374,13 @@ selectReflectorView enigma convertToMainMsgFunction =
                                 |> convertToMainMsgFunction
                         )
                     ]
-                    [ Html.text reflector.name ]
+                    [ Html.div
+                        [ View.StyleElements.fontSizeText
+                        , View.StyleElements.fontColor
+                        , View.StyleElements.fontFamily
+                        ]
+                        [ Html.text reflector.name ]
+                    ]
             )
             (Dict.values Reflector.getAllReflectors)
         )
@@ -421,7 +460,14 @@ otherConfigurationView enigma messageHolder convertToMainMsgFunction =
             , Html.Attributes.checked (messageHolder.foreignCharOption == MessageHolder.Include)
             , Html.Events.onClick (convertToMainMsgFunction ToggleForeignCharOption)
             ]
-            [ Html.text "Include foreign chars" ]
+            [ Html.div
+                [ View.StyleElements.fontColor
+                , View.StyleElements.fontFamily
+                , View.StyleElements.fontSizeText
+                , Html.Attributes.style "height" "100%"
+                ]
+                [ Html.text "Include foreign chars" ]
+            ]
         , Html.button
             (enableAttributeWhenInConfiguration enigma
                 :: Html.Events.onClick (convertToMainMsgFunction StartRandomKeyGeneration)
@@ -460,7 +506,18 @@ tableRowWithRotorNumbers : List Rotor.Rotor -> Html msg
 tableRowWithRotorNumbers rotors =
     Html.tr
         []
-        (Html.td [] [] :: List.indexedMap (\index _ -> Html.td [] [ index + 1 |> String.fromInt |> String.append "Rotor " |> Html.text ]) rotors)
+        (Html.td [] []
+            :: List.indexedMap
+                (\index _ ->
+                    Html.td
+                        [ View.StyleElements.fontColor
+                        , View.StyleElements.fontFamily
+                        , View.StyleElements.fontSizeText
+                        ]
+                        [ index + 1 |> String.fromInt |> String.append "Rotor " |> Html.text ]
+                )
+                rotors
+        )
 
 
 {-| Get an Html disabled attribute. The value is true, when the enigma is in the encryption mode

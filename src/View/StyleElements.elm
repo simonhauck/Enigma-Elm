@@ -50,7 +50,7 @@ import Svg.Attributes
 
 backgroundImage : List (Html.Attribute msg)
 backgroundImage =
-    [ Html.Attributes.style "background" "url(images/chalkboard.jpg) "
+    [ Html.Attributes.style "background" "url(images/wheelDark.jpg) "
     , Html.Attributes.style "background-size" "cover"
     , Html.Attributes.style "background-repeat" "no-repeat"
     , Html.Attributes.style "overflow-x" "auto"
