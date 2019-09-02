@@ -205,7 +205,7 @@ displayRotorSelectionInTable enigma convertToMainMsgFunction index rotor =
     Html.td
         View.StyleElements.selectWrapperStyleElements
         [ Html.select
-            (Html.Events.on "change" (Json.Decode.map (\val -> Dict.get val Rotor.getAllRotors |> Maybe.withDefault Rotor.rotor1 |> SetRotor index |> convertToMainMsgFunction) Html.Events.targetValue)
+            (Html.Events.onInput (\val -> Dict.get val Rotor.getAllRotors |> Maybe.withDefault Rotor.rotor1 |> SetRotor index |> convertToMainMsgFunction)
                 :: enableAttributeWhenInConfiguration enigma
                 :: View.StyleElements.selectStyleElements
             )
@@ -253,15 +253,12 @@ displayRotorPositionSelectionInTable enigma convertToMainMsgFunction index rotor
     Html.td
         []
         [ Html.select
-            (Html.Events.on "change"
-                (Flip.flip Json.Decode.map
-                    Html.Events.targetValue
-                    (\val ->
-                        String.toInt val
-                            |> Maybe.withDefault 0
-                            |> SetRotorPosition index
-                            |> convertToMainMsgFunction
-                    )
+            (Html.Events.onInput
+                (\val ->
+                    String.toInt val
+                        |> Maybe.withDefault 0
+                        |> SetRotorPosition index
+                        |> convertToMainMsgFunction
                 )
                 :: enableAttributeWhenInConfiguration enigma
                 :: View.StyleElements.selectStyleElements
@@ -306,15 +303,12 @@ displayRingPositionSelectionInTable model convertToMainMsgFunction index rotor =
     Html.td
         []
         [ Html.select
-            (Html.Events.on "change"
-                (Flip.flip Json.Decode.map
-                    Html.Events.targetValue
-                    (\val ->
-                        String.toInt val
-                            |> Maybe.withDefault 0
-                            |> SetRotorRingPosition index
-                            |> convertToMainMsgFunction
-                    )
+            (Html.Events.onInput
+                (\val ->
+                    String.toInt val
+                        |> Maybe.withDefault 0
+                        |> SetRotorRingPosition index
+                        |> convertToMainMsgFunction
                 )
                 :: enableAttributeWhenInConfiguration model
                 :: View.StyleElements.selectStyleElements
