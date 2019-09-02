@@ -76,10 +76,10 @@ enigmaSvg enigma substitutionLog =
         , Svg.Attributes.height "560"
         ]
         (drawHeadlines enigma headLineYCoordinate reflectorXCoordinate rotorXCoordinate plugBoardXCoordinate
+            ++ unwrapSubstitutionLogFunction substitutionLog
             ++ drawReflector enigma.reflector reflectorXCoordinate yCoordinate
             ++ drawRotors enigma.rotors rotorXCoordinate yCoordinate
             ++ drawPlugBoard enigma.plugBoard plugBoardXCoordinate yCoordinate
-            ++ unwrapSubstitutionLogFunction substitutionLog
         )
 
 
@@ -100,7 +100,7 @@ rowYSpace =
 -}
 reflectorConnectionLineMinLength : Int
 reflectorConnectionLineMinLength =
-    35
+    40
 
 
 {-| increase the length of a line with each step
@@ -142,21 +142,14 @@ plugboardWidth =
 -}
 defaultColor : Color
 defaultColor =
-    View.StyleElements.primaryColor
+    View.StyleElements.thirdColor
 
 
-{-| color for active connections to the reflector
+{-| color for active connections
 -}
-colorToReflector : Color
-colorToReflector =
-    "#34ff30"
-
-
-{-| color for active connections from the reflector
--}
-colorFromReflector : Color
-colorFromReflector =
-    "#34ff30"
+colorConnectionLine : Color
+colorConnectionLine =
+    "#ffa10f"
 
 
 {-| default stroke width for connection lines
@@ -347,14 +340,14 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
             drawArrow (plugboardXCoordinate + plugboardWidth)
                 (Tuple.first substitutionLog.plugboardInputSubstitution * rowYSpace + yCoordinate)
                 True
-                colorToReflector
+                colorConnectionLine
 
         plugboardFromReflectorArrow =
             drawArrow
                 (plugboardXCoordinate + plugboardWidth)
                 (Tuple.second substitutionLog.plugboardOutputSubstitution * rowYSpace + yCoordinate)
                 False
-                colorFromReflector
+                colorConnectionLine
 
         plugboardToReflectorConnection =
             drawPlugboardConnection
@@ -362,7 +355,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                 (Tuple.second substitutionLog.plugboardInputSubstitution)
                 plugboardXCoordinate
                 yCoordinate
-                colorToReflector
+                colorConnectionLine
                 connectionLineStrokeWidth
                 fullOpacity
 
@@ -372,7 +365,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                 (Tuple.first substitutionLog.plugboardOutputSubstitution)
                 plugboardXCoordinate
                 yCoordinate
-                colorFromReflector
+                colorConnectionLine
                 connectionLineStrokeWidth
                 fullOpacity
 
@@ -384,7 +377,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                         outputCharIndex
                         (rotorXCoordinate + index * (rotorWidth + spaceBetweenRotors))
                         yCoordinate
-                        colorToReflector
+                        colorConnectionLine
                         connectionLineStrokeWidth
                         fullOpacity
                     , drawConnectionBetweenRotors
@@ -392,7 +385,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                         index
                         rotorXCoordinate
                         yCoordinate
-                        colorToReflector
+                        colorConnectionLine
                         connectionLineStrokeWidth
                         fullOpacity
                     ]
@@ -409,7 +402,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                         inputCharIndex
                         (rotorXCoordinate + index * (rotorWidth + spaceBetweenRotors))
                         yCoordinate
-                        colorFromReflector
+                        colorConnectionLine
                         connectionLineStrokeWidth
                         fullOpacity
                     , drawConnectionBetweenRotors
@@ -417,7 +410,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                         index
                         rotorXCoordinate
                         yCoordinate
-                        colorFromReflector
+                        colorConnectionLine
                         connectionLineStrokeWidth
                         fullOpacity
                     ]
@@ -452,7 +445,7 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                 reflectorXCoordinate
                 yCoordinate
                 reflectorLineLength
-                colorToReflector
+                colorConnectionLine
                 connectionLineStrokeWidth
                 fullOpacity
 
@@ -461,14 +454,14 @@ drawSubstitutionLog enigma substitutionLog yCoordinate reflectorXCoordinate roto
                 (substitutionLog.reflectorSubstitution |> Tuple.first)
                 reflectorXCoordinate
                 yCoordinate
-                colorToReflector
+                colorConnectionLine
                 connectionLineStrokeWidth
                 fullOpacity
             , drawConnectionBetweenReflectorAndRotor
                 (substitutionLog.reflectorSubstitution |> Tuple.second)
                 reflectorXCoordinate
                 yCoordinate
-                colorFromReflector
+                colorConnectionLine
                 connectionLineStrokeWidth
                 fullOpacity
             ]
@@ -569,7 +562,7 @@ drawSmallCircles x y =
         [ Svg.Attributes.cx (String.fromInt x)
         , Svg.Attributes.cy (String.fromInt y)
         , Svg.Attributes.r "4"
-        , Svg.Attributes.fill "#34ff30"
+        , Svg.Attributes.fill View.StyleElements.primaryColor
         ]
         []
 
@@ -688,7 +681,7 @@ drawRotorNotch rotor rotorX rotorY =
                 , Svg.Attributes.cy <| String.fromInt <| rotorY + modBy 26 (notch - rotor.currentPosition) * rowYSpace
                 , Svg.Attributes.r "10"
                 , Svg.Attributes.fill "none"
-                , Svg.Attributes.stroke "#ffffff"
+                , Svg.Attributes.stroke View.StyleElements.thirdColor
                 , Svg.Attributes.strokeWidth "2"
                 ]
                 []

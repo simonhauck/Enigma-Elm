@@ -105,7 +105,7 @@ fontFamily =
 
 fontFamilySvg : Svg.Attribute msg
 fontFamilySvg =
-    Svg.Attributes.fontFamily "Arial"
+    Svg.Attributes.fontFamily "monospace"
 
 
 monoSpaceText : List (Html.Attribute msg)
