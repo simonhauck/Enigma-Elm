@@ -32,6 +32,7 @@ module View.StyleElements exposing
     )
 
 import Css
+import Css.Global
 import Html
 import Html.Attributes
 import Html.Styled
@@ -233,12 +234,8 @@ serverMessageColumn =
 rangeSlider : List (Html.Styled.Attribute msg)
 rangeSlider =
     [ Html.Styled.Attributes.css
-        [ Css.disabled
-            [ Css.property "background" "#EBEBE4" ]
-        , Css.enabled
-            [ Css.hover
-                [ Css.property "opacity" "1" ]
-            ]
+        [ Css.disabled [ Css.property "background" "#EBEBE4" ]
+        , Css.enabled [ Css.hover [ Css.property "opacity" "1" ] ]
         , Css.pseudoElement "-webkit-slider-thumb"
             [ Css.disabled
                 [ Css.property "background" "#a3a399" ]
@@ -267,9 +264,7 @@ rangeSlider =
 checkBoxLabel : List (Html.Styled.Attribute msg)
 checkBoxLabel =
     [ Html.Styled.Attributes.css
-        [ Css.hover
-            []
-        , Css.property "display" "block"
+        [ Css.property "display" "block"
         , Css.property "position" "relative"
         , Css.property "padding-left" "35px"
         , Css.property " margin-bottom" "12px"
@@ -286,7 +281,21 @@ checkBoxLabel =
 checkBoxInput : List (Html.Styled.Attribute msg)
 checkBoxInput =
     [ Html.Styled.Attributes.css
-        [ Css.property "position" "absolute"
+        [ Css.checked
+            [ Css.Global.generalSiblings
+                [ Css.Global.typeSelector "span"
+                    [ Css.property "background-color" "#2196F3"
+                    , Css.after [ Css.property "display" "block" ]
+                    ]
+                ]
+            ]
+        , Css.disabled
+            [ Css.Global.generalSiblings
+                [ Css.Global.typeSelector "span"
+                    [ Css.property "background" "#a3a399" ]
+                ]
+            ]
+        , Css.property "position" "absolute"
         , Css.property "opacity" "0"
         , Css.property "cursor" "pointer"
         , Css.property "height" "0"
@@ -298,7 +307,22 @@ checkBoxInput =
 checkBoxSpan : List (Html.Styled.Attribute msg)
 checkBoxSpan =
     [ Html.Styled.Attributes.css
-        [ Css.property "position" "absolute"
+        [ Css.hover [ Css.property "background-color" "#ccc" ]
+        , Css.after
+            [ Css.property "display" "none"
+            , Css.property "content" "\"\""
+            , Css.property "position" "absolute"
+            , Css.property "left" "9px"
+            , Css.property "top" "5px"
+            , Css.property "width" "5px"
+            , Css.property "height" "10px"
+            , Css.property "border" "solid white"
+            , Css.property "border-width" "0 3px 3px 0"
+            , Css.property "-webkit-transform" "rotate(45deg)"
+            , Css.property "-ms-transform" "rotate(45deg)"
+            , Css.property "transform" "rotate(45deg)"
+            ]
+        , Css.property "position" "absolute"
         , Css.property "top" "0"
         , Css.property "left" "0"
         , Css.property "height" "25px"

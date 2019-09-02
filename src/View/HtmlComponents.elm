@@ -24,13 +24,22 @@ rangeSlider attributes childElements =
 
 checkBox : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 checkBox attributes childElements =
+    let
+        styledAttributes =
+            List.map Html.Styled.Attributes.fromUnstyled attributes
+
+        styledChildElements =
+            List.map Html.Styled.fromUnstyled childElements
+    in
     Html.Styled.toUnstyled <|
         Html.Styled.label
             View.StyleElements.checkBoxLabel
-            [ Html.Styled.input
-                ([ Html.Styled.Attributes.type_ "checkBox" ] ++ View.StyleElements.checkBoxInput)
+            ([ Html.Styled.input
+                ([ Html.Styled.Attributes.type_ "checkBox" ] ++ View.StyleElements.checkBoxInput ++ styledAttributes)
                 []
-            , Html.Styled.span
+             , Html.Styled.span
                 View.StyleElements.checkBoxSpan
                 []
-            ]
+             ]
+                ++ styledChildElements
+            )

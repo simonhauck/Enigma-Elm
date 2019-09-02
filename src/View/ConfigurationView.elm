@@ -435,17 +435,12 @@ otherConfigurationView : EnigmaMachine.Enigma -> MessageHolder.MessageHolder -> 
 otherConfigurationView enigma messageHolder convertToMainMsgFunction =
     Html.div
         []
-        [ Html.label []
-            [ Html.input
-                [ Html.Attributes.type_ "checkBox"
-                , enableAttributeWhenInConfiguration enigma
-                , Html.Attributes.checked (messageHolder.foreignCharOption == MessageHolder.Include)
-                , Html.Events.onClick (convertToMainMsgFunction ToggleForeignCharOption)
-                ]
-                []
-            , Html.text "Include foreign chars"
+        [ View.HtmlComponents.checkBox
+            [ enableAttributeWhenInConfiguration enigma
+            , Html.Attributes.checked (messageHolder.foreignCharOption == MessageHolder.Include)
+            , Html.Events.onClick (convertToMainMsgFunction ToggleForeignCharOption)
             ]
-        , View.HtmlComponents.checkBox [] []
+            [ Html.text "Include foreign chars" ]
         , Html.button
             (enableAttributeWhenInConfiguration enigma
                 :: Html.Events.onClick (convertToMainMsgFunction StartRandomKeyGeneration)

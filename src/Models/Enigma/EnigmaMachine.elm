@@ -320,7 +320,11 @@ The result is the enigma with updated rotors
 -}
 rotateRotors : Enigma -> Enigma
 rotateRotors enigma =
-    { enigma | rotors = Utils.Helper.map2 enigma.rotors rotateRotor2 True }
+    { enigma | rotors = Utils.Helper.map2 enigma.rotors rotateRotor True }
+
+
+
+--TODO RENAME
 
 
 {-| Rotate the currentRotor if it is required.
@@ -329,8 +333,8 @@ OR the double stepping occurs. Double Stepping occurs, when a rotor in the middl
 first rotor is rotating (the first rotor is rotating each step). For further information visit :
 <http://www.intelligenia.org/downloads/rotors1.pdf> or <https://en.wikipedia.org/wiki/Enigma_rotor_details>
 -}
-rotateRotor2 : Rotor -> Maybe Rotor -> Bool -> ( Bool, Rotor )
-rotateRotor2 currentRotor maybeNextRotor shouldRotate =
+rotateRotor : Rotor -> Maybe Rotor -> Bool -> ( Bool, Rotor )
+rotateRotor currentRotor maybeNextRotor shouldRotate =
     let
         rotatedResult =
             ( List.member currentRotor.currentPosition currentRotor.notches, Rotor.rotateRotor currentRotor )
