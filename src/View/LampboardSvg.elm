@@ -28,6 +28,8 @@ drawLampBoard maybeLog =
     Svg.svg
         [ Svg.Attributes.width <| String.fromInt width
         , Svg.Attributes.height <| String.fromInt height
+        , Svg.Attributes.display "block"
+        , Svg.Attributes.style "margin: auto;"
         ]
         (drawLampBoardRows lampBoardKeyOrder maybeLog 50 20)
 
