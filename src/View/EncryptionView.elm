@@ -77,9 +77,6 @@ update encryptionMsg model =
     case encryptionMsg of
         EncryptChar ->
             let
-                t =
-                    Debug.log "InputEnigma" model.enigma
-
                 ( enigma, messageHolder, maybeLog ) =
                     substituteCharWithMessageHolder model.enigma model.messageHolder
             in
@@ -221,9 +218,6 @@ substituteChar enigma messageHolder maybeInputChar =
     let
         inputChar =
             Maybe.withDefault '-' maybeInputChar
-
-        test =
-            Debug.log "InputChar" maybeInputChar
 
         ( newEnigma, maybeSubstitutionLog, maybeOutputChar ) =
             EnigmaMachine.performRotationAndSubstitution enigma inputChar
