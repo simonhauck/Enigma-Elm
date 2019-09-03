@@ -2,6 +2,7 @@ module View.StyleElements exposing
     ( backgroundImage
     , buttonStyleElements
     , checkBoxSpan
+    , configurationFirstColumnWidth
     , customInput
     , customLabel
     , fillSvg
@@ -256,6 +257,11 @@ serverMessageColumn =
     ]
 
 
+configurationFirstColumnWidth : Html.Attribute msg
+configurationFirstColumnWidth =
+    Html.Attributes.style "min-width" "120px"
+
+
 {-| Elm cant define css attributes like hover -> So use library
 -}
 rangeSlider : List (Html.Styled.Attribute msg)
@@ -288,6 +294,8 @@ rangeSlider =
     ]
 
 
+{-| Elm cant define css attributes like hover -> So use library
+-}
 customLabel : List (Html.Styled.Attribute msg)
 customLabel =
     [ Html.Styled.Attributes.css
@@ -306,6 +314,8 @@ customLabel =
     ]
 
 
+{-| Elm cant define css attributes like hover -> So use library
+-}
 customInput : List (Html.Styled.Attribute msg)
 customInput =
     [ Html.Styled.Attributes.css
@@ -332,6 +342,8 @@ customInput =
     ]
 
 
+{-| Elm cant define css attributes like hover -> So use library
+-}
 checkBoxSpan : List (Html.Styled.Attribute msg)
 checkBoxSpan =
     [ Html.Styled.Attributes.css
@@ -347,6 +359,8 @@ checkBoxSpan =
     ]
 
 
+{-| Elm cant define css attributes like hover -> So use library
+-}
 radioSpan : List (Html.Styled.Attribute msg)
 radioSpan =
     [ Html.Styled.Attributes.css

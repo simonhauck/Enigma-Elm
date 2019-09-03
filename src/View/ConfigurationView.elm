@@ -193,6 +193,7 @@ selectRotorView enigma convertToMainMsgFunction =
                 [ View.StyleElements.fontColor
                 , View.StyleElements.fontFamily
                 , View.StyleElements.fontSizeText
+                , Html.Attributes.style "min-width" "70px"
                 ]
                 [ Html.text "Rotor:" ]
                 :: List.indexedMap (displayRotorSelectionInTable enigma convertToMainMsgFunction) enigma.rotors
@@ -239,6 +240,7 @@ selectRotorPositionView enigma convertToMainMsgFunction =
                 [ View.StyleElements.fontColor
                 , View.StyleElements.fontFamily
                 , View.StyleElements.fontSizeText
+                , View.StyleElements.configurationFirstColumnWidth
                 ]
                 [ Html.text "Start Position:" ]
                 :: List.indexedMap (displayRotorPositionSelectionInTable enigma convertToMainMsgFunction) enigma.rotors
@@ -248,6 +250,7 @@ selectRotorPositionView enigma convertToMainMsgFunction =
                 [ View.StyleElements.fontColor
                 , View.StyleElements.fontFamily
                 , View.StyleElements.fontSizeText
+                , View.StyleElements.configurationFirstColumnWidth
                 ]
                 [ Html.text "Current Position:" ]
                 :: List.map
@@ -310,6 +313,7 @@ selectRingPositionView enigma convertToMainMsgFunction =
                 [ View.StyleElements.fontColor
                 , View.StyleElements.fontFamily
                 , View.StyleElements.fontSizeText
+                , View.StyleElements.configurationFirstColumnWidth
                 ]
                 [ Html.text "Ring Position:" ]
                 :: List.indexedMap (displayRingPositionSelectionInTable enigma convertToMainMsgFunction) enigma.rotors
