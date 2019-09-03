@@ -61,7 +61,7 @@ displayEncryptionResult messageHolder convertMessageHolderFunction =
             MessageHolder.getFormattedProcessedInputOutput messageHolder
     in
     Html.div
-        ([ View.StyleElements.smallMargin ] ++ View.StyleElements.smallElementBox)
+        ([ View.StyleElements.smallMargin, Html.Attributes.style "width" "fit-content" ] ++ View.StyleElements.smallElementBox)
         [ Html.h3 View.StyleElements.h3StyleElements [ Html.text "Encryption Results" ]
         , Html.div
             []

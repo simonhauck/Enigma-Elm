@@ -2,6 +2,7 @@ module Main exposing (main)
 
 import Browser
 import Html exposing (Html)
+import Html.Attributes
 import Model exposing (Model)
 import Models.Enigma.EnigmaMachine
 import Models.ServerMessageHolder as ServerMessageHolder
@@ -27,42 +28,47 @@ view : Model -> Html Msg
 view model =
     Html.div
         View.StyleElements.backgroundImage
-        [ Html.h1 View.StyleElements.h1StyleElements [ Html.text "Elmigma" ]
-        , Html.div
-            [ View.StyleElements.flexDisplay ]
-            [ Html.div
-                [ View.StyleElements.mediumMargin ]
-                [ View.ConfigurationView.displayEnigmaConfiguration
-                    model.enigma
-                    model.messageHolder
-                    ConfigurationMsg
-                ]
-            , Html.div
-                [ View.StyleElements.flexGrow
-                , View.StyleElements.mediumMargin
-                ]
-                [ View.MessageHolderView.displayServerMessages
-                    model.serverMessageHolder
-                    MessageHolderMsg
-                ]
+        [ Html.div
+            [ Html.Attributes.style "max-width" "1920px"
+            , Html.Attributes.style "width" "fit-content"
             ]
-        , Html.div
-            []
-            [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Preview" ]
-            , Html.div
-                [ View.StyleElements.mediumMargin ]
-                [ View.MessageHolderView.displayEncryptionResult model.messageHolder MessageHolderMsg ]
+            [ Html.h1 View.StyleElements.h1StyleElements [ Html.text "Elmigma" ]
             , Html.div
                 [ View.StyleElements.flexDisplay ]
                 [ Html.div
                     [ View.StyleElements.mediumMargin ]
-                    [ View.EncryptionView.enigmaPreview model.enigma model.substitutionLog ]
-                , Html.div
-                    [ View.StyleElements.mediumMargin
-                    , View.StyleElements.flexGrow
+                    [ View.ConfigurationView.displayEnigmaConfiguration
+                        model.enigma
+                        model.messageHolder
+                        ConfigurationMsg
                     ]
-                    [ View.EncryptionView.lampBoardPreview model.substitutionLog
-                    , View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg
+                , Html.div
+                    [ Html.Attributes.style "width" "-webkit-fill-available"
+                    , View.StyleElements.mediumMargin
+                    ]
+                    [ View.MessageHolderView.displayServerMessages
+                        model.serverMessageHolder
+                        MessageHolderMsg
+                    ]
+                ]
+            , Html.div
+                []
+                [ Html.h2 View.StyleElements.h2StyleElements [ Html.text "Preview" ]
+                , Html.div
+                    [ View.StyleElements.mediumMargin ]
+                    [ View.MessageHolderView.displayEncryptionResult model.messageHolder MessageHolderMsg ]
+                , Html.div
+                    [ View.StyleElements.flexDisplay ]
+                    [ Html.div
+                        [ View.StyleElements.mediumMargin ]
+                        [ View.EncryptionView.enigmaPreview model.enigma model.substitutionLog ]
+                    , Html.div
+                        [ View.StyleElements.mediumMargin
+                        , View.StyleElements.flexGrow
+                        ]
+                        [ View.EncryptionView.lampBoardPreview model.substitutionLog
+                        , View.EncryptionView.textInputBoxView model.messageHolder model.enigma.operationMode EncryptionMsg
+                        ]
                     ]
                 ]
             ]
