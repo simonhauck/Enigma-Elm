@@ -3,7 +3,7 @@ This project implements the Enigma machine in Elm.  This project is part of the 
 Flensburg University of Applied Sciences.
 The compiled project is available under the following link: http://shauck.ddns.net:8080/ss19_enigma_server/.
 
-##Building from source
+## Building from source
 
 1. Checkout Project
 2. Build index file: `elm make src/Main.elm`
