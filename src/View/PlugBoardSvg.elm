@@ -13,6 +13,9 @@ import View.StyleElements
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Draw the given Plugboard on an Svg and return the result as a html element
+widthPerCharacter - The width per single character on the svg
+-}
 plugBoardCanvas : Plugboard.Plugboard -> Int -> Html msg
 plugBoardCanvas plugboard widthPerCharacter =
     let
@@ -37,6 +40,8 @@ plugBoardCanvas plugboard widthPerCharacter =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Draw two rows of circles for each character in the alphabet
+-}
 drawCircles : Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)
 drawCircles plugboard height heightOffset widthPerCharacter =
     let
@@ -56,6 +61,11 @@ drawCircles plugboard height heightOffset widthPerCharacter =
         ++ drawCircleRow (height - heightOffset) widthPerCharacter filledCircleList
 
 
+{-| Draw a circle for each character in the alphabet.
+heightCoordinate - the y coordinate for all circle
+widthPerCharacter - the horizontal space for each character
+selectedChars - the chars with a filled circle
+-}
 drawCircleRow : Int -> Int -> List Int -> List (Svg.Svg msg)
 drawCircleRow heightCoordinate widthPerCharacter selectedChars =
     let
@@ -65,6 +75,8 @@ drawCircleRow heightCoordinate widthPerCharacter selectedChars =
     List.map (\index -> circleForCharacter ( offset + widthPerCharacter * index, heightCoordinate ) (List.member index selectedChars)) (List.range 0 25)
 
 
+{-| Draw a circle at the given x and y coordinate and fill the circle according to the boolean value
+-}
 circleForCharacter : ( Int, Int ) -> Bool -> Svg.Svg msg
 circleForCharacter ( x, y ) fillCircle =
     Svg.circle
@@ -84,6 +96,8 @@ circleForCharacter ( x, y ) fillCircle =
         []
 
 
+{-| Draw all lines in the plugboard connection
+-}
 drawLines : Plugboard.Plugboard -> Int -> Int -> Int -> List (Svg.Svg msg)
 drawLines plugboard height heightOffset widthPerCharacter =
     List.foldl
@@ -95,6 +109,12 @@ drawLines plugboard height heightOffset widthPerCharacter =
         plugboard.switchedCharsList
 
 
+{-| Draw a line pair between the two given characters.
+inputOutputPair - the index of the input and outputChar in the alphabet
+height - the height between the two characters
+heightOffset - the offset to the top
+widthPerCharacter - the space for each character
+-}
 drawLinePair : ( Int, Int ) -> Int -> Int -> Int -> List (Svg.Svg msg)
 drawLinePair ( inputChar, outputChar ) height heightOffset widthPerCharacter =
     let
@@ -107,6 +127,12 @@ drawLinePair ( inputChar, outputChar ) height heightOffset widthPerCharacter =
     [ firstLine, secondLine ]
 
 
+{-| Draw a line between the two given characters.
+inputOutputPair - the index of the input and outputChar in the alphabet
+height - the height between the two characters
+heightOffset - the offset to the top
+widthPerCharacter - the space for each character
+-}
 drawLineBetweenCharacters : ( Int, Int ) -> Int -> Int -> Int -> Svg.Svg msg
 drawLineBetweenCharacters ( inputChar, outputChar ) height heightOffset widthPerCharacter =
     let

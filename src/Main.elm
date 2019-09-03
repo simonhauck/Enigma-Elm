@@ -24,6 +24,8 @@ type Msg
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Display the model as a html msg
+-}
 view : Model -> Html Msg
 view model =
     Html.div

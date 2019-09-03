@@ -37,6 +37,8 @@ type ServerMessageHolderMsg
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Display the server messages in an table
+-}
 displayServerMessages : ServerMessageHolder.ServerMessageHolder -> ConvertMessageHolderMsg msg -> Html msg
 displayServerMessages serverMessageHolder convertMessageHolderFunction =
     Html.div
@@ -54,6 +56,8 @@ displayServerMessages serverMessageHolder convertMessageHolderFunction =
         ]
 
 
+{-| Display the encryptionResults and a textField/button to send the message to the server
+-}
 displayEncryptionResult : MessageHolder.MessageHolder -> ConvertMessageHolderMsg msg -> Html msg
 displayEncryptionResult messageHolder convertMessageHolderFunction =
     let
@@ -158,6 +162,8 @@ update serverMessageHolderMsg model convertMessageFunction =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Display the ServerMessageHolder in a table
+-}
 displayServerMessageHolderTable : ServerMessageHolder.ServerMessageHolder -> ConvertMessageHolderMsg msg -> Html msg
 displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction =
     let
@@ -213,6 +219,12 @@ displayServerMessageHolderTable serverMessageHolder convertMessageHolderFunction
         )
 
 
+{-| Display a row for one messageHolder in the table.
+convertMessageHolderFunction - convert a ServerMessageHolderMsg to a msg
+filter - a filter for the description. Only elements matching this filter will be displayed
+index - the index of the component
+messageHolder - that should be displayed
+-}
 displayServerMessageRow : ConvertMessageHolderMsg msg -> ServerMessageHolder.Filter -> Int -> MessageHolder.MessageHolder -> Html msg
 displayServerMessageRow convertMessageHolderFunction filter index messageHolder =
     let
@@ -249,6 +261,8 @@ displayServerMessageRow convertMessageHolderFunction filter index messageHolder 
         ]
 
 
+{-| Display a loading bar in a row
+-}
 displayLoadingBar : List (Html msg)
 displayLoadingBar =
     [ Html.tr
@@ -263,6 +277,8 @@ displayLoadingBar =
     ]
 
 
+{-| Display an error message in a row
+-}
 displayServerError : List (Html msg)
 displayServerError =
     [ Html.tr [] [ Html.td [ Html.Attributes.colspan 4 ] [ Html.text "An error occurred while connecting to the server" ] ] ]

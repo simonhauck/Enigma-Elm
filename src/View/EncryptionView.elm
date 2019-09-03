@@ -32,6 +32,8 @@ type EncryptionMsg
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Display a textInputField and multiple buttons for the encryption
+-}
 textInputBoxView : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
 textInputBoxView messageHolder operationMode convertEncryptionMsg =
     Html.div
@@ -51,6 +53,8 @@ textInputBoxView messageHolder operationMode convertEncryptionMsg =
         ]
 
 
+{-| Display the internal state of the enigma and the substitutionLog
+-}
 enigmaPreview : EnigmaMachine.Enigma -> Maybe Log.SubstitutionLog -> Html msg
 enigmaPreview enigma maybeLog =
     Html.div
@@ -63,6 +67,8 @@ enigmaPreview enigma maybeLog =
         ]
 
 
+{-| Display the lampBoard with the given substitutionLog
+-}
 lampBoardPreview : Maybe Log.SubstitutionLog -> Html msg
 lampBoardPreview maybeLog =
     Html.div
@@ -115,6 +121,8 @@ subscription messageHolder enigma convertMessageHolderMsg =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| TextInputArea to change the rawInput text
+-}
 textInputArea : MessageHolder.MessageHolder -> ConvertEncryptionMsg msg -> Html msg
 textInputArea messageHolder convertEncryptionMsg =
     Html.textarea
@@ -127,6 +135,8 @@ textInputArea messageHolder convertEncryptionMsg =
         []
 
 
+{-| Slider that can display and modify the encryption speed
+-}
 encryptionSpeedSlider : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
 encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg =
     Html.div
@@ -145,7 +155,7 @@ encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg =
             , Html.Attributes.value <| String.fromInt messageHolder.config.encryptionSpeed
             , Html.Attributes.step "5"
             , Html.Attributes.style "direction" "rtl"
-            , enableAttributeWhenInEncrptionAndManuelMode operationMode messageHolder.config
+            , enableAttributeWhenInEncryptionAndManuelMode operationMode messageHolder.config
             , View.StyleElements.smallMargin
             , View.StyleElements.flexGrow
             , Html.Events.onInput
@@ -161,6 +171,8 @@ encryptionSpeedSlider messageHolder operationMode convertEncryptionMsg =
         ]
 
 
+{-| Toggle the automatic encryption Mode between Manual and Automatic
+-}
 toggleAutomaticEncryptionButton : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
 toggleAutomaticEncryptionButton messageHolder operationMode convertEncryptionMsg =
     Html.button
@@ -177,6 +189,8 @@ toggleAutomaticEncryptionButton messageHolder operationMode convertEncryptionMsg
         ]
 
 
+{-| Button that offers the option to encrypt one Character of the rawInput
+-}
 singleEncryptionStepButton : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
 singleEncryptionStepButton messageHolder operationMode convertEncryptionMsg =
     Html.button
@@ -187,6 +201,8 @@ singleEncryptionStepButton messageHolder operationMode convertEncryptionMsg =
         [ Html.text "Single Step" ]
 
 
+{-| Button that offers an instant encryption of the rawInput
+-}
 instantEncryptionButton : MessageHolder.MessageHolder -> OperationMode.OperationMode -> ConvertEncryptionMsg msg -> Html msg
 instantEncryptionButton messageHolder operationMode convertEncryptionMsg =
     Html.button
@@ -257,8 +273,11 @@ enableAttributeWhenInEncryption operationMode =
             Html.Attributes.disabled False
 
 
-enableAttributeWhenInEncrptionAndManuelMode : OperationMode.OperationMode -> MessageHolder.Config -> Html.Attribute msg
-enableAttributeWhenInEncrptionAndManuelMode operationMode config =
+{-| The Html disabled attribute. The value will be enabled, if the operationMode is in Encryption and the config
+is in Manual encryption
+-}
+enableAttributeWhenInEncryptionAndManuelMode : OperationMode.OperationMode -> MessageHolder.Config -> Html.Attribute msg
+enableAttributeWhenInEncryptionAndManuelMode operationMode config =
     case ( operationMode, config.encryptionMode ) of
         ( OperationMode.Encryption, MessageHolder.Manual ) ->
             Html.Attributes.disabled False

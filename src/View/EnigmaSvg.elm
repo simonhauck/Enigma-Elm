@@ -36,6 +36,8 @@ type alias Opacity =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Display the given enigma and the substitutionLog in an Svg and return the result as html component
+-}
 enigmaSvg : EnigmaMachine.Enigma -> Maybe Log.SubstitutionLog -> Html msg
 enigmaSvg enigma substitutionLog =
     let

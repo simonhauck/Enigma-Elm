@@ -95,6 +95,8 @@ setState serverMessageHolder serverState =
 -- ---------------------------------------------------------------------------------------------------------------------
 
 
+{-| Url to request the messages
+-}
 serverUrl : String
 serverUrl =
     "http://shauck.ddns.net:8080/ss19_enigma_server/api/messages"

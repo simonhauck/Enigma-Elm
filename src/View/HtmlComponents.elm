@@ -6,6 +6,8 @@ import Html.Styled.Attributes
 import View.StyleElements
 
 
+{-| Custom Range slider that can be modified the given attributes and a list of child elements
+-}
 rangeSlider : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 rangeSlider attributes childElements =
     let
@@ -21,6 +23,8 @@ rangeSlider attributes childElements =
             styledChildElements
 
 
+{-| Custom Checkbox that can be modified the given attributes and a list of child elements
+-}
 checkBox : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 checkBox attributes childElements =
     let
@@ -44,6 +48,8 @@ checkBox attributes childElements =
             )
 
 
+{-| Custom Radiobutton that can be modified the given attributes and a list of child elements
+-}
 radioButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 radioButton attributes childElements =
     let
@@ -67,6 +73,8 @@ radioButton attributes childElements =
             )
 
 
+{-| Custom PlugboardButtons that can be modified the given attributes and a list of child elements
+-}
 plugboardButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
 plugboardButton attributes childElements =
     let

@@ -6,6 +6,8 @@ type OperationMode
     | Encryption
 
 
+{-| Toggle the OperationMode between Configuration and Encryption
+-}
 toggleOperationMode : OperationMode -> OperationMode
 toggleOperationMode operationMode =
     case operationMode of
