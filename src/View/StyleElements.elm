@@ -61,6 +61,10 @@ backgroundImage =
     ]
 
 
+
+--noinspection ALL
+
+
 primaryColor : String
 primaryColor =
     "#00ffea"
@@ -199,15 +203,27 @@ buttonStyleElements =
     ]
 
 
-plugboardButtonStyleElements : List (Html.Attribute msg)
+{-| Elm cant define css attributes like hover -> So use library
+-}
+plugboardButtonStyleElements : Html.Styled.Attribute msg
 plugboardButtonStyleElements =
-    [ Html.Attributes.style "background-color" secondaryColor
-    , Html.Attributes.style "border-radius" "5px"
-    , Html.Attributes.style "border-width" "0px"
-    , Html.Attributes.style "font-size" "18px"
-    , fontColor
-    , fontFamily
-    ]
+    Html.Styled.Attributes.css
+        [ Css.property "background-color" secondaryColor
+        , Css.property "border-radius" "5px"
+        , Css.property "border-width" "0px"
+        , Css.property "font-size" "18px"
+        , Css.property "color" "#ffffff"
+        , Css.property "font-family" "Arial"
+        , Css.property "transition" "opacity .1s"
+        , Css.disabled
+            [ Css.property "background-color" "#404040"
+            , Css.property "color" "#a3a399"
+            ]
+        , Css.enabled
+            [ Css.hover
+                [ Css.property "background-color" "#969696" ]
+            ]
+        ]
 
 
 textarea : List (Html.Attribute msg)

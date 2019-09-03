@@ -436,14 +436,13 @@ plugBoardCharacterButtons : EnigmaMachine.Enigma -> ConvertConfigurationMsg msg 
 plugBoardCharacterButtons model convertToMainMsgFunction charPosition sizePerCharacter marginButtons =
     List.map
         (\index ->
-            Html.button
-                (enableAttributeWhenInConfiguration model
-                    :: (Html.Events.onClick <| convertToMainMsgFunction <| PressCharOnPlugboard charPosition index)
-                    :: Html.Attributes.style "height" "25px"
-                    :: (Html.Attributes.style "width" <| String.fromInt sizePerCharacter ++ "px")
-                    :: (Html.Attributes.style "margin" <| String.fromInt marginButtons ++ "px")
-                    :: View.StyleElements.plugboardButtonStyleElements
-                )
+            View.HtmlComponents.plugboardButton
+                [ enableAttributeWhenInConfiguration model
+                , Html.Events.onClick <| convertToMainMsgFunction <| PressCharOnPlugboard charPosition index
+                , Html.Attributes.style "height" "25px"
+                , Html.Attributes.style "width" <| String.fromInt sizePerCharacter ++ "px"
+                , Html.Attributes.style "margin" <| String.fromInt marginButtons ++ "px"
+                ]
                 [ index |> Just |> Utils.AlphabetHelper.characterIndexToCharacter |> Maybe.withDefault '-' |> String.fromChar |> Html.text ]
         )
         (List.range 0 25)

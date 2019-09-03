@@ -1,4 +1,4 @@
-module View.HtmlComponents exposing (checkBox, radioButton, rangeSlider)
+module View.HtmlComponents exposing (checkBox, plugboardButton, radioButton, rangeSlider)
 
 import Html exposing (Html)
 import Html.Styled
@@ -65,3 +65,18 @@ radioButton attributes childElements =
              ]
                 ++ styledChildElements
             )
+
+
+plugboardButton : List (Html.Attribute msg) -> List (Html msg) -> Html msg
+plugboardButton attributes childElements =
+    let
+        styledAttributes =
+            List.map Html.Styled.Attributes.fromUnstyled attributes
+
+        styledChildElements =
+            List.map Html.Styled.fromUnstyled childElements
+    in
+    Html.Styled.toUnstyled <|
+        Html.Styled.button
+            (View.StyleElements.plugboardButtonStyleElements :: styledAttributes)
+            styledChildElements
