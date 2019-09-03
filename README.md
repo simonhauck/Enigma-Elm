@@ -41,7 +41,7 @@ This Enigma offers the following options:
     * You can click the 'Single Step' button. Every time you press this button a character will be encrypted/decrypted
     * You can click the 'Instant Encryption' button. This will encrypt/decrypt the complete input text.
 
-##Further Information
+## Further Information
 
 1. The Functionality of the Enigma is described here:  https://github.com/stephl001/EnigmaMachine
 2. The Rotor and Reflector Specification can be found here: https://github.com/stephl001/EnigmaMachine/wiki/Rotors-Specifications
