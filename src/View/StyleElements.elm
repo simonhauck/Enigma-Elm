@@ -293,7 +293,7 @@ customLabel =
     [ Html.Styled.Attributes.css
         [ Css.property "display" "block"
         , Css.property "position" "relative"
-        , Css.property "padding-left" "35px"
+        , Css.property "padding-left" "25px"
         , Css.property " margin-bottom" "12px"
         , Css.property "cursor" "pointer"
         , Css.property "font-size" "22px"
