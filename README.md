@@ -46,3 +46,7 @@ This Enigma offers the following options:
 1. The Functionality of the Enigma is described here:  https://github.com/stephl001/EnigmaMachine
 2. The Rotor and Reflector Specification can be found here: https://github.com/stephl001/EnigmaMachine/wiki/Rotors-Specifications
 
+## Resources
+
+Background Image: https://wallhere.com/en/wallpaper/980234
+
