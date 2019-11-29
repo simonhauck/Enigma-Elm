@@ -2,8 +2,7 @@
 This project implements the Enigma machine in Elm.  This project is part of the course Functional Frontend Development at the 
 Flensburg University of Applied Sciences.
 
-1. The compiled project is available under the following link: http://shauck.ddns.net:8080/ss19_enigma_server/.
-2. The project is also available under the following link: https://simonhauck.github.io/Enigma-Elm/. The server functionality might not be available with this link! 
+1. The project is also available under the following link: https://simonhauck.github.io/Enigma-Elm/. The server functionality might not be available with this link! 
 
 ## Building from source
 
